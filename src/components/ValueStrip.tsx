@@ -30,12 +30,12 @@ const ValueStrip = () => {
         {features.map((feature, index) => (
           <div
             key={index}
-            className="card-elevated p-6 text-center group"
+            className="card-minimal card-minimal-accent p-6 text-center"
           >
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-orange-100 text-primary mb-4 group-hover:scale-110 transition-transform duration-300">
-              <feature.icon className="w-6 h-6" />
+            <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-secondary text-foreground mb-4">
+              <feature.icon className="w-5 h-5" />
             </div>
-            <h3 className="font-semibold text-foreground mb-2">
+            <h3 className="font-semibold text-foreground mb-2 text-base">
               {feature.title}
             </h3>
             <p className="text-sm text-muted-foreground">

@@ -2,13 +2,11 @@ const AboutSection = () => {
   return (
     <section id="about" className="section-container section-padding">
       <div className="max-w-3xl mx-auto text-center">
-        <span className="inline-block px-4 py-1.5 text-sm font-medium text-primary bg-orange-100 rounded-full mb-6">
-          About Us
-        </span>
-        <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6 text-balance">
+        <span className="badge-minimal mb-6 inline-block">About Us</span>
+        <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-6 text-balance">
           About Web3 Jobs Institute
         </h2>
-        <p className="text-lg text-muted-foreground leading-relaxed mb-8">
+        <p className="text-lg text-muted-foreground leading-relaxed mb-6">
           Web3 Jobs Institute is built for beginners, creators, builders, and freelancers who want to 
           thrive in the decentralized economy. We focus on practical, income-driven Web3 skills that 
           translate directly into real opportunities.
