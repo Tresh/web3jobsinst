@@ -10,6 +10,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import logo from "@/assets/logo.png";
 
 const navLinks = [
   { label: "Courses", href: "/courses" },
@@ -41,9 +42,7 @@ const CoursesNavbar = ({
         <div className="flex items-center justify-between h-full gap-4">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 shrink-0">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-xs">W3</span>
-            </div>
+            <img src={logo} alt="Web3 Jobs Institute" className="w-8 h-8 object-contain" />
             <span className="font-bold text-lg text-foreground hidden md:block">
               Web3 Jobs Institute
             </span>

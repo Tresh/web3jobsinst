@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Award, Clock, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { Award, Clock, ChevronLeft, ChevronRight } from "lucide-react";
 import type { Course } from "@/data/coursesData";
 
 interface CourseGridProps {
@@ -9,7 +9,7 @@ interface CourseGridProps {
   onCourseClick: (course: Course) => void;
 }
 
-const ITEMS_PER_PAGE = 8;
+const ITEMS_PER_PAGE = 12;
 
 const CourseGrid = ({ courses, onCourseClick }: CourseGridProps) => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -66,7 +66,7 @@ const CourseGrid = ({ courses, onCourseClick }: CourseGridProps) => {
 
   return (
     <div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 md:gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 md:gap-4">
         {displayedCourses.map((course) => (
           <CourseCard key={course.id} course={course} onClick={() => onCourseClick(course)} />
         ))}
@@ -74,17 +74,17 @@ const CourseGrid = ({ courses, onCourseClick }: CourseGridProps) => {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="mt-12 flex items-center justify-center gap-2">
+        <div className="mt-10 flex items-center justify-center gap-2">
           {/* Previous */}
           <Button
             variant="outline"
             size="sm"
             onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
             disabled={currentPage === 1}
-            className="gap-1"
+            className="gap-1 h-8 px-2"
           >
             <ChevronLeft className="w-4 h-4" />
-            <span className="hidden sm:inline">Previous</span>
+            <span className="hidden sm:inline">Prev</span>
           </Button>
 
           {/* Page Numbers */}
@@ -96,12 +96,12 @@ const CourseGrid = ({ courses, onCourseClick }: CourseGridProps) => {
                   variant={currentPage === page ? "default" : "ghost"}
                   size="sm"
                   onClick={() => setCurrentPage(page)}
-                  className="w-9 h-9 p-0"
+                  className="w-8 h-8 p-0 text-xs"
                 >
                   {page}
                 </Button>
               ) : (
-                <span key={`ellipsis-${idx}`} className="px-2 text-muted-foreground">
+                <span key={`ellipsis-${idx}`} className="px-1 text-muted-foreground text-sm">
                   ...
                 </span>
               )
@@ -114,19 +114,12 @@ const CourseGrid = ({ courses, onCourseClick }: CourseGridProps) => {
             size="sm"
             onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
             disabled={currentPage === totalPages}
-            className="gap-1"
+            className="gap-1 h-8 px-2"
           >
             <span className="hidden sm:inline">Next</span>
             <ChevronRight className="w-4 h-4" />
           </Button>
         </div>
-      )}
-
-      {/* Page info */}
-      {totalPages > 1 && (
-        <p className="text-center text-sm text-muted-foreground mt-4">
-          Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1}–{Math.min(currentPage * ITEMS_PER_PAGE, courses.length)} of {courses.length} courses
-        </p>
       )}
     </div>
   );
@@ -147,64 +140,50 @@ const CourseCard = ({ course, onClick }: CourseCardProps) => {
   return (
     <button
       onClick={onClick}
-      className="group text-left bg-background border border-secondary rounded-xl overflow-hidden hover:border-primary/30 hover:shadow-lg transition-all duration-200 flex flex-col h-full"
+      className="group text-left bg-background border border-secondary rounded-lg overflow-hidden hover:border-primary/30 hover:shadow-md transition-all duration-200 flex flex-col h-full"
     >
       {/* Image */}
-      <div className="aspect-[16/10] overflow-hidden bg-secondary/30 relative">
+      <div className="aspect-[4/3] overflow-hidden bg-secondary/30 relative">
         <img 
           src={course.image} 
           alt={course.title}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         />
         {course.isComingSoon && (
-          <div className="absolute top-3 right-3 bg-background/90 backdrop-blur-sm text-xs font-medium text-muted-foreground px-2 py-1 rounded-full">
-            Coming Soon
+          <div className="absolute top-2 right-2 bg-background/90 backdrop-blur-sm text-[10px] font-medium text-muted-foreground px-1.5 py-0.5 rounded">
+            Soon
           </div>
         )}
       </div>
 
       {/* Content */}
-      <div className="p-5 flex flex-col flex-1">
-        {/* Level & Category */}
-        <div className="flex items-center gap-2 mb-3">
-          <Badge
-            variant="secondary"
-            className={`${levelColors[course.level]} border-0 text-[10px] font-medium px-2 py-0.5`}
-          >
-            {course.level}
-          </Badge>
-          <span className="text-[10px] text-muted-foreground">
-            {course.category}
-          </span>
-        </div>
+      <div className="p-3 flex flex-col flex-1">
+        {/* Level */}
+        <Badge
+          variant="secondary"
+          className={`${levelColors[course.level]} border-0 text-[9px] font-medium px-1.5 py-0 w-fit mb-2`}
+        >
+          {course.level}
+        </Badge>
 
         {/* Title */}
-        <h3 className="font-semibold text-foreground mb-2 group-hover:text-primary transition-colors line-clamp-2">
+        <h3 className="font-medium text-xs text-foreground mb-1 group-hover:text-primary transition-colors line-clamp-2 flex-1">
           {course.title}
         </h3>
 
-        {/* Description */}
-        <p className="text-sm text-muted-foreground mb-4 line-clamp-2 flex-1">
-          {course.description}
-        </p>
-
-        {/* Footer */}
-        <div className="flex items-center justify-between pt-4 border-t border-secondary">
-          <div className="flex items-center gap-3">
-            {course.duration && (
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <Clock className="w-3 h-3" />
-                {course.duration}
-              </div>
-            )}
-            {course.hasCertificate && (
-              <div className="flex items-center gap-1 text-xs text-primary">
-                <Award className="w-3 h-3" />
-                <span className="hidden sm:inline">Certificate</span>
-              </div>
-            )}
-          </div>
-          <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+        {/* Meta */}
+        <div className="flex items-center gap-2 mt-auto pt-2">
+          {course.duration && (
+            <div className="flex items-center gap-0.5 text-[10px] text-muted-foreground">
+              <Clock className="w-2.5 h-2.5" />
+              {course.duration}
+            </div>
+          )}
+          {course.hasCertificate && (
+            <div className="flex items-center gap-0.5 text-[10px] text-primary">
+              <Award className="w-2.5 h-2.5" />
+            </div>
+          )}
         </div>
       </div>
     </button>
