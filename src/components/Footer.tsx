@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import logo from "@/assets/logo.png";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -30,9 +31,7 @@ const Footer = () => {
           {/* Logo & Description */}
           <div className="col-span-2">
             <Link to="/" className="inline-flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-xs">W3</span>
-              </div>
+              <img src={logo} alt="Web3 Jobs Institute" className="w-8 h-8 object-contain" />
               <span className="font-bold text-lg text-foreground">Web3 Jobs Institute</span>
             </Link>
             <p className="text-muted-foreground text-sm max-w-sm">
