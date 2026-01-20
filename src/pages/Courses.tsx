@@ -1,30 +1,35 @@
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import CourseFilters from "@/components/courses/CourseFilters";
-import LearningPathCard from "@/components/courses/LearningPathCard";
-import CategorySection from "@/components/courses/CategorySection";
+import CoursesNavbar from "@/components/courses/CoursesNavbar";
+import FilterSheet from "@/components/courses/FilterSheet";
+import LearningPathsGrid from "@/components/courses/LearningPathsGrid";
+import CourseGrid from "@/components/courses/CourseGrid";
+import ActiveFilters from "@/components/courses/ActiveFilters";
 import WhyDifferentSection from "@/components/courses/WhyDifferentSection";
 import ScholarshipFormDialog from "@/components/ScholarshipFormDialog";
 import ComingSoonDialog from "@/components/ComingSoonDialog";
-import {
-  courses,
-  learningPaths,
-  categories,
-  type Course,
-  type Category,
-} from "@/data/coursesData";
+import { courses, learningPaths, type Course } from "@/data/coursesData";
 
 const Courses = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedLevel, setSelectedLevel] = useState("all");
   const [selectedPath, setSelectedPath] = useState("all");
+  const [filterSheetOpen, setFilterSheetOpen] = useState(false);
   const [scholarshipOpen, setScholarshipOpen] = useState(false);
   const [comingSoonOpen, setComingSoonOpen] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+
+  // Count active filters
+  const activeFiltersCount = useMemo(() => {
+    let count = 0;
+    if (selectedCategory !== "all") count++;
+    if (selectedLevel !== "all") count++;
+    if (selectedPath !== "all") count++;
+    return count;
+  }, [selectedCategory, selectedLevel, selectedPath]);
 
   // Filter courses
   const filteredCourses = useMemo(() => {
@@ -32,7 +37,8 @@ const Courses = () => {
       const matchesSearch =
         searchQuery === "" ||
         course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        course.description.toLowerCase().includes(searchQuery.toLowerCase());
+        course.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        course.category.toLowerCase().includes(searchQuery.toLowerCase());
 
       const matchesCategory =
         selectedCategory === "all" || course.category === selectedCategory;
@@ -48,200 +54,105 @@ const Courses = () => {
     });
   }, [searchQuery, selectedCategory, selectedLevel, selectedPath]);
 
-  // Group courses by category
-  const coursesByCategory = useMemo(() => {
-    const grouped: Partial<Record<Category, Course[]>> = {};
-    filteredCourses.forEach((course) => {
-      if (!grouped[course.category]) {
-        grouped[course.category] = [];
-      }
-      grouped[course.category]!.push(course);
-    });
-    return grouped;
-  }, [filteredCourses]);
-
   const handleCourseClick = (course: Course) => {
     setSelectedCourse(course);
     setComingSoonOpen(true);
   };
 
-  const handlePathClick = (pathId: string) => {
-    setSelectedPath(pathId);
-    // Scroll to filters
-    document.getElementById("course-filters")?.scrollIntoView({ behavior: "smooth" });
+  const clearAllFilters = () => {
+    setSelectedCategory("all");
+    setSelectedLevel("all");
+    setSelectedPath("all");
+    setSearchQuery("");
   };
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
+      <CoursesNavbar
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        onFilterClick={() => setFilterSheetOpen(true)}
+        activeFiltersCount={activeFiltersCount}
+      />
 
-      {/* Hero Section */}
-      <section className="pt-[72px] bg-background">
-        <div className="section-container py-16 md:py-24">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-6 tracking-tight">
-              Explore Web3 Skills That{" "}
-              <span className="text-primary">Actually Pay</span>
-            </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-10">
-              Learn real Web3 skills. Build proof of work. Get real opportunities.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button
-                variant="default"
-                size="lg"
-                onClick={() => setScholarshipOpen(true)}
-              >
-                Join Scholarship
-                <ArrowRight className="w-4 h-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() =>
-                  document
-                    .getElementById("learning-paths")
-                    ?.scrollIntoView({ behavior: "smooth" })
-                }
-              >
-                View Learning Paths
-              </Button>
-            </div>
-          </div>
+      {/* Header */}
+      <section className="pt-[72px]">
+        <div className="section-container py-8 md:py-12">
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+            Courses
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            Explore Web3 skills that actually pay
+          </p>
         </div>
       </section>
 
-      {/* Filter Section */}
-      <section id="course-filters" className="section-container pb-8">
-        <CourseFilters
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          selectedCategory={selectedCategory}
-          onCategoryChange={setSelectedCategory}
-          selectedLevel={selectedLevel}
-          onLevelChange={setSelectedLevel}
+      {/* Learning Paths */}
+      <section className="section-container pb-8">
+        <div className="mb-4">
+          <h2 className="text-sm font-semibold text-foreground uppercase tracking-wide">
+            Learning Paths
+          </h2>
+        </div>
+        <LearningPathsGrid
+          paths={learningPaths}
           selectedPath={selectedPath}
-          onPathChange={setSelectedPath}
+          onPathSelect={setSelectedPath}
         />
       </section>
 
-      {/* Learning Paths Section */}
-      <section id="learning-paths" className="section-container section-padding">
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-foreground mb-2">
-            Featured Learning Paths
-          </h2>
-          <p className="text-muted-foreground">
-            Structured paths to guide your Web3 career journey.
-          </p>
-        </div>
-        <div className="flex gap-4 overflow-x-auto pb-4 -mx-4 px-4 scrollbar-hide">
-          {learningPaths.map((path) => (
-            <LearningPathCard
-              key={path.id}
-              path={path}
-              onClick={() => handlePathClick(path.id)}
-            />
-          ))}
-        </div>
+      {/* Active Filters & Results */}
+      <section className="section-container py-4 border-t border-secondary">
+        <ActiveFilters
+          selectedCategory={selectedCategory}
+          selectedLevel={selectedLevel}
+          selectedPath={selectedPath}
+          onCategoryChange={setSelectedCategory}
+          onLevelChange={setSelectedLevel}
+          onPathChange={setSelectedPath}
+          onClearAll={clearAllFilters}
+          totalResults={filteredCourses.length}
+        />
       </section>
 
-      {/* Course Categories */}
-      <section className="section-container section-padding">
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-foreground mb-2">
-            All Courses
-          </h2>
-          <p className="text-muted-foreground">
-            {filteredCourses.length} courses available
-            {selectedCategory !== "all" && ` in ${selectedCategory}`}
-            {selectedLevel !== "all" && ` • ${selectedLevel}`}
-            {selectedPath !== "all" &&
-              ` • ${learningPaths.find((p) => p.id === selectedPath)?.name}`}
-          </p>
-        </div>
-
-        {filteredCourses.length === 0 ? (
-          <div className="text-center py-16">
-            <p className="text-muted-foreground mb-4">
-              No courses match your filters.
-            </p>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setSearchQuery("");
-                setSelectedCategory("all");
-                setSelectedLevel("all");
-                setSelectedPath("all");
-              }}
-            >
-              Clear Filters
-            </Button>
-          </div>
-        ) : (
-          <div className="space-y-8">
-            {categories
-              .filter((cat) => coursesByCategory[cat]?.length)
-              .map((category) => (
-                <CategorySection
-                  key={category}
-                  category={category}
-                  courses={coursesByCategory[category]!}
-                  onCourseClick={handleCourseClick}
-                  defaultExpanded={selectedCategory !== "all"}
-                />
-              ))}
-          </div>
-        )}
+      {/* Course Grid */}
+      <section className="section-container pb-16">
+        <CourseGrid courses={filteredCourses} onCourseClick={handleCourseClick} />
       </section>
 
       {/* Scholarship CTA */}
-      <section className="section-container section-padding">
-        <div className="rounded-xl border border-secondary bg-secondary/30 p-8 md:p-12 lg:p-16 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
+      <section className="section-container pb-16">
+        <div className="rounded-xl border border-secondary bg-secondary/30 p-8 md:p-12 text-center">
+          <h2 className="text-xl md:text-2xl font-bold text-foreground mb-3">
             Don't Know Where to Start?
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
-            Join our scholarship program and we'll guide you step by step through
-            your Web3 journey.
+          <p className="text-muted-foreground max-w-xl mx-auto mb-6">
+            Join our scholarship program and we'll guide you step by step through your Web3 journey.
           </p>
-          <Button
-            variant="default"
-            size="lg"
-            onClick={() => setScholarshipOpen(true)}
-          >
+          <Button variant="default" onClick={() => setScholarshipOpen(true)}>
             Join Scholarship Program
             <ArrowRight className="w-4 h-4" />
           </Button>
         </div>
       </section>
 
-      {/* Why Different Section */}
+      {/* Why Different */}
       <WhyDifferentSection />
 
       {/* Final CTA */}
-      <section className="section-container section-padding">
+      <section className="section-container py-16">
         <div className="text-center">
-          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-6">
+          <h2 className="text-xl md:text-2xl font-bold text-foreground mb-6">
             Start Building Your Web3 Career
           </h2>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button
-              variant="default"
-              size="lg"
-              onClick={() => setScholarshipOpen(true)}
-            >
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Button variant="default" onClick={() => setScholarshipOpen(true)}>
               Join Scholarship
               <ArrowRight className="w-4 h-4" />
             </Button>
             <Button
               variant="outline"
-              size="lg"
-              onClick={() =>
-                document
-                  .getElementById("learning-paths")
-                  ?.scrollIntoView({ behavior: "smooth" })
-              }
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
             >
               Explore Paths
             </Button>
@@ -250,6 +161,19 @@ const Courses = () => {
       </section>
 
       <Footer />
+
+      {/* Filter Sheet */}
+      <FilterSheet
+        open={filterSheetOpen}
+        onOpenChange={setFilterSheetOpen}
+        selectedCategory={selectedCategory}
+        onCategoryChange={setSelectedCategory}
+        selectedLevel={selectedLevel}
+        onLevelChange={setSelectedLevel}
+        selectedPath={selectedPath}
+        onPathChange={setSelectedPath}
+        onClearAll={clearAllFilters}
+      />
 
       {/* Dialogs */}
       <ScholarshipFormDialog
