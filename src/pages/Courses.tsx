@@ -77,22 +77,30 @@ const Courses = () => {
 
       {/* Header */}
       <section className="pt-[72px]">
-        <div className="section-container py-8 md:py-12">
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+        <div className="section-container py-10 md:py-14">
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
             Courses
           </h1>
-          <p className="text-muted-foreground mt-1">
+          <p className="text-muted-foreground">
             Explore Web3 skills that actually pay
           </p>
         </div>
       </section>
 
       {/* Learning Paths */}
-      <section className="section-container pb-8">
-        <div className="mb-4">
-          <h2 className="text-sm font-semibold text-foreground uppercase tracking-wide">
+      <section className="section-container pb-12">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-lg font-semibold text-foreground">
             Learning Paths
           </h2>
+          {selectedPath !== "all" && (
+            <button
+              onClick={() => setSelectedPath("all")}
+              className="text-sm text-primary hover:underline"
+            >
+              Clear selection
+            </button>
+          )}
         </div>
         <LearningPathsGrid
           paths={learningPaths}
@@ -101,8 +109,13 @@ const Courses = () => {
         />
       </section>
 
+      {/* Divider */}
+      <div className="section-container">
+        <div className="border-t border-secondary" />
+      </div>
+
       {/* Active Filters & Results */}
-      <section className="section-container py-4 border-t border-secondary">
+      <section className="section-container py-6">
         <ActiveFilters
           selectedCategory={selectedCategory}
           selectedLevel={selectedLevel}
@@ -116,20 +129,20 @@ const Courses = () => {
       </section>
 
       {/* Course Grid */}
-      <section className="section-container pb-16">
+      <section className="section-container pb-20">
         <CourseGrid courses={filteredCourses} onCourseClick={handleCourseClick} />
       </section>
 
       {/* Scholarship CTA */}
-      <section className="section-container pb-16">
-        <div className="rounded-xl border border-secondary bg-secondary/30 p-8 md:p-12 text-center">
-          <h2 className="text-xl md:text-2xl font-bold text-foreground mb-3">
+      <section className="section-container pb-20">
+        <div className="rounded-2xl border border-secondary bg-secondary/20 p-10 md:p-14 text-center">
+          <h2 className="text-xl md:text-2xl font-bold text-foreground mb-4">
             Don't Know Where to Start?
           </h2>
-          <p className="text-muted-foreground max-w-xl mx-auto mb-6">
+          <p className="text-muted-foreground max-w-xl mx-auto mb-8">
             Join our scholarship program and we'll guide you step by step through your Web3 journey.
           </p>
-          <Button variant="default" onClick={() => setScholarshipOpen(true)}>
+          <Button variant="default" size="lg" onClick={() => setScholarshipOpen(true)}>
             Join Scholarship Program
             <ArrowRight className="w-4 h-4" />
           </Button>
@@ -140,18 +153,19 @@ const Courses = () => {
       <WhyDifferentSection />
 
       {/* Final CTA */}
-      <section className="section-container py-16">
+      <section className="section-container py-20">
         <div className="text-center">
-          <h2 className="text-xl md:text-2xl font-bold text-foreground mb-6">
+          <h2 className="text-xl md:text-2xl font-bold text-foreground mb-8">
             Start Building Your Web3 Career
           </h2>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Button variant="default" onClick={() => setScholarshipOpen(true)}>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Button variant="default" size="lg" onClick={() => setScholarshipOpen(true)}>
               Join Scholarship
               <ArrowRight className="w-4 h-4" />
             </Button>
             <Button
               variant="outline"
+              size="lg"
               onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
             >
               Explore Paths
