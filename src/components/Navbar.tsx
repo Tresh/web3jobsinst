@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
@@ -12,31 +12,16 @@ const navLinks = [
 ];
 
 const Navbar = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
   return (
-    <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled
-          ? "bg-background/80 backdrop-blur-lg border-b border-border shadow-sm"
-          : "bg-transparent"
-      }`}
-    >
-      <nav className="section-container">
-        <div className="flex items-center justify-between h-16 md:h-20">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-secondary h-[72px]">
+      <nav className="section-container h-full">
+        <div className="flex items-center justify-between h-full">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-sm">W3</span>
+              <span className="text-primary-foreground font-bold text-xs">W3</span>
             </div>
             <span className="font-bold text-lg text-foreground hidden sm:block">
               Web3 Jobs Institute
@@ -49,7 +34,7 @@ const Navbar = () => {
               <a
                 key={link.label}
                 href={link.href}
-                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-150"
               >
                 {link.label}
               </a>
@@ -75,13 +60,13 @@ const Navbar = () => {
 
         {/* Mobile Navigation */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden py-4 border-t border-border animate-fade-in">
+          <div className="lg:hidden absolute top-[72px] left-0 right-0 bg-background border-b border-secondary py-4 px-4">
             <div className="flex flex-col gap-2">
               {navLinks.map((link) => (
                 <a
                   key={link.label}
                   href={link.href}
-                  className="py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  className="py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-150"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   {link.label}

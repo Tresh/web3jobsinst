@@ -19,14 +19,14 @@ const Footer = () => {
   };
 
   return (
-    <footer className="border-t border-border bg-gray-50">
+    <footer className="border-t border-secondary bg-background-secondary">
       <div className="section-container py-12 md:py-16">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12">
           {/* Logo & Description */}
           <div className="md:col-span-2">
             <Link to="/" className="inline-flex items-center gap-2 mb-4">
               <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-sm">W3</span>
+                <span className="text-primary-foreground font-bold text-xs">W3</span>
               </div>
               <span className="font-bold text-lg text-foreground">Web3 Jobs Institute</span>
             </Link>
@@ -44,7 +44,7 @@ const Footer = () => {
                 <li key={link.label}>
                   <a
                     href={link.href}
-                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-150"
                   >
                     {link.label}
                   </a>
@@ -63,7 +63,7 @@ const Footer = () => {
                     href={link.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-150"
                   >
                     {link.label}
                   </a>
@@ -73,15 +73,15 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="border-t border-border mt-12 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="border-t border-secondary mt-12 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-sm text-muted-foreground">
             © {currentYear} Web3 Jobs Institute. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
-            <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+            <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-150">
               Privacy Policy
             </a>
-            <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+            <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-150">
               Terms of Service
             </a>
           </div>

@@ -35,13 +35,11 @@ const courses = [
 
 const ProgramsSection = () => {
   return (
-    <section id="programs" className="bg-gray-50 section-padding">
+    <section id="programs" className="bg-background-secondary section-padding">
       <div className="section-container">
         <div className="text-center mb-12">
-          <span className="inline-block px-4 py-1.5 text-sm font-medium text-primary bg-orange-100 rounded-full mb-6">
-            Programs
-          </span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4 text-balance">
+          <span className="badge-minimal mb-6 inline-block">Programs</span>
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4 text-balance">
             Courses & Programs
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
@@ -53,18 +51,18 @@ const ProgramsSection = () => {
           {courses.map((course, index) => (
             <div
               key={index}
-              className="card-elevated bg-card p-6 group relative overflow-hidden"
+              className="card-minimal card-minimal-accent bg-card p-6 relative"
             >
               {/* Coming Soon Badge */}
               <div className="absolute top-4 right-4">
-                <span className="badge-coming-soon">Coming Soon</span>
+                <span className="badge-minimal">Coming Soon</span>
               </div>
 
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-orange-100 text-primary mb-4 group-hover:scale-110 transition-transform duration-300">
-                <course.icon className="w-6 h-6" />
+              <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-secondary text-foreground mb-4">
+                <course.icon className="w-5 h-5" />
               </div>
 
-              <h3 className="font-semibold text-lg text-foreground mb-2 pr-24">
+              <h3 className="font-semibold text-xl text-foreground mb-2 pr-24">
                 {course.title}
               </h3>
 
@@ -72,7 +70,7 @@ const ProgramsSection = () => {
                 {course.description}
               </p>
 
-              <div className="flex items-center gap-1 text-xs text-gray-500">
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
                 <Award className="w-3.5 h-3.5" />
                 <span>Certificate Included</span>
               </div>
