@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Menu, X, Search, SlidersHorizontal } from "lucide-react";
+import { Menu, Search, SlidersHorizontal } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/sheet";
 
 const navLinks = [
+  { label: "Courses", href: "/courses" },
   { label: "About", href: "/#about" },
   { label: "Scholarship", href: "/#scholarship" },
   { label: "Programs", href: "/#programs" },
@@ -103,12 +104,12 @@ const CoursesNavbar = ({
               <SheetHeader>
                 <SheetTitle className="text-left">Menu</SheetTitle>
               </SheetHeader>
-              <div className="flex flex-col gap-2 mt-6">
+              <div className="flex flex-col gap-1 mt-6">
                 {navLinks.map((link) => (
                   <Link
                     key={link.label}
                     to={link.href}
-                    className="py-3 px-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-lg transition-colors duration-150"
+                    className="py-3 px-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-lg transition-colors duration-150"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     {link.label}

@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Award, Clock, ArrowRight } from "lucide-react";
+import { Award, Clock, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import type { Course } from "@/data/coursesData";
 
 interface CourseGridProps {
@@ -9,11 +9,22 @@ interface CourseGridProps {
   onCourseClick: (course: Course) => void;
 }
 
-const INITIAL_DISPLAY = 8;
-const LOAD_MORE_COUNT = 8;
+const ITEMS_PER_PAGE = 8;
 
 const CourseGrid = ({ courses, onCourseClick }: CourseGridProps) => {
-  const [displayCount, setDisplayCount] = useState(INITIAL_DISPLAY);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const totalPages = Math.ceil(courses.length / ITEMS_PER_PAGE);
+
+  // Reset to page 1 when courses change (e.g., filters applied)
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [courses]);
+
+  const displayedCourses = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return courses.slice(start, start + ITEMS_PER_PAGE);
+  }, [courses, currentPage]);
 
   if (courses.length === 0) {
     return (
@@ -27,12 +38,30 @@ const CourseGrid = ({ courses, onCourseClick }: CourseGridProps) => {
     );
   }
 
-  const displayedCourses = courses.slice(0, displayCount);
-  const hasMore = displayCount < courses.length;
-  const remaining = courses.length - displayCount;
-
-  const handleLoadMore = () => {
-    setDisplayCount((prev) => Math.min(prev + LOAD_MORE_COUNT, courses.length));
+  // Generate page numbers to show
+  const getPageNumbers = () => {
+    const pages: (number | string)[] = [];
+    
+    if (totalPages <= 5) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      pages.push(1);
+      
+      if (currentPage > 3) pages.push("...");
+      
+      const start = Math.max(2, currentPage - 1);
+      const end = Math.min(totalPages - 1, currentPage + 1);
+      
+      for (let i = start; i <= end; i++) {
+        if (!pages.includes(i)) pages.push(i);
+      }
+      
+      if (currentPage < totalPages - 2) pages.push("...");
+      
+      if (!pages.includes(totalPages)) pages.push(totalPages);
+    }
+    
+    return pages;
   };
 
   return (
@@ -43,17 +72,61 @@ const CourseGrid = ({ courses, onCourseClick }: CourseGridProps) => {
         ))}
       </div>
 
-      {hasMore && (
-        <div className="mt-10 text-center">
-          <Button 
-            variant="outline" 
-            size="lg" 
-            onClick={handleLoadMore}
-            className="min-w-[200px]"
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="mt-12 flex items-center justify-center gap-2">
+          {/* Previous */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            className="gap-1"
           >
-            Load More ({remaining} remaining)
+            <ChevronLeft className="w-4 h-4" />
+            <span className="hidden sm:inline">Previous</span>
+          </Button>
+
+          {/* Page Numbers */}
+          <div className="flex items-center gap-1">
+            {getPageNumbers().map((page, idx) => (
+              typeof page === "number" ? (
+                <Button
+                  key={page}
+                  variant={currentPage === page ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setCurrentPage(page)}
+                  className="w-9 h-9 p-0"
+                >
+                  {page}
+                </Button>
+              ) : (
+                <span key={`ellipsis-${idx}`} className="px-2 text-muted-foreground">
+                  ...
+                </span>
+              )
+            ))}
+          </div>
+
+          {/* Next */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+            className="gap-1"
+          >
+            <span className="hidden sm:inline">Next</span>
+            <ChevronRight className="w-4 h-4" />
           </Button>
         </div>
+      )}
+
+      {/* Page info */}
+      {totalPages > 1 && (
+        <p className="text-center text-sm text-muted-foreground mt-4">
+          Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1}–{Math.min(currentPage * ITEMS_PER_PAGE, courses.length)} of {courses.length} courses
+        </p>
       )}
     </div>
   );
