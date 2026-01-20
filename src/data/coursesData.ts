@@ -1,5 +1,23 @@
 // Course and Learning Path Data for Web3 Jobs Institute
 
+// Path images
+import marketerImg from "@/assets/paths/marketer.png";
+import traderImg from "@/assets/paths/trader.png";
+import vibecoderImg from "@/assets/paths/vibecoder.png";
+import developerImg from "@/assets/paths/developer.png";
+import communityImg from "@/assets/paths/community.png";
+import creatorImg from "@/assets/paths/creator.png";
+import freelancerImg from "@/assets/paths/freelancer.png";
+import founderImg from "@/assets/paths/founder.png";
+
+// Course category images
+import foundationsImg from "@/assets/courses/foundations.png";
+import marketingImg from "@/assets/courses/marketing.png";
+import tradingImg from "@/assets/courses/trading.png";
+import creatorCourseImg from "@/assets/courses/creator.png";
+import aiImg from "@/assets/courses/ai.png";
+import developmentImg from "@/assets/courses/development.png";
+
 export const categories = [
   "Foundations",
   "Marketing & Growth",
@@ -27,7 +45,7 @@ export interface LearningPath {
   name: string;
   description: string;
   courseCount: number;
-  icon: string;
+  image: string;
 }
 
 export interface Course {
@@ -41,64 +59,83 @@ export interface Course {
   hasCertificate: boolean;
   isComingSoon: boolean;
   learningPathIds?: string[];
+  image: string;
 }
+
+// Map categories to images
+export const categoryImages: Record<Category, string> = {
+  "Foundations": foundationsImg,
+  "Marketing & Growth": marketingImg,
+  "Trading & Alpha": tradingImg,
+  "Creator Economy": creatorCourseImg,
+  "Vibecoding & No-Code": vibecoderImg,
+  "Development": developmentImg,
+  "Community & DAO": communityImg,
+  "Sales & Partnerships": marketingImg,
+  "Research & Data": tradingImg,
+  "AI & Automation": aiImg,
+  "Onchain & DeFi": tradingImg,
+  "Leadership & Strategy": founderImg,
+  "Freelancing": freelancerImg,
+  "Project Management": founderImg,
+};
 
 export const learningPaths: LearningPath[] = [
   {
     id: "web3-marketer",
-    name: "Web3 Marketer Path",
+    name: "Web3 Marketer",
     description: "Master growth, community, and go-to-market strategies for Web3.",
     courseCount: 12,
-    icon: "📈",
+    image: marketerImg,
   },
   {
     id: "trader",
-    name: "Trader Path",
+    name: "Trader",
     description: "Learn to read markets, manage risk, and find alpha.",
     courseCount: 8,
-    icon: "📊",
+    image: traderImg,
   },
   {
     id: "vibecoder",
-    name: "Vibecoder Path",
+    name: "Vibecoder",
     description: "Build apps and tools without writing traditional code.",
     courseCount: 10,
-    icon: "✨",
+    image: vibecoderImg,
   },
   {
     id: "developer",
-    name: "Developer Path",
+    name: "Developer",
     description: "Master smart contracts, dApps, and blockchain development.",
     courseCount: 15,
-    icon: "💻",
+    image: developerImg,
   },
   {
     id: "community-manager",
-    name: "Community Manager Path",
+    name: "Community Manager",
     description: "Build and nurture thriving Web3 communities.",
     courseCount: 9,
-    icon: "👥",
+    image: communityImg,
   },
   {
     id: "creator",
-    name: "Creator Path",
+    name: "Creator",
     description: "Monetize your content and build your brand onchain.",
     courseCount: 11,
-    icon: "🎨",
+    image: creatorImg,
   },
   {
     id: "freelancer",
-    name: "Freelancer Path",
+    name: "Freelancer",
     description: "Get paid in crypto for your skills worldwide.",
     courseCount: 7,
-    icon: "🌍",
+    image: freelancerImg,
   },
   {
     id: "founder",
-    name: "Founder Path",
+    name: "Founder",
     description: "Launch and scale your Web3 startup from zero to one.",
     courseCount: 14,
-    icon: "🚀",
+    image: founderImg,
   },
 ];
 
@@ -114,6 +151,7 @@ export const courses: Course[] = [
     duration: "2 hours",
     hasCertificate: true,
     isComingSoon: false,
+    image: foundationsImg,
   },
   {
     id: "crypto-wallets",
@@ -125,6 +163,7 @@ export const courses: Course[] = [
     duration: "1.5 hours",
     hasCertificate: true,
     isComingSoon: false,
+    image: foundationsImg,
   },
   {
     id: "defi-basics",
@@ -136,6 +175,7 @@ export const courses: Course[] = [
     duration: "3 hours",
     hasCertificate: true,
     isComingSoon: true,
+    image: foundationsImg,
   },
   // Marketing & Growth
   {
@@ -149,6 +189,7 @@ export const courses: Course[] = [
     hasCertificate: true,
     isComingSoon: false,
     learningPathIds: ["web3-marketer"],
+    image: marketingImg,
   },
   {
     id: "twitter-growth",
@@ -161,6 +202,7 @@ export const courses: Course[] = [
     hasCertificate: true,
     isComingSoon: false,
     learningPathIds: ["web3-marketer", "creator"],
+    image: marketingImg,
   },
   {
     id: "meme-coin-marketing",
@@ -173,6 +215,7 @@ export const courses: Course[] = [
     hasCertificate: true,
     isComingSoon: true,
     learningPathIds: ["web3-marketer"],
+    image: marketingImg,
   },
   // Trading & Alpha
   {
@@ -186,6 +229,7 @@ export const courses: Course[] = [
     hasCertificate: true,
     isComingSoon: false,
     learningPathIds: ["trader"],
+    image: tradingImg,
   },
   {
     id: "onchain-analysis",
@@ -198,6 +242,7 @@ export const courses: Course[] = [
     hasCertificate: true,
     isComingSoon: true,
     learningPathIds: ["trader"],
+    image: tradingImg,
   },
   {
     id: "defi-trading",
@@ -210,6 +255,7 @@ export const courses: Course[] = [
     hasCertificate: true,
     isComingSoon: true,
     learningPathIds: ["trader"],
+    image: tradingImg,
   },
   // Creator Economy
   {
@@ -223,6 +269,7 @@ export const courses: Course[] = [
     hasCertificate: true,
     isComingSoon: false,
     learningPathIds: ["creator"],
+    image: creatorCourseImg,
   },
   {
     id: "content-monetization",
@@ -235,6 +282,7 @@ export const courses: Course[] = [
     hasCertificate: true,
     isComingSoon: true,
     learningPathIds: ["creator"],
+    image: creatorCourseImg,
   },
   // Vibecoding & No-Code
   {
@@ -248,6 +296,7 @@ export const courses: Course[] = [
     hasCertificate: true,
     isComingSoon: false,
     learningPathIds: ["vibecoder"],
+    image: vibecoderImg,
   },
   {
     id: "ai-app-building",
@@ -260,6 +309,7 @@ export const courses: Course[] = [
     hasCertificate: true,
     isComingSoon: true,
     learningPathIds: ["vibecoder"],
+    image: vibecoderImg,
   },
   // Development
   {
@@ -273,6 +323,7 @@ export const courses: Course[] = [
     hasCertificate: true,
     isComingSoon: false,
     learningPathIds: ["developer"],
+    image: developmentImg,
   },
   {
     id: "dapp-development",
@@ -285,6 +336,7 @@ export const courses: Course[] = [
     hasCertificate: true,
     isComingSoon: true,
     learningPathIds: ["developer"],
+    image: developmentImg,
   },
   {
     id: "smart-contract-security",
@@ -297,6 +349,7 @@ export const courses: Course[] = [
     hasCertificate: true,
     isComingSoon: true,
     learningPathIds: ["developer"],
+    image: developmentImg,
   },
   // Community & DAO
   {
@@ -310,6 +363,7 @@ export const courses: Course[] = [
     hasCertificate: true,
     isComingSoon: false,
     learningPathIds: ["community-manager"],
+    image: communityImg,
   },
   {
     id: "dao-operations",
@@ -322,6 +376,7 @@ export const courses: Course[] = [
     hasCertificate: true,
     isComingSoon: true,
     learningPathIds: ["community-manager", "founder"],
+    image: communityImg,
   },
   // Sales & Partnerships
   {
@@ -334,6 +389,7 @@ export const courses: Course[] = [
     duration: "3 hours",
     hasCertificate: true,
     isComingSoon: true,
+    image: marketingImg,
   },
   // Research & Data
   {
@@ -346,6 +402,7 @@ export const courses: Course[] = [
     duration: "4 hours",
     hasCertificate: true,
     isComingSoon: true,
+    image: tradingImg,
   },
   // AI & Automation
   {
@@ -358,6 +415,7 @@ export const courses: Course[] = [
     duration: "2 hours",
     hasCertificate: true,
     isComingSoon: false,
+    image: aiImg,
   },
   // Onchain & DeFi
   {
@@ -370,6 +428,7 @@ export const courses: Course[] = [
     duration: "4 hours",
     hasCertificate: true,
     isComingSoon: true,
+    image: tradingImg,
   },
   // Leadership & Strategy
   {
@@ -383,6 +442,7 @@ export const courses: Course[] = [
     hasCertificate: true,
     isComingSoon: true,
     learningPathIds: ["founder"],
+    image: founderImg,
   },
   // Freelancing
   {
@@ -396,6 +456,7 @@ export const courses: Course[] = [
     hasCertificate: true,
     isComingSoon: false,
     learningPathIds: ["freelancer"],
+    image: freelancerImg,
   },
   {
     id: "global-payments",
@@ -408,6 +469,7 @@ export const courses: Course[] = [
     hasCertificate: true,
     isComingSoon: true,
     learningPathIds: ["freelancer"],
+    image: freelancerImg,
   },
   // Project Management
   {
@@ -421,6 +483,7 @@ export const courses: Course[] = [
     hasCertificate: true,
     isComingSoon: true,
     learningPathIds: ["founder"],
+    image: founderImg,
   },
 ];
 
