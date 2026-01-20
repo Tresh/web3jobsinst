@@ -1,10 +1,10 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import Footer from "@/components/Footer";
 import CoursesNavbar from "@/components/courses/CoursesNavbar";
 import FilterSheet from "@/components/courses/FilterSheet";
-import LearningPathsGrid from "@/components/courses/LearningPathsGrid";
+import LearningPathTabs from "@/components/courses/LearningPathTabs";
 import CourseGrid from "@/components/courses/CourseGrid";
 import ActiveFilters from "@/components/courses/ActiveFilters";
 import WhyDifferentSection from "@/components/courses/WhyDifferentSection";
@@ -22,14 +22,13 @@ const Courses = () => {
   const [comingSoonOpen, setComingSoonOpen] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
 
-  // Count active filters
+  // Count active filters (excluding path since it's handled by tabs)
   const activeFiltersCount = useMemo(() => {
     let count = 0;
     if (selectedCategory !== "all") count++;
     if (selectedLevel !== "all") count++;
-    if (selectedPath !== "all") count++;
     return count;
-  }, [selectedCategory, selectedLevel, selectedPath]);
+  }, [selectedCategory, selectedLevel]);
 
   // Filter courses
   const filteredCourses = useMemo(() => {
@@ -62,9 +61,13 @@ const Courses = () => {
   const clearAllFilters = () => {
     setSelectedCategory("all");
     setSelectedLevel("all");
-    setSelectedPath("all");
     setSearchQuery("");
   };
+
+  // Get current path name for display
+  const currentPathName = selectedPath !== "all" 
+    ? learningPaths.find(p => p.id === selectedPath)?.name 
+    : null;
 
   return (
     <div className="min-h-screen bg-background">
@@ -77,7 +80,7 @@ const Courses = () => {
 
       {/* Header */}
       <section className="pt-[72px]">
-        <div className="section-container py-10 md:py-14">
+        <div className="section-container py-8 md:py-10">
           <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
             Courses
           </h1>
@@ -87,45 +90,43 @@ const Courses = () => {
         </div>
       </section>
 
-      {/* Learning Paths */}
-      <section className="section-container pb-12">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-semibold text-foreground">
-            Learning Paths
-          </h2>
-          {selectedPath !== "all" && (
-            <button
-              onClick={() => setSelectedPath("all")}
-              className="text-sm text-primary hover:underline"
-            >
-              Clear selection
-            </button>
-          )}
-        </div>
-        <LearningPathsGrid
+      {/* Learning Path Tabs */}
+      <section className="section-container pb-6">
+        <LearningPathTabs
           paths={learningPaths}
           selectedPath={selectedPath}
           onPathSelect={setSelectedPath}
         />
       </section>
 
-      {/* Divider */}
-      <div className="section-container">
-        <div className="border-t border-secondary" />
-      </div>
+      {/* Active Filters (only show if category/level filters are active) */}
+      {(selectedCategory !== "all" || selectedLevel !== "all") && (
+        <section className="section-container pb-4">
+          <ActiveFilters
+            selectedCategory={selectedCategory}
+            selectedLevel={selectedLevel}
+            selectedPath="all"
+            onCategoryChange={setSelectedCategory}
+            onLevelChange={setSelectedLevel}
+            onPathChange={() => {}}
+            onClearAll={clearAllFilters}
+            totalResults={filteredCourses.length}
+          />
+        </section>
+      )}
 
-      {/* Active Filters & Results */}
-      <section className="section-container py-6">
-        <ActiveFilters
-          selectedCategory={selectedCategory}
-          selectedLevel={selectedLevel}
-          selectedPath={selectedPath}
-          onCategoryChange={setSelectedCategory}
-          onLevelChange={setSelectedLevel}
-          onPathChange={setSelectedPath}
-          onClearAll={clearAllFilters}
-          totalResults={filteredCourses.length}
-        />
+      {/* Course Section Header */}
+      <section className="section-container pb-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-semibold text-foreground">
+              {currentPathName ? `${currentPathName} Path` : "All Courses"}
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              {filteredCourses.length} {filteredCourses.length === 1 ? "course" : "courses"} available
+            </p>
+          </div>
+        </div>
       </section>
 
       {/* Course Grid */}
