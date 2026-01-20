@@ -1,0 +1,442 @@
+// Course and Learning Path Data for Web3 Jobs Institute
+
+export const categories = [
+  "Foundations",
+  "Marketing & Growth",
+  "Trading & Alpha",
+  "Creator Economy",
+  "Vibecoding & No-Code",
+  "Development",
+  "Community & DAO",
+  "Sales & Partnerships",
+  "Research & Data",
+  "AI & Automation",
+  "Onchain & DeFi",
+  "Leadership & Strategy",
+  "Freelancing",
+  "Project Management",
+] as const;
+
+export type Category = typeof categories[number];
+
+export const levels = ["Beginner", "Intermediate", "Advanced"] as const;
+export type Level = typeof levels[number];
+
+export interface LearningPath {
+  id: string;
+  name: string;
+  description: string;
+  courseCount: number;
+  icon: string;
+}
+
+export interface Course {
+  id: string;
+  title: string;
+  level: Level;
+  category: Category;
+  description: string;
+  skillOutcome: string;
+  duration?: string;
+  hasCertificate: boolean;
+  isComingSoon: boolean;
+  learningPathIds?: string[];
+}
+
+export const learningPaths: LearningPath[] = [
+  {
+    id: "web3-marketer",
+    name: "Web3 Marketer Path",
+    description: "Master growth, community, and go-to-market strategies for Web3.",
+    courseCount: 12,
+    icon: "📈",
+  },
+  {
+    id: "trader",
+    name: "Trader Path",
+    description: "Learn to read markets, manage risk, and find alpha.",
+    courseCount: 8,
+    icon: "📊",
+  },
+  {
+    id: "vibecoder",
+    name: "Vibecoder Path",
+    description: "Build apps and tools without writing traditional code.",
+    courseCount: 10,
+    icon: "✨",
+  },
+  {
+    id: "developer",
+    name: "Developer Path",
+    description: "Master smart contracts, dApps, and blockchain development.",
+    courseCount: 15,
+    icon: "💻",
+  },
+  {
+    id: "community-manager",
+    name: "Community Manager Path",
+    description: "Build and nurture thriving Web3 communities.",
+    courseCount: 9,
+    icon: "👥",
+  },
+  {
+    id: "creator",
+    name: "Creator Path",
+    description: "Monetize your content and build your brand onchain.",
+    courseCount: 11,
+    icon: "🎨",
+  },
+  {
+    id: "freelancer",
+    name: "Freelancer Path",
+    description: "Get paid in crypto for your skills worldwide.",
+    courseCount: 7,
+    icon: "🌍",
+  },
+  {
+    id: "founder",
+    name: "Founder Path",
+    description: "Launch and scale your Web3 startup from zero to one.",
+    courseCount: 14,
+    icon: "🚀",
+  },
+];
+
+export const courses: Course[] = [
+  // Foundations
+  {
+    id: "web3-101",
+    title: "Web3 Fundamentals",
+    level: "Beginner",
+    category: "Foundations",
+    description: "Understand blockchains, wallets, and the decentralized web.",
+    skillOutcome: "Navigate the Web3 ecosystem confidently",
+    duration: "2 hours",
+    hasCertificate: true,
+    isComingSoon: false,
+  },
+  {
+    id: "crypto-wallets",
+    title: "Mastering Crypto Wallets",
+    level: "Beginner",
+    category: "Foundations",
+    description: "Set up, secure, and use wallets like a pro.",
+    skillOutcome: "Manage assets safely across chains",
+    duration: "1.5 hours",
+    hasCertificate: true,
+    isComingSoon: false,
+  },
+  {
+    id: "defi-basics",
+    title: "DeFi Essentials",
+    level: "Beginner",
+    category: "Foundations",
+    description: "Learn lending, borrowing, and yield strategies.",
+    skillOutcome: "Use DeFi protocols confidently",
+    duration: "3 hours",
+    hasCertificate: true,
+    isComingSoon: true,
+  },
+  // Marketing & Growth
+  {
+    id: "web3-marketing-101",
+    title: "Web3 Marketing Fundamentals",
+    level: "Beginner",
+    category: "Marketing & Growth",
+    description: "Learn the unique dynamics of marketing in Web3.",
+    skillOutcome: "Create effective Web3 marketing campaigns",
+    duration: "2.5 hours",
+    hasCertificate: true,
+    isComingSoon: false,
+    learningPathIds: ["web3-marketer"],
+  },
+  {
+    id: "twitter-growth",
+    title: "Twitter/X Growth for Web3",
+    level: "Intermediate",
+    category: "Marketing & Growth",
+    description: "Build your personal brand and grow your audience.",
+    skillOutcome: "Grow to 10K+ engaged followers",
+    duration: "2 hours",
+    hasCertificate: true,
+    isComingSoon: false,
+    learningPathIds: ["web3-marketer", "creator"],
+  },
+  {
+    id: "meme-coin-marketing",
+    title: "Meme Coin Marketing Mastery",
+    level: "Advanced",
+    category: "Marketing & Growth",
+    description: "Viral strategies for token launches and community hype.",
+    skillOutcome: "Launch and market meme tokens",
+    duration: "4 hours",
+    hasCertificate: true,
+    isComingSoon: true,
+    learningPathIds: ["web3-marketer"],
+  },
+  // Trading & Alpha
+  {
+    id: "trading-basics",
+    title: "Crypto Trading Basics",
+    level: "Beginner",
+    category: "Trading & Alpha",
+    description: "Learn charts, indicators, and entry/exit strategies.",
+    skillOutcome: "Execute profitable trades",
+    duration: "3 hours",
+    hasCertificate: true,
+    isComingSoon: false,
+    learningPathIds: ["trader"],
+  },
+  {
+    id: "onchain-analysis",
+    title: "Onchain Analysis",
+    level: "Intermediate",
+    category: "Trading & Alpha",
+    description: "Read blockchain data to find alpha opportunities.",
+    skillOutcome: "Identify trends before they go mainstream",
+    duration: "4 hours",
+    hasCertificate: true,
+    isComingSoon: true,
+    learningPathIds: ["trader"],
+  },
+  {
+    id: "defi-trading",
+    title: "Advanced DeFi Trading",
+    level: "Advanced",
+    category: "Trading & Alpha",
+    description: "Leverage, perpetuals, and advanced DeFi strategies.",
+    skillOutcome: "Trade across DeFi protocols",
+    duration: "5 hours",
+    hasCertificate: true,
+    isComingSoon: true,
+    learningPathIds: ["trader"],
+  },
+  // Creator Economy
+  {
+    id: "nft-creation",
+    title: "NFT Creation & Monetization",
+    level: "Beginner",
+    category: "Creator Economy",
+    description: "Create, mint, and sell your digital art and collectibles.",
+    skillOutcome: "Launch your first NFT collection",
+    duration: "3 hours",
+    hasCertificate: true,
+    isComingSoon: false,
+    learningPathIds: ["creator"],
+  },
+  {
+    id: "content-monetization",
+    title: "Web3 Content Monetization",
+    level: "Intermediate",
+    category: "Creator Economy",
+    description: "Monetize newsletters, videos, and podcasts with crypto.",
+    skillOutcome: "Build sustainable creator income",
+    duration: "2.5 hours",
+    hasCertificate: true,
+    isComingSoon: true,
+    learningPathIds: ["creator"],
+  },
+  // Vibecoding & No-Code
+  {
+    id: "vibecoding-intro",
+    title: "Introduction to Vibecoding",
+    level: "Beginner",
+    category: "Vibecoding & No-Code",
+    description: "Build Web3 apps using AI and no-code tools.",
+    skillOutcome: "Create functional dApps without coding",
+    duration: "3 hours",
+    hasCertificate: true,
+    isComingSoon: false,
+    learningPathIds: ["vibecoder"],
+  },
+  {
+    id: "ai-app-building",
+    title: "AI-Powered App Building",
+    level: "Intermediate",
+    category: "Vibecoding & No-Code",
+    description: "Use AI tools to prototype and build faster.",
+    skillOutcome: "Ship products 10x faster",
+    duration: "4 hours",
+    hasCertificate: true,
+    isComingSoon: true,
+    learningPathIds: ["vibecoder"],
+  },
+  // Development
+  {
+    id: "solidity-basics",
+    title: "Solidity Fundamentals",
+    level: "Beginner",
+    category: "Development",
+    description: "Write your first smart contracts on Ethereum.",
+    skillOutcome: "Deploy smart contracts to mainnet",
+    duration: "6 hours",
+    hasCertificate: true,
+    isComingSoon: false,
+    learningPathIds: ["developer"],
+  },
+  {
+    id: "dapp-development",
+    title: "Full-Stack dApp Development",
+    level: "Intermediate",
+    category: "Development",
+    description: "Build complete decentralized applications.",
+    skillOutcome: "Launch production-ready dApps",
+    duration: "10 hours",
+    hasCertificate: true,
+    isComingSoon: true,
+    learningPathIds: ["developer"],
+  },
+  {
+    id: "smart-contract-security",
+    title: "Smart Contract Security",
+    level: "Advanced",
+    category: "Development",
+    description: "Audit and secure smart contracts from vulnerabilities.",
+    skillOutcome: "Identify and fix security issues",
+    duration: "8 hours",
+    hasCertificate: true,
+    isComingSoon: true,
+    learningPathIds: ["developer"],
+  },
+  // Community & DAO
+  {
+    id: "community-building",
+    title: "Web3 Community Building",
+    level: "Beginner",
+    category: "Community & DAO",
+    description: "Build and grow engaged crypto communities.",
+    skillOutcome: "Manage thriving Discord servers",
+    duration: "3 hours",
+    hasCertificate: true,
+    isComingSoon: false,
+    learningPathIds: ["community-manager"],
+  },
+  {
+    id: "dao-operations",
+    title: "DAO Operations & Governance",
+    level: "Intermediate",
+    category: "Community & DAO",
+    description: "Run effective decentralized organizations.",
+    skillOutcome: "Contribute to DAO governance",
+    duration: "4 hours",
+    hasCertificate: true,
+    isComingSoon: true,
+    learningPathIds: ["community-manager", "founder"],
+  },
+  // Sales & Partnerships
+  {
+    id: "web3-sales",
+    title: "Web3 Sales & BD",
+    level: "Intermediate",
+    category: "Sales & Partnerships",
+    description: "Close deals and build partnerships in crypto.",
+    skillOutcome: "Land enterprise Web3 clients",
+    duration: "3 hours",
+    hasCertificate: true,
+    isComingSoon: true,
+  },
+  // Research & Data
+  {
+    id: "crypto-research",
+    title: "Crypto Research Methods",
+    level: "Intermediate",
+    category: "Research & Data",
+    description: "Conduct thorough research on projects and protocols.",
+    skillOutcome: "Write professional research reports",
+    duration: "4 hours",
+    hasCertificate: true,
+    isComingSoon: true,
+  },
+  // AI & Automation
+  {
+    id: "ai-web3",
+    title: "AI Tools for Web3",
+    level: "Beginner",
+    category: "AI & Automation",
+    description: "Leverage AI to automate and scale Web3 work.",
+    skillOutcome: "Automate repetitive tasks with AI",
+    duration: "2 hours",
+    hasCertificate: true,
+    isComingSoon: false,
+  },
+  // Onchain & DeFi
+  {
+    id: "yield-farming",
+    title: "Yield Farming Strategies",
+    level: "Intermediate",
+    category: "Onchain & DeFi",
+    description: "Maximize returns across DeFi protocols.",
+    skillOutcome: "Build diversified yield portfolios",
+    duration: "4 hours",
+    hasCertificate: true,
+    isComingSoon: true,
+  },
+  // Leadership & Strategy
+  {
+    id: "web3-leadership",
+    title: "Web3 Leadership",
+    level: "Advanced",
+    category: "Leadership & Strategy",
+    description: "Lead teams and projects in the decentralized world.",
+    skillOutcome: "Build and lead remote Web3 teams",
+    duration: "5 hours",
+    hasCertificate: true,
+    isComingSoon: true,
+    learningPathIds: ["founder"],
+  },
+  // Freelancing
+  {
+    id: "freelance-web3",
+    title: "Freelancing in Web3",
+    level: "Beginner",
+    category: "Freelancing",
+    description: "Find clients and get paid in crypto worldwide.",
+    skillOutcome: "Land your first Web3 freelance gig",
+    duration: "2 hours",
+    hasCertificate: true,
+    isComingSoon: false,
+    learningPathIds: ["freelancer"],
+  },
+  {
+    id: "global-payments",
+    title: "Global Crypto Payments",
+    level: "Intermediate",
+    category: "Freelancing",
+    description: "Invoice and receive payments across borders.",
+    skillOutcome: "Get paid from anywhere seamlessly",
+    duration: "1.5 hours",
+    hasCertificate: true,
+    isComingSoon: true,
+    learningPathIds: ["freelancer"],
+  },
+  // Project Management
+  {
+    id: "web3-pm",
+    title: "Web3 Project Management",
+    level: "Intermediate",
+    category: "Project Management",
+    description: "Manage crypto projects from ideation to launch.",
+    skillOutcome: "Ship Web3 products on time",
+    duration: "4 hours",
+    hasCertificate: true,
+    isComingSoon: true,
+    learningPathIds: ["founder"],
+  },
+];
+
+export const categoryDescriptions: Record<Category, string> = {
+  "Foundations": "Master the building blocks of blockchain and Web3.",
+  "Marketing & Growth": "Learn to grow projects, build audiences, and drive adoption.",
+  "Trading & Alpha": "Develop skills to navigate markets and find opportunities.",
+  "Creator Economy": "Monetize your creativity in the decentralized world.",
+  "Vibecoding & No-Code": "Build apps and tools without traditional coding.",
+  "Development": "Write smart contracts and build decentralized applications.",
+  "Community & DAO": "Build and manage thriving Web3 communities.",
+  "Sales & Partnerships": "Close deals and form strategic partnerships.",
+  "Research & Data": "Analyze projects and make data-driven decisions.",
+  "AI & Automation": "Leverage AI to work smarter in Web3.",
+  "Onchain & DeFi": "Navigate and profit from decentralized finance.",
+  "Leadership & Strategy": "Lead teams and drive strategic initiatives.",
+  "Freelancing": "Work globally and get paid in crypto.",
+  "Project Management": "Ship Web3 projects effectively.",
+};
