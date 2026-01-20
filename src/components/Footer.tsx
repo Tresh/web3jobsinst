@@ -5,11 +5,16 @@ const Footer = () => {
 
   const links = {
     main: [
-      { label: "Home", href: "/" },
-      { label: "Scholarship", href: "#scholarship" },
-      { label: "Courses", href: "#programs" },
-      { label: "Jobs", href: "#jobs" },
-      { label: "Collab Market", href: "#collab" },
+      { label: "Home", href: "/", isRoute: true },
+      { label: "Courses", href: "/courses", isRoute: true },
+      { label: "Scholarship", href: "/#scholarship", isRoute: false },
+      { label: "Jobs", href: "/#jobs", isRoute: false },
+      { label: "Collab Market", href: "/#collab", isRoute: false },
+    ],
+    resources: [
+      { label: "Learning Paths", href: "/courses", isRoute: true },
+      { label: "Web3 Fundamentals", href: "/courses", isRoute: true },
+      { label: "Career Guide", href: "/#programs", isRoute: false },
     ],
     social: [
       { label: "Twitter", href: "https://twitter.com" },
@@ -19,11 +24,11 @@ const Footer = () => {
   };
 
   return (
-    <footer className="border-t border-secondary bg-background-secondary">
+    <footer className="border-t border-secondary bg-secondary/20">
       <div className="section-container py-12 md:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-8 md:gap-12">
           {/* Logo & Description */}
-          <div className="md:col-span-2">
+          <div className="col-span-2">
             <Link to="/" className="inline-flex items-center gap-2 mb-4">
               <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
                 <span className="text-primary-foreground font-bold text-xs">W3</span>
@@ -38,16 +43,51 @@ const Footer = () => {
 
           {/* Quick Links */}
           <div>
-            <h4 className="font-semibold text-foreground mb-4">Quick Links</h4>
+            <h4 className="font-semibold text-foreground mb-4 text-sm">Navigate</h4>
             <ul className="space-y-2">
               {links.main.map((link) => (
                 <li key={link.label}>
-                  <a
-                    href={link.href}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-150"
-                  >
-                    {link.label}
-                  </a>
+                  {link.isRoute ? (
+                    <Link
+                      to={link.href}
+                      className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-150"
+                    >
+                      {link.label}
+                    </Link>
+                  ) : (
+                    <a
+                      href={link.href}
+                      className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-150"
+                    >
+                      {link.label}
+                    </a>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Resources */}
+          <div>
+            <h4 className="font-semibold text-foreground mb-4 text-sm">Resources</h4>
+            <ul className="space-y-2">
+              {links.resources.map((link) => (
+                <li key={link.label}>
+                  {link.isRoute ? (
+                    <Link
+                      to={link.href}
+                      className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-150"
+                    >
+                      {link.label}
+                    </Link>
+                  ) : (
+                    <a
+                      href={link.href}
+                      className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-150"
+                    >
+                      {link.label}
+                    </a>
+                  )}
                 </li>
               ))}
             </ul>
@@ -55,7 +95,7 @@ const Footer = () => {
 
           {/* Social */}
           <div>
-            <h4 className="font-semibold text-foreground mb-4">Connect</h4>
+            <h4 className="font-semibold text-foreground mb-4 text-sm">Connect</h4>
             <ul className="space-y-2">
               {links.social.map((link) => (
                 <li key={link.label}>

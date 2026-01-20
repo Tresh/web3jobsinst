@@ -1,14 +1,22 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import { Menu } from "lucide-react";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 const navLinks = [
-  { label: "About", href: "#about" },
-  { label: "Scholarship", href: "#scholarship" },
-  { label: "Programs", href: "#programs" },
-  { label: "Jobs", href: "#jobs" },
-  { label: "Collab Market", href: "#collab" },
+  { label: "Courses", href: "/courses" },
+  { label: "About", href: "/#about" },
+  { label: "Scholarship", href: "/#scholarship" },
+  { label: "Programs", href: "/#programs" },
+  { label: "Jobs", href: "/#jobs" },
+  { label: "Collab Market", href: "/#collab" },
 ];
 
 const Navbar = () => {
@@ -31,53 +39,55 @@ const Navbar = () => {
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center gap-8">
             {navLinks.map((link) => (
-              <a
+              <Link
                 key={link.label}
-                href={link.href}
+                to={link.href}
                 className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-150"
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
           </div>
 
-          {/* CTA Button */}
+          {/* CTA Button & Mobile Menu */}
           <div className="flex items-center gap-4">
             <Button variant="default" size="sm" className="hidden sm:inline-flex">
               Join Waitlist
             </Button>
             
-            {/* Mobile Menu Toggle */}
-            <button
-              className="lg:hidden p-2 text-foreground"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              aria-label="Toggle menu"
-            >
-              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
+            {/* Mobile Menu */}
+            <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+              <SheetTrigger asChild>
+                <button
+                  className="lg:hidden p-2 text-foreground"
+                  aria-label="Toggle menu"
+                >
+                  <Menu className="w-6 h-6" />
+                </button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[280px] bg-background">
+                <SheetHeader>
+                  <SheetTitle className="text-left">Menu</SheetTitle>
+                </SheetHeader>
+                <div className="flex flex-col gap-1 mt-6">
+                  {navLinks.map((link) => (
+                    <Link
+                      key={link.label}
+                      to={link.href}
+                      className="py-3 px-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-lg transition-colors duration-150"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                  <Button variant="default" size="sm" className="mt-4">
+                    Join Waitlist
+                  </Button>
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
-
-        {/* Mobile Navigation */}
-        {isMobileMenuOpen && (
-          <div className="lg:hidden absolute top-[72px] left-0 right-0 bg-background border-b border-secondary py-4 px-4">
-            <div className="flex flex-col gap-2">
-              {navLinks.map((link) => (
-                <a
-                  key={link.label}
-                  href={link.href}
-                  className="py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-150"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  {link.label}
-                </a>
-              ))}
-              <Button variant="default" size="sm" className="mt-4 sm:hidden">
-                Join Waitlist
-              </Button>
-            </div>
-          </div>
-        )}
       </nav>
     </header>
   );
