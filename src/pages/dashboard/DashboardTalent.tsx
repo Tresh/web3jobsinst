@@ -1,8 +1,16 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, ArrowRight } from "lucide-react";
+import ComingSoonDialog from "@/components/ComingSoonDialog";
 
 const DashboardTalent = () => {
+  const [comingSoonOpen, setComingSoonOpen] = useState(false);
+
+  const handleComingSoon = () => {
+    setComingSoonOpen(true);
+  };
+
   return (
     <div className="p-6 lg:p-8">
       <div className="mb-8">
@@ -23,7 +31,7 @@ const DashboardTalent = () => {
             Showcase your skills, experience, and portfolio to get hired for Web3 jobs. 
             Your profile will be visible in the Talent Marketplace.
           </CardDescription>
-          <Button>
+          <Button onClick={handleComingSoon}>
             Create Profile
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
@@ -65,6 +73,12 @@ const DashboardTalent = () => {
           </CardContent>
         </Card>
       </div>
+
+      <ComingSoonDialog
+        open={comingSoonOpen}
+        onOpenChange={setComingSoonOpen}
+        title="Create Talent Profile - Coming Soon"
+      />
     </div>
   );
 };

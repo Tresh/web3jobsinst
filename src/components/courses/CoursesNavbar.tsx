@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Menu, Search, SlidersHorizontal } from "lucide-react";
@@ -10,9 +10,11 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import logo from "@/assets/logo.png";
 import ComingSoonDialog from "@/components/ComingSoonDialog";
-import ScholarshipFormDialog from "@/components/ScholarshipFormDialog";
+import { useAuth } from "@/contexts/AuthContext";
+import UserMenu from "@/components/auth/UserMenu";
 
 interface NavLink {
   label: string;
@@ -47,12 +49,22 @@ const CoursesNavbar = ({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [comingSoonOpen, setComingSoonOpen] = useState(false);
   const [comingSoonTitle, setComingSoonTitle] = useState("");
-  const [scholarshipOpen, setScholarshipOpen] = useState(false);
+  const navigate = useNavigate();
+  const { user } = useAuth();
 
   const handleComingSoon = (title: string) => {
     setComingSoonTitle(title);
     setComingSoonOpen(true);
     setIsMobileMenuOpen(false);
+  };
+
+  const handleScholarshipClick = () => {
+    setIsMobileMenuOpen(false);
+    if (!user) {
+      navigate("/login", { state: { from: { pathname: "/dashboard/scholarship" } } });
+      return;
+    }
+    navigate("/dashboard/scholarship");
   };
 
   return (
@@ -117,10 +129,11 @@ const CoursesNavbar = ({
               <Button 
                 variant="default" 
                 size="sm"
-                onClick={() => setScholarshipOpen(true)}
+                onClick={handleScholarshipClick}
               >
                 Apply for Scholarship
               </Button>
+              <UserMenu />
             </div>
 
             {/* Mobile Menu */}
@@ -133,46 +146,72 @@ const CoursesNavbar = ({
                   <Menu className="w-6 h-6" />
                 </button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[280px] bg-background">
-                <SheetHeader>
+              <SheetContent side="right" className="w-[280px] bg-background p-0">
+                <SheetHeader className="p-4 border-b border-border">
                   <SheetTitle className="text-left">Menu</SheetTitle>
                 </SheetHeader>
-                <div className="flex flex-col gap-1 mt-6">
-                  {navLinks.map((link) => (
-                    link.comingSoon ? (
-                      <button
-                        key={link.label}
-                        onClick={() => handleComingSoon(link.comingSoon!)}
-                        className="py-3 px-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-lg transition-colors duration-150 text-left flex items-center justify-between"
-                      >
-                        {link.label}
-                        <span className="text-[10px] px-1.5 py-0.5 bg-secondary text-muted-foreground rounded">
-                          Soon
-                        </span>
-                      </button>
-                    ) : (
+                <ScrollArea className="h-[calc(100vh-60px)]">
+                  <div className="flex flex-col gap-1 p-4">
+                    {user && (
                       <Link
-                        key={link.label}
-                        to={link.href!}
-                        className="py-3 px-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-lg transition-colors duration-150"
+                        to="/dashboard"
+                        className="py-3 px-3 text-sm font-medium text-primary hover:bg-primary/10 rounded-lg transition-colors duration-150 mb-2"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
-                        {link.label}
+                        Dashboard
                       </Link>
-                    )
-                  ))}
-                  <Button 
-                    variant="default" 
-                    size="sm" 
-                    className="mt-4"
-                    onClick={() => {
-                      setIsMobileMenuOpen(false);
-                      setScholarshipOpen(true);
-                    }}
-                  >
-                    Apply for Scholarship
-                  </Button>
-                </div>
+                    )}
+
+                    {navLinks.map((link) => (
+                      link.comingSoon ? (
+                        <button
+                          key={link.label}
+                          onClick={() => handleComingSoon(link.comingSoon!)}
+                          className="py-3 px-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-lg transition-colors duration-150 text-left flex items-center justify-between"
+                        >
+                          {link.label}
+                          <span className="text-[10px] px-1.5 py-0.5 bg-secondary text-muted-foreground rounded">
+                            Soon
+                          </span>
+                        </button>
+                      ) : (
+                        <Link
+                          key={link.label}
+                          to={link.href!}
+                          className="py-3 px-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-lg transition-colors duration-150"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          {link.label}
+                        </Link>
+                      )
+                    ))}
+
+                    <Button 
+                      variant="default" 
+                      size="sm" 
+                      className="mt-4"
+                      onClick={handleScholarshipClick}
+                    >
+                      Apply for Scholarship
+                    </Button>
+
+                    {/* Auth buttons for mobile - at bottom */}
+                    {!user && (
+                      <div className="flex flex-col gap-2 mt-4 pt-4 border-t border-border">
+                        <Button asChild variant="outline" size="sm">
+                          <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
+                            Sign In
+                          </Link>
+                        </Button>
+                        <Button asChild variant="default" size="sm">
+                          <Link to="/signup" onClick={() => setIsMobileMenuOpen(false)}>
+                            Sign Up
+                          </Link>
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </ScrollArea>
               </SheetContent>
             </Sheet>
           </div>
@@ -183,9 +222,8 @@ const CoursesNavbar = ({
         open={comingSoonOpen}
         onOpenChange={setComingSoonOpen}
         title={comingSoonTitle}
-        onScholarshipClick={() => setScholarshipOpen(true)}
+        onScholarshipClick={handleScholarshipClick}
       />
-      <ScholarshipFormDialog open={scholarshipOpen} onOpenChange={setScholarshipOpen} />
     </>
   );
 };

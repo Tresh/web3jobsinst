@@ -1,21 +1,29 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import logo from "@/assets/logo.png";
 import ComingSoonDialog from "./ComingSoonDialog";
-import ScholarshipFormDialog from "./ScholarshipFormDialog";
 import TutorFormDialog from "./TutorFormDialog";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Footer = () => {
   const [comingSoonOpen, setComingSoonOpen] = useState(false);
   const [comingSoonTitle, setComingSoonTitle] = useState("");
-  const [scholarshipOpen, setScholarshipOpen] = useState(false);
   const [tutorOpen, setTutorOpen] = useState(false);
-  const [listProductOpen, setListProductOpen] = useState(false);
   const currentYear = new Date().getFullYear();
+  const navigate = useNavigate();
+  const { user } = useAuth();
 
   const handleComingSoon = (title: string) => {
     setComingSoonTitle(title);
     setComingSoonOpen(true);
+  };
+
+  const handleScholarshipClick = () => {
+    if (!user) {
+      navigate("/login", { state: { from: { pathname: "/dashboard/scholarship" } } });
+      return;
+    }
+    navigate("/dashboard/scholarship");
   };
 
   const mainLinks = [
@@ -27,8 +35,6 @@ const Footer = () => {
     { label: "About", href: "/about" },
     { label: "Contact", href: "/contact" },
   ];
-
-  const [listTalentOpen, setListTalentOpen] = useState(false);
 
   const opportunityLinks = [
     { label: "Apply for Scholarship", action: "scholarship" },
@@ -99,7 +105,7 @@ const Footer = () => {
                     ) : (
                       <button
                         onClick={() => {
-                          if (link.action === "scholarship") setScholarshipOpen(true);
+                          if (link.action === "scholarship") handleScholarshipClick();
                           else if (link.action === "tutor") setTutorOpen(true);
                           else if (link.action === "listProduct") {
                             setComingSoonTitle("List a Product - Coming Soon");
@@ -162,9 +168,8 @@ const Footer = () => {
         open={comingSoonOpen}
         onOpenChange={setComingSoonOpen}
         title={comingSoonTitle}
-        onScholarshipClick={() => setScholarshipOpen(true)}
+        onScholarshipClick={handleScholarshipClick}
       />
-      <ScholarshipFormDialog open={scholarshipOpen} onOpenChange={setScholarshipOpen} />
       <TutorFormDialog open={tutorOpen} onOpenChange={setTutorOpen} />
     </>
   );

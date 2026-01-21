@@ -1,13 +1,22 @@
+import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { BookOpen, Package, Users, ArrowRight, Wallet } from "lucide-react";
+import ComingSoonDialog from "@/components/ComingSoonDialog";
 
 const DashboardOverview = () => {
   const { profile, user } = useAuth();
+  const [comingSoonOpen, setComingSoonOpen] = useState(false);
+  const [comingSoonTitle, setComingSoonTitle] = useState("");
 
   const isWalletUser = user?.email?.includes("@wallet.local");
+
+  const handleComingSoon = (title: string) => {
+    setComingSoonTitle(title);
+    setComingSoonOpen(true);
+  };
 
   return (
     <div className="p-6 lg:p-8">
@@ -102,11 +111,13 @@ const DashboardOverview = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button asChild variant="outline" className="w-full">
-              <Link to="/dashboard/products">
-                My Products
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Link>
+            <Button 
+              variant="outline" 
+              className="w-full"
+              onClick={() => handleComingSoon("List a Product - Coming Soon")}
+            >
+              List Product
+              <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           </CardContent>
         </Card>
@@ -122,11 +133,13 @@ const DashboardOverview = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button asChild variant="outline" className="w-full">
-              <Link to="/dashboard/talent">
-                Setup Profile
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Link>
+            <Button 
+              variant="outline" 
+              className="w-full"
+              onClick={() => handleComingSoon("Create Talent Profile - Coming Soon")}
+            >
+              Create Profile
+              <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           </CardContent>
         </Card>
@@ -154,6 +167,12 @@ const DashboardOverview = () => {
           </CardContent>
         </Card>
       )}
+
+      <ComingSoonDialog
+        open={comingSoonOpen}
+        onOpenChange={setComingSoonOpen}
+        title={comingSoonTitle}
+      />
     </div>
   );
 };

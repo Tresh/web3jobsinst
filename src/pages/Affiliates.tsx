@@ -1,13 +1,21 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, DollarSign, Users, Share2, TrendingUp } from "lucide-react";
-import { useState } from "react";
-import ScholarshipFormDialog from "@/components/ScholarshipFormDialog";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Affiliates = () => {
-  const [scholarshipOpen, setScholarshipOpen] = useState(false);
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
+  const handleScholarshipClick = () => {
+    if (!user) {
+      navigate("/login", { state: { from: { pathname: "/dashboard/scholarship" } } });
+      return;
+    }
+    navigate("/dashboard/scholarship");
+  };
 
   const features = [
     {
@@ -146,7 +154,7 @@ const Affiliates = () => {
             <p className="text-muted-foreground max-w-xl mx-auto mb-8">
               Join our scholarship program to be the first to know when the affiliate program goes live.
             </p>
-            <Button size="lg" onClick={() => setScholarshipOpen(true)}>
+            <Button size="lg" onClick={handleScholarshipClick}>
               Apply for Scholarship
               <ArrowRight className="w-4 h-4" />
             </Button>
@@ -154,7 +162,6 @@ const Affiliates = () => {
         </section>
       </main>
       <Footer />
-      <ScholarshipFormDialog open={scholarshipOpen} onOpenChange={setScholarshipOpen} />
     </div>
   );
 };

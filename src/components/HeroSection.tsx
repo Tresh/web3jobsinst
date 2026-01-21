@@ -1,12 +1,22 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { useState } from "react";
-import ScholarshipFormDialog from "./ScholarshipFormDialog";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import ComingSoonDialog from "./ComingSoonDialog";
 
 const HeroSection = () => {
-  const [scholarshipOpen, setScholarshipOpen] = useState(false);
   const [comingSoonOpen, setComingSoonOpen] = useState(false);
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
+  const handleScholarshipClick = () => {
+    if (!user) {
+      navigate("/login", { state: { from: { pathname: "/dashboard/scholarship" } } });
+      return;
+    }
+    navigate("/dashboard/scholarship");
+  };
 
   return (
     <>
@@ -31,7 +41,7 @@ const HeroSection = () => {
                 variant="default" 
                 size="lg" 
                 className="w-full sm:w-auto"
-                onClick={() => setScholarshipOpen(true)}
+                onClick={handleScholarshipClick}
               >
                 Join the Scholarship Waitlist
                 <ArrowRight className="w-4 h-4" />
@@ -68,12 +78,11 @@ const HeroSection = () => {
         </div>
       </section>
 
-      <ScholarshipFormDialog open={scholarshipOpen} onOpenChange={setScholarshipOpen} />
       <ComingSoonDialog 
         open={comingSoonOpen} 
         onOpenChange={setComingSoonOpen}
         title="Programs Coming Soon"
-        onScholarshipClick={() => setScholarshipOpen(true)}
+        onScholarshipClick={handleScholarshipClick}
       />
     </>
   );

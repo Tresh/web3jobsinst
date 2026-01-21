@@ -1,8 +1,16 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/card";
 import { Package, Plus } from "lucide-react";
+import ComingSoonDialog from "@/components/ComingSoonDialog";
 
 const DashboardProducts = () => {
+  const [comingSoonOpen, setComingSoonOpen] = useState(false);
+
+  const handleComingSoon = () => {
+    setComingSoonOpen(true);
+  };
+
   return (
     <div className="p-6 lg:p-8">
       <div className="flex items-center justify-between mb-8">
@@ -12,7 +20,7 @@ const DashboardProducts = () => {
             Manage your digital products and listings
           </p>
         </div>
-        <Button>
+        <Button onClick={handleComingSoon}>
           <Plus className="w-4 h-4 mr-2" />
           Add Product
         </Button>
@@ -28,12 +36,18 @@ const DashboardProducts = () => {
           <CardDescription className="text-center max-w-sm mb-6">
             Start selling your digital products like templates, ebooks, courses, or design assets.
           </CardDescription>
-          <Button>
+          <Button onClick={handleComingSoon}>
             <Plus className="w-4 h-4 mr-2" />
             List Your First Product
           </Button>
         </CardContent>
       </Card>
+
+      <ComingSoonDialog
+        open={comingSoonOpen}
+        onOpenChange={setComingSoonOpen}
+        title="List a Product - Coming Soon"
+      />
     </div>
   );
 };

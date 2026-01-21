@@ -15,6 +15,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import logo from "@/assets/logo.png";
 import ComingSoonDialog from "./ComingSoonDialog";
 import UserMenu from "./auth/UserMenu";
@@ -126,65 +127,66 @@ const Navbar = () => {
                     <Menu className="w-6 h-6" />
                   </button>
                 </SheetTrigger>
-                <SheetContent side="right" className="w-[280px] bg-background">
-                  <SheetHeader>
+                <SheetContent side="right" className="w-[280px] bg-background p-0">
+                  <SheetHeader className="p-4 border-b border-border">
                     <SheetTitle className="text-left">Menu</SheetTitle>
                   </SheetHeader>
-                  <div className="flex flex-col gap-1 mt-6">
-                    {/* Auth buttons for mobile */}
-                    {user && (
-                      <Link
-                        to="/dashboard"
-                        className="py-3 px-3 text-sm font-medium text-primary hover:bg-primary/10 rounded-lg transition-colors duration-150 mb-2"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        Dashboard
-                      </Link>
-                    )}
+                  <ScrollArea className="h-[calc(100vh-60px)]">
+                    <div className="flex flex-col gap-1 p-4">
+                      {user && (
+                        <Link
+                          to="/dashboard"
+                          className="py-3 px-3 text-sm font-medium text-primary hover:bg-primary/10 rounded-lg transition-colors duration-150 mb-2"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          Dashboard
+                        </Link>
+                      )}
 
-                    {mainLinks.map((link) => (
-                      <Link
-                        key={link.label}
-                        to={link.href!}
-                        className="py-3 px-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-lg transition-colors duration-150"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        {link.label}
-                      </Link>
-                    ))}
-                    
-                    <div className="py-2 px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider mt-2">
-                      Opportunities
-                    </div>
-                    {opportunityLinks.map((link) => (
-                      <button
-                        key={link.label}
-                        onClick={() => handleComingSoon(link.comingSoon!)}
-                        className="py-3 px-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-lg transition-colors duration-150 text-left flex items-center justify-between"
-                      >
-                        {link.label}
-                        <span className="text-[10px] px-1.5 py-0.5 bg-secondary text-muted-foreground rounded">
-                          Soon
-                        </span>
-                      </button>
-                    ))}
-
-                    {/* Auth buttons for mobile (moved to bottom) */}
-                    {!user && (
-                      <div className="flex flex-col gap-2 mt-4 pt-4 border-t border-border">
-                        <Button asChild variant="outline" size="sm">
-                          <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
-                            Sign In
-                          </Link>
-                        </Button>
-                        <Button asChild variant="default" size="sm">
-                          <Link to="/signup" onClick={() => setIsMobileMenuOpen(false)}>
-                            Sign Up
-                          </Link>
-                        </Button>
+                      {mainLinks.map((link) => (
+                        <Link
+                          key={link.label}
+                          to={link.href!}
+                          className="py-3 px-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-lg transition-colors duration-150"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          {link.label}
+                        </Link>
+                      ))}
+                      
+                      <div className="py-2 px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider mt-2">
+                        Opportunities
                       </div>
-                    )}
-                  </div>
+                      {opportunityLinks.map((link) => (
+                        <button
+                          key={link.label}
+                          onClick={() => handleComingSoon(link.comingSoon!)}
+                          className="py-3 px-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-lg transition-colors duration-150 text-left flex items-center justify-between"
+                        >
+                          {link.label}
+                          <span className="text-[10px] px-1.5 py-0.5 bg-secondary text-muted-foreground rounded">
+                            Soon
+                          </span>
+                        </button>
+                      ))}
+
+                      {/* Auth buttons for mobile - at bottom */}
+                      {!user && (
+                        <div className="flex flex-col gap-2 mt-4 pt-4 border-t border-border">
+                          <Button asChild variant="outline" size="sm">
+                            <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
+                              Sign In
+                            </Link>
+                          </Button>
+                          <Button asChild variant="default" size="sm">
+                            <Link to="/signup" onClick={() => setIsMobileMenuOpen(false)}>
+                              Sign Up
+                            </Link>
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </ScrollArea>
                 </SheetContent>
               </Sheet>
             </div>
