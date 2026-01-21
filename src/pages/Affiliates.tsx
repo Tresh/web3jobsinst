@@ -37,15 +37,15 @@ const Affiliates = () => {
       <Navbar />
       <main className="pt-[72px]">
         {/* Hero */}
-        <section className="section-container py-16 md:py-24">
+        <section className="section-container py-12 md:py-24">
           <div className="max-w-3xl mx-auto text-center">
-            <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium mb-6 inline-block">
+            <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium mb-4 md:mb-6 inline-block">
               Coming Soon
             </span>
-            <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-6 text-balance">
+            <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-3 md:mb-6 text-balance">
               <span className="text-primary">Affiliate</span> Program
             </h1>
-            <p className="text-lg text-muted-foreground leading-relaxed mb-8">
+            <p className="text-base md:text-lg text-muted-foreground leading-relaxed mb-6 md:mb-8">
               Refer and earn by promoting Web3 Jobs Institute courses and products. 
               Join our affiliate program and start earning commissions on every sale.
             </p>
