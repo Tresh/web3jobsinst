@@ -1,13 +1,21 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Target, Users, Zap, Globe } from "lucide-react";
-import { useState } from "react";
-import ScholarshipFormDialog from "@/components/ScholarshipFormDialog";
+import { useAuth } from "@/contexts/AuthContext";
 
 const About = () => {
-  const [scholarshipOpen, setScholarshipOpen] = useState(false);
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
+  const handleScholarshipClick = () => {
+    if (!user) {
+      navigate("/login", { state: { from: { pathname: "/dashboard/scholarship" } } });
+      return;
+    }
+    navigate("/dashboard/scholarship");
+  };
 
   const values = [
     {
@@ -106,7 +114,7 @@ const About = () => {
               Join our free scholarship program and get guided step by step through your Web3 career.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" onClick={() => setScholarshipOpen(true)}>
+              <Button size="lg" onClick={handleScholarshipClick}>
                 Apply for Scholarship
                 <ArrowRight className="w-4 h-4" />
               </Button>
@@ -118,7 +126,6 @@ const About = () => {
         </section>
       </main>
       <Footer />
-      <ScholarshipFormDialog open={scholarshipOpen} onOpenChange={setScholarshipOpen} />
     </div>
   );
 };

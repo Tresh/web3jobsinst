@@ -12,7 +12,7 @@ interface ComingSoonDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   title: string;
-  onScholarshipClick: () => void;
+  onScholarshipClick?: () => void;
 }
 
 const ComingSoonDialog = ({
@@ -23,7 +23,7 @@ const ComingSoonDialog = ({
 }: ComingSoonDialogProps) => {
   const handleScholarshipClick = () => {
     onOpenChange(false);
-    onScholarshipClick();
+    onScholarshipClick?.();
   };
 
   return (
@@ -35,15 +35,16 @@ const ComingSoonDialog = ({
           </div>
           <DialogTitle className="text-xl">{title}</DialogTitle>
           <DialogDescription className="text-base">
-            This feature is coming soon. In the meantime, you can register for our 
-            free Web3 Scholarship Program to get started.
+            This feature is coming soon. {onScholarshipClick && "In the meantime, you can register for our free Web3 Scholarship Program to get started."}
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-3 mt-4">
-          <Button variant="default" onClick={handleScholarshipClick}>
-            View Scholarships
-            <ArrowRight className="w-4 h-4" />
-          </Button>
+          {onScholarshipClick && (
+            <Button variant="default" onClick={handleScholarshipClick}>
+              View Scholarships
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+          )}
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Close
           </Button>
