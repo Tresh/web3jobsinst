@@ -44,6 +44,11 @@ const Campaigns = () => {
     setComingSoonOpen(true);
   };
 
+  const handleJoinClick = (campaign: Campaign) => {
+    setSelectedCampaign(campaign);
+    setComingSoonOpen(true);
+  };
+
   const clearAllFilters = () => {
     setSearchQuery("");
     setSelectedType("all");
@@ -94,6 +99,7 @@ const Campaigns = () => {
           <CampaignGrid
             campaigns={filteredCampaigns}
             onCampaignClick={handleCampaignClick}
+            onJoinClick={handleJoinClick}
           />
         </div>
       </main>
