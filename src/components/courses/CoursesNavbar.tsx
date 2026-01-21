@@ -21,12 +21,14 @@ interface NavLink {
 }
 
 const navLinks: NavLink[] = [
+  { label: "Home", href: "/" },
   { label: "Courses", href: "/courses" },
+  { label: "Digital Products", href: "/products" },
+  { label: "Talent", href: "/talent" },
+  { label: "Bootcamp", comingSoon: "Bootcamp Coming Soon" },
   { label: "About", href: "/about" },
-  { label: "Scholarship", href: "/#scholarship" },
-  { label: "Programs", comingSoon: "Programs Coming Soon" },
+  { label: "Affiliates", comingSoon: "Affiliates Coming Soon" },
   { label: "Jobs", comingSoon: "Jobs Board Coming Soon" },
-  { label: "Collab Market", comingSoon: "Collab Market Coming Soon" },
 ];
 
 interface CoursesNavbarProps {

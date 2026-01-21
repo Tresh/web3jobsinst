@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Download } from "lucide-react";
+import { ChevronLeft, ChevronRight, Download, Star, ShoppingCart } from "lucide-react";
 import { type Product, productCategoryLabels } from "@/data/productsData";
 
 const ITEMS_PER_PAGE = 8;
@@ -35,7 +35,7 @@ const ProductGrid = ({ products, onProductClick }: ProductGridProps) => {
   return (
     <div className="space-y-8">
       {/* Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
         {paginatedProducts.map((product) => (
           <ProductCard
             key={product.id}
@@ -94,46 +94,59 @@ const ProductCard = ({ product, onClick }: ProductCardProps) => {
   return (
     <button
       onClick={onClick}
-      className="group text-left w-full bg-background border border-secondary rounded-xl overflow-hidden hover:border-primary/30 transition-colors duration-150"
+      className="group text-left w-full bg-background border border-secondary rounded-xl overflow-hidden hover:border-primary/30 hover:shadow-md transition-all duration-200"
     >
       {/* Image */}
-      <div className="relative aspect-[4/3] bg-secondary/50 overflow-hidden">
+      <div className="relative aspect-square bg-secondary/30 overflow-hidden">
         <img
           src={product.image}
           alt={product.title}
-          className="w-full h-full object-cover blur-[2px]"
+          className="w-full h-full object-cover blur-[2px] group-hover:scale-105 transition-transform duration-300"
         />
-        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-          <span className="bg-background/90 text-foreground text-xs font-medium px-3 py-1.5 rounded-full">
+        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-100">
+          <span className="bg-background/95 text-foreground text-xs font-medium px-3 py-1.5 rounded-full shadow-sm">
             Coming Soon
           </span>
         </div>
-        {/* Price Badge */}
-        <div className="absolute top-2 right-2">
-          <span className={`px-2 py-1 text-xs font-bold rounded ${
+        
+        {/* Price Badge - top right */}
+        <div className="absolute top-3 right-3">
+          <span className={`px-2.5 py-1 text-xs font-bold rounded-full shadow-sm ${
             product.price === 0 
-              ? "bg-green-500/90 text-white" 
-              : "bg-primary/90 text-primary-foreground"
+              ? "bg-green-500 text-white" 
+              : "bg-foreground text-background"
           }`}>
             {product.price === 0 ? "FREE" : `$${product.price}`}
+          </span>
+        </div>
+
+        {/* Category Badge - top left */}
+        <div className="absolute top-3 left-3">
+          <span className="px-2 py-1 text-[10px] uppercase tracking-wider font-medium bg-background/90 text-foreground rounded-full">
+            {productCategoryLabels[product.category]}
           </span>
         </div>
       </div>
 
       {/* Content */}
       <div className="p-4">
-        <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-          {productCategoryLabels[product.category]}
-        </span>
-        <h3 className="font-semibold text-foreground text-sm mt-1 line-clamp-2 group-hover:text-primary transition-colors">
+        <h3 className="font-semibold text-foreground text-sm line-clamp-1 group-hover:text-primary transition-colors mb-1">
           {product.title}
         </h3>
-        <p className="text-xs text-muted-foreground mt-2 line-clamp-2">
+        <p className="text-xs text-muted-foreground line-clamp-2 mb-3">
           {product.description}
         </p>
-        <div className="flex items-center gap-2 mt-3 text-xs text-muted-foreground">
-          <Download className="w-3 h-3" />
-          <span>{product.downloads} downloads</span>
+        
+        {/* Footer */}
+        <div className="flex items-center justify-between pt-2 border-t border-secondary">
+          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+            <Download className="w-3 h-3" />
+            <span>{product.downloads.toLocaleString()}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Star className="w-3 h-3 text-primary fill-primary" />
+            <span className="text-xs font-medium text-foreground">4.8</span>
+          </div>
         </div>
       </div>
     </button>

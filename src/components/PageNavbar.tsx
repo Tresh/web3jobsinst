@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Menu, Search, SlidersHorizontal, ShoppingCart, Home } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -13,24 +14,47 @@ import logo from "@/assets/logo.png";
 import ComingSoonDialog from "./ComingSoonDialog";
 import ScholarshipFormDialog from "./ScholarshipFormDialog";
 
-interface NavLink {
+interface NavLinkItem {
   label: string;
   href?: string;
   comingSoon?: string;
 }
 
-const navLinks: NavLink[] = [
+const navLinks: NavLinkItem[] = [
   { label: "Home", href: "/" },
   { label: "Courses", href: "/courses" },
   { label: "Digital Products", href: "/products" },
   { label: "Talent", href: "/talent" },
   { label: "Bootcamp", comingSoon: "Bootcamp Coming Soon" },
   { label: "About", href: "/about" },
+  { label: "Contact", href: "/contact" },
   { label: "Affiliates", comingSoon: "Affiliates Coming Soon" },
   { label: "Jobs", comingSoon: "Jobs Board Coming Soon" },
 ];
 
-const Navbar = () => {
+interface PageNavbarProps {
+  searchQuery?: string;
+  onSearchChange?: (value: string) => void;
+  onFilterClick?: () => void;
+  activeFiltersCount?: number;
+  searchPlaceholder?: string;
+  showSearch?: boolean;
+  showCart?: boolean;
+  cartItemsCount?: number;
+  onCartClick?: () => void;
+}
+
+const PageNavbar = ({
+  searchQuery = "",
+  onSearchChange,
+  onFilterClick,
+  activeFiltersCount = 0,
+  searchPlaceholder = "Search...",
+  showSearch = false,
+  showCart = false,
+  cartItemsCount = 0,
+  onCartClick,
+}: PageNavbarProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [comingSoonOpen, setComingSoonOpen] = useState(false);
   const [comingSoonTitle, setComingSoonTitle] = useState("");
@@ -42,60 +66,89 @@ const Navbar = () => {
     setIsMobileMenuOpen(false);
   };
 
-  const handleScholarshipClick = () => {
-    setScholarshipOpen(true);
-  };
+  // Primary nav links to show on desktop (first 4 non-coming-soon)
+  const primaryLinks = navLinks.filter(l => !l.comingSoon).slice(0, 4);
 
   return (
     <>
       <header className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-secondary h-[72px]">
         <nav className="section-container h-full">
-          <div className="flex items-center justify-between h-full">
+          <div className="flex items-center justify-between h-full gap-4">
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-2">
+            <Link to="/" className="flex items-center gap-2 shrink-0">
               <img src={logo} alt="Web3 Jobs Institute" className="w-8 h-8 object-contain" />
-              <span className="font-bold text-lg text-foreground hidden sm:block">
+              <span className="font-bold text-lg text-foreground hidden md:block">
                 Web3 Jobs Institute
               </span>
             </Link>
 
-            {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center gap-8">
-              {navLinks.map((link) => (
-                link.comingSoon ? (
-                  <button
-                    key={link.label}
-                    onClick={() => handleComingSoon(link.comingSoon!)}
-                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-150 flex items-center gap-1.5"
-                  >
-                    {link.label}
-                    <span className="text-[10px] px-1.5 py-0.5 bg-secondary text-muted-foreground rounded">
-                      Soon
-                    </span>
-                  </button>
-                ) : (
-                  <Link
-                    key={link.label}
-                    to={link.href!}
-                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-150"
-                  >
-                    {link.label}
-                  </Link>
-                )
-              ))}
-            </div>
+            {/* Search Bar (optional) */}
+            {showSearch && onSearchChange && (
+              <div className="flex-1 max-w-xl">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    type="text"
+                    placeholder={searchPlaceholder}
+                    value={searchQuery}
+                    onChange={(e) => onSearchChange(e.target.value)}
+                    className="pl-10 pr-12 bg-secondary/50 border-secondary h-10"
+                  />
+                  {onFilterClick && (
+                    <button
+                      onClick={onFilterClick}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-md hover:bg-secondary transition-colors"
+                    >
+                      <SlidersHorizontal className="w-4 h-4 text-muted-foreground" />
+                      {activeFiltersCount > 0 && (
+                        <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-primary-foreground text-[10px] font-bold rounded-full flex items-center justify-center">
+                          {activeFiltersCount}
+                        </span>
+                      )}
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
 
-            {/* CTA Button & Mobile Menu */}
-            <div className="flex items-center gap-4">
+            {/* Desktop Navigation */}
+            <div className="hidden lg:flex items-center gap-6 shrink-0">
+              {primaryLinks.map((link) => (
+                <Link
+                  key={link.label}
+                  to={link.href!}
+                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-150"
+                >
+                  {link.label}
+                </Link>
+              ))}
               <Button 
                 variant="default" 
-                size="sm" 
-                className="hidden sm:inline-flex"
-                onClick={handleScholarshipClick}
+                size="sm"
+                onClick={() => setScholarshipOpen(true)}
               >
                 Apply for Scholarship
               </Button>
-              
+            </div>
+
+            {/* Right side icons */}
+            <div className="flex items-center gap-2 shrink-0">
+              {/* Cart icon (optional) */}
+              {showCart && onCartClick && (
+                <button
+                  onClick={onCartClick}
+                  className="relative p-2 text-foreground hover:bg-secondary/50 rounded-lg transition-colors"
+                  aria-label="Cart"
+                >
+                  <ShoppingCart className="w-5 h-5" />
+                  {cartItemsCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-primary text-primary-foreground text-[10px] font-bold rounded-full flex items-center justify-center">
+                      {cartItemsCount}
+                    </span>
+                  )}
+                </button>
+              )}
+
               {/* Mobile Menu */}
               <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
                 <SheetTrigger asChild>
@@ -140,7 +193,7 @@ const Navbar = () => {
                       className="mt-4"
                       onClick={() => {
                         setIsMobileMenuOpen(false);
-                        handleScholarshipClick();
+                        setScholarshipOpen(true);
                       }}
                     >
                       Apply for Scholarship
@@ -164,4 +217,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default PageNavbar;
