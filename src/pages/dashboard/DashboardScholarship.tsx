@@ -63,7 +63,7 @@ const DashboardScholarship = () => {
       case "waitlist":
         return <Badge className="bg-yellow-500/10 text-yellow-500 border-yellow-500/20">Waitlist</Badge>;
       default:
-        return <Badge className="bg-blue-500/10 text-blue-500 border-blue-500/20">Under Review</Badge>;
+        return <Badge className="bg-blue-500/10 text-blue-500 border-blue-500/20 text-sm">Under Review</Badge>;
     }
   };
 
