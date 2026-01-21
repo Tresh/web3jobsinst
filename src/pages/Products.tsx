@@ -88,11 +88,11 @@ const Products = () => {
 
       <main className="pt-[72px]">
         {/* Header */}
-        <section className="section-container py-8 md:py-10">
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
+        <section className="section-container py-6 md:py-10">
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-1 md:mb-2">
             Digital Products
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm md:text-base text-muted-foreground">
             Browse tools, ebooks, bots, and resources for your Web3 journey
           </p>
         </section>
