@@ -6,7 +6,7 @@ import TalentFilterSheet from "@/components/talent/TalentFilterSheet";
 import ComingSoonDialog from "@/components/ComingSoonDialog";
 import ScholarshipFormDialog from "@/components/ScholarshipFormDialog";
 import { talents, type Talent, type TalentCategory } from "@/data/talentsData";
-
+import { UserPlus } from "lucide-react";
 const TalentMarket = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<TalentCategory>("all");
@@ -14,6 +14,7 @@ const TalentMarket = () => {
   const [filterSheetOpen, setFilterSheetOpen] = useState(false);
   const [scholarshipOpen, setScholarshipOpen] = useState(false);
   const [comingSoonOpen, setComingSoonOpen] = useState(false);
+  const [listTalentDialogOpen, setListTalentDialogOpen] = useState(false);
   const [selectedTalent, setSelectedTalent] = useState<Talent | null>(null);
 
   const activeFiltersCount = useMemo(() => {
@@ -100,8 +101,30 @@ const TalentMarket = () => {
         </section>
 
         {/* Talent Grid */}
-        <section className="section-container pb-20">
+        <section className="section-container pb-8">
           <TalentGrid talents={filteredTalents} onTalentClick={handleTalentClick} />
+        </section>
+
+        {/* List as a Talent Card */}
+        <section className="section-container pb-20">
+          <button
+            onClick={() => setListTalentDialogOpen(true)}
+            className="w-full bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 rounded-xl p-6 md:p-8 hover:border-primary/40 hover:from-primary/15 hover:to-primary/10 transition-all duration-200 text-left group"
+          >
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+                <UserPlus className="w-6 h-6 text-primary" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
+                  List as a Talent
+                </h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Showcase your skills, get discovered by Web3 projects, and start earning
+                </p>
+              </div>
+            </div>
+          </button>
         </section>
       </main>
 
@@ -124,6 +147,12 @@ const TalentMarket = () => {
         open={comingSoonOpen}
         onOpenChange={setComingSoonOpen}
         title={selectedTalent ? `${selectedTalent.name}'s Profile` : "Profile Coming Soon"}
+        onScholarshipClick={() => setScholarshipOpen(true)}
+      />
+      <ComingSoonDialog
+        open={listTalentDialogOpen}
+        onOpenChange={setListTalentDialogOpen}
+        title="List as a Talent"
         onScholarshipClick={() => setScholarshipOpen(true)}
       />
     </div>
