@@ -33,12 +33,12 @@ export const campaignStatuses: { value: CampaignStatus; label: string }[] = [
 export const campaigns: Campaign[] = [
   {
     id: "1",
-    title: "First 1000 to Post About KOLs3",
-    description: "Be among the first 1000 people to post about KOLs3 on X (Twitter) and earn rewards.",
+    title: "First 200 to Post About KOLs3",
+    description: "Be among the first 200 people to post about KOLs3 on X (Twitter) and share the prize pool.",
     type: "social",
-    reward: "$50 in tokens",
+    reward: "$1,000 Prize Pool",
     participants: 0,
-    maxParticipants: 1000,
+    maxParticipants: 200,
     deadline: "2025-02-15",
     status: "coming_soon",
     project: "KOLs3",
