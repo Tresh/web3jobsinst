@@ -80,11 +80,11 @@ const Courses = () => {
 
       {/* Header */}
       <section className="pt-[72px]">
-        <div className="section-container py-8 md:py-10">
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
+        <div className="section-container py-6 md:py-10">
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-1 md:mb-2">
             Courses
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm md:text-base text-muted-foreground">
             Explore Web3 skills that actually pay
           </p>
         </div>

@@ -27,10 +27,13 @@ const Footer = () => {
     { label: "Contact", href: "/contact" },
   ];
 
+  const [listTalentOpen, setListTalentOpen] = useState(false);
+
   const opportunityLinks = [
     { label: "Apply for Scholarship", action: "scholarship" },
     { label: "Become a Tutor", action: "tutor" },
     { label: "List a Product", action: "listProduct" },
+    { label: "List as a Talent", action: "listTalent" },
     { label: "Affiliates", comingSoon: "Affiliates Coming Soon" },
     { label: "Jobs", comingSoon: "Jobs Board Coming Soon" },
   ];
@@ -99,6 +102,9 @@ const Footer = () => {
                           else if (link.action === "tutor") setTutorOpen(true);
                           else if (link.action === "listProduct") {
                             setComingSoonTitle("List a Product - Coming Soon");
+                            setComingSoonOpen(true);
+                          } else if (link.action === "listTalent") {
+                            setComingSoonTitle("List as a Talent - Coming Soon");
                             setComingSoonOpen(true);
                           }
                         }}
