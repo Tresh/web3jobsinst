@@ -122,9 +122,11 @@ const CampaignCard = ({ campaign, onClick, onJoinClick }: CampaignCardProps) => 
           <Badge variant="outline" className="text-xs font-medium">
             {typeLabels[campaign.type]}
           </Badge>
-          <Badge className={`text-xs font-medium ${statusColors[campaign.status]}`}>
-            {statusLabels[campaign.status]}
-          </Badge>
+          {campaign.status !== "coming_soon" && (
+            <Badge className={`text-xs font-medium ${statusColors[campaign.status]}`}>
+              {statusLabels[campaign.status]}
+            </Badge>
+          )}
         </div>
 
         <h3 className="font-semibold text-foreground mb-2 line-clamp-2">
