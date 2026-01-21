@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Menu, Search, SlidersHorizontal, ShoppingCart, Home } from "lucide-react";
@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/sheet";
 import logo from "@/assets/logo.png";
 import ComingSoonDialog from "./ComingSoonDialog";
-import ScholarshipFormDialog from "./ScholarshipFormDialog";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface NavLinkItem {
   label: string;
@@ -58,12 +58,23 @@ const PageNavbar = ({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [comingSoonOpen, setComingSoonOpen] = useState(false);
   const [comingSoonTitle, setComingSoonTitle] = useState("");
-  const [scholarshipOpen, setScholarshipOpen] = useState(false);
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const handleComingSoon = (title: string) => {
     setComingSoonTitle(title);
     setComingSoonOpen(true);
     setIsMobileMenuOpen(false);
+  };
+
+  const handleScholarshipRoute = () => {
+    setComingSoonOpen(false);
+    setIsMobileMenuOpen(false);
+    if (!user) {
+      navigate("/login", { state: { from: { pathname: "/dashboard/scholarship" } } });
+      return;
+    }
+    navigate("/dashboard/scholarship");
   };
 
   // Primary nav links to show on desktop (first 4 non-coming-soon)
@@ -125,7 +136,7 @@ const PageNavbar = ({
               <Button 
                 variant="default" 
                 size="sm"
-                onClick={() => setScholarshipOpen(true)}
+                onClick={handleScholarshipRoute}
               >
                 Apply for Scholarship
               </Button>
@@ -192,8 +203,7 @@ const PageNavbar = ({
                       size="sm" 
                       className="mt-4"
                       onClick={() => {
-                        setIsMobileMenuOpen(false);
-                        setScholarshipOpen(true);
+                        handleScholarshipRoute();
                       }}
                     >
                       Apply for Scholarship
@@ -210,9 +220,8 @@ const PageNavbar = ({
         open={comingSoonOpen}
         onOpenChange={setComingSoonOpen}
         title={comingSoonTitle}
-        onScholarshipClick={() => setScholarshipOpen(true)}
+        onScholarshipClick={handleScholarshipRoute}
       />
-      <ScholarshipFormDialog open={scholarshipOpen} onOpenChange={setScholarshipOpen} />
     </>
   );
 };

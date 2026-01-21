@@ -110,10 +110,13 @@ This signature does not trigger any blockchain transactions or cost any gas fees
       setState((prev) => ({ ...prev, isConnecting: true, error: null }));
 
       try {
-        const connector = connectors.find((c) => c.id === connectorType) || connectors[0];
+        const connector = connectors.find((c) => c.id === connectorType);
         
         if (!connector) {
-          throw new Error('No wallet connector available. Please install MetaMask.');
+          if (connectorType === 'walletConnect') {
+            throw new Error('WalletConnect is not configured yet. Please add a valid WalletConnect Project ID.');
+          }
+          throw new Error('MetaMask connector not available. Please install MetaMask (or disable Phantom EVM mode).');
         }
 
         const result = await connectAsync({ connector });
@@ -267,6 +270,7 @@ This signature does not trigger any blockchain transactions or cost any gas fees
     ethAddress,
     isEthConnected,
     connectEthereum,
+    hasWalletConnect: connectors.some((c) => c.id === 'walletConnect'),
     
     // Solana
     solanaAddress: solanaPublicKey?.toBase58(),

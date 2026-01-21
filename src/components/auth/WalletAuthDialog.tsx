@@ -22,6 +22,7 @@ export const WalletAuthDialog = ({ open, onOpenChange }: WalletAuthDialogProps) 
     isSigningMessage,
     connectEthereum,
     connectSolanaWallet,
+    hasWalletConnect,
   } = useWalletAuth();
 
   const isLoading = isConnecting || isSigningMessage;
@@ -88,7 +89,7 @@ export const WalletAuthDialog = ({ open, onOpenChange }: WalletAuthDialogProps) 
               variant="outline"
               className="w-full h-14 justify-start gap-3"
               onClick={() => handleEthereumConnect('walletConnect')}
-              disabled={isLoading}
+              disabled={isLoading || !hasWalletConnect}
             >
               {isLoading && selectedChain === 'ethereum' ? (
                 <Loader2 className="h-6 w-6 animate-spin" />
@@ -101,7 +102,9 @@ export const WalletAuthDialog = ({ open, onOpenChange }: WalletAuthDialogProps) 
               )}
               <div className="text-left">
                 <div className="font-medium">WalletConnect</div>
-                <div className="text-xs text-muted-foreground">Mobile & desktop wallets</div>
+                <div className="text-xs text-muted-foreground">
+                  {hasWalletConnect ? 'Mobile & desktop wallets' : 'Not configured yet'}
+                </div>
               </div>
             </Button>
           </div>

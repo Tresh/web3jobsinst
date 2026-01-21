@@ -41,7 +41,7 @@ const ComingSoonDialog = ({
         </DialogHeader>
         <div className="flex flex-col gap-3 mt-4">
           <Button variant="default" onClick={handleScholarshipClick}>
-            Register for Scholarship
+            View Scholarships
             <ArrowRight className="w-4 h-4" />
           </Button>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
