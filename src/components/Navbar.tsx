@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, ChevronDown } from "lucide-react";
 import {
@@ -44,11 +44,22 @@ const Navbar = () => {
   const [comingSoonOpen, setComingSoonOpen] = useState(false);
   const [comingSoonTitle, setComingSoonTitle] = useState("");
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const handleComingSoon = (title: string) => {
     setComingSoonTitle(title);
     setComingSoonOpen(true);
     setIsMobileMenuOpen(false);
+  };
+
+  const handleScholarshipRoute = () => {
+    setComingSoonOpen(false);
+    setIsMobileMenuOpen(false);
+    if (!user) {
+      navigate("/login", { state: { from: { pathname: "/dashboard/scholarship" } } });
+      return;
+    }
+    navigate("/dashboard/scholarship");
   };
 
   return (
@@ -121,21 +132,6 @@ const Navbar = () => {
                   </SheetHeader>
                   <div className="flex flex-col gap-1 mt-6">
                     {/* Auth buttons for mobile */}
-                    {!user && (
-                      <div className="flex flex-col gap-2 mb-4 pb-4 border-b border-border">
-                        <Button asChild variant="default" size="sm">
-                          <Link to="/signup" onClick={() => setIsMobileMenuOpen(false)}>
-                            Sign Up
-                          </Link>
-                        </Button>
-                        <Button asChild variant="outline" size="sm">
-                          <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
-                            Sign In
-                          </Link>
-                        </Button>
-                      </div>
-                    )}
-
                     {user && (
                       <Link
                         to="/dashboard"
@@ -172,6 +168,22 @@ const Navbar = () => {
                         </span>
                       </button>
                     ))}
+
+                    {/* Auth buttons for mobile (moved to bottom) */}
+                    {!user && (
+                      <div className="flex flex-col gap-2 mt-4 pt-4 border-t border-border">
+                        <Button asChild variant="outline" size="sm">
+                          <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
+                            Sign In
+                          </Link>
+                        </Button>
+                        <Button asChild variant="default" size="sm">
+                          <Link to="/signup" onClick={() => setIsMobileMenuOpen(false)}>
+                            Sign Up
+                          </Link>
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </SheetContent>
               </Sheet>
@@ -184,7 +196,7 @@ const Navbar = () => {
         open={comingSoonOpen}
         onOpenChange={setComingSoonOpen}
         title={comingSoonTitle}
-        onScholarshipClick={() => {}}
+        onScholarshipClick={handleScholarshipRoute}
       />
     </>
   );
