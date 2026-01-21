@@ -9,9 +9,10 @@ const ITEMS_PER_PAGE = 8;
 interface CampaignGridProps {
   campaigns: Campaign[];
   onCampaignClick: (campaign: Campaign) => void;
+  onJoinClick: (campaign: Campaign) => void;
 }
 
-const CampaignGrid = ({ campaigns, onCampaignClick }: CampaignGridProps) => {
+const CampaignGrid = ({ campaigns, onCampaignClick, onJoinClick }: CampaignGridProps) => {
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = Math.ceil(campaigns.length / ITEMS_PER_PAGE);
 
@@ -40,6 +41,7 @@ const CampaignGrid = ({ campaigns, onCampaignClick }: CampaignGridProps) => {
             key={campaign.id}
             campaign={campaign}
             onClick={() => onCampaignClick(campaign)}
+            onJoinClick={() => onJoinClick(campaign)}
           />
         ))}
       </div>
@@ -82,13 +84,22 @@ const CampaignGrid = ({ campaigns, onCampaignClick }: CampaignGridProps) => {
 interface CampaignCardProps {
   campaign: Campaign;
   onClick: () => void;
+  onJoinClick: () => void;
 }
 
-const CampaignCard = ({ campaign, onClick }: CampaignCardProps) => {
+const CampaignCard = ({ campaign, onClick, onJoinClick }: CampaignCardProps) => {
   const statusColors = {
     active: "bg-green-100 text-green-700",
     upcoming: "bg-blue-100 text-blue-700",
+    coming_soon: "bg-primary/10 text-primary",
     ended: "bg-secondary text-muted-foreground",
+  };
+
+  const statusLabels = {
+    active: "Active",
+    upcoming: "Upcoming",
+    coming_soon: "Coming Soon",
+    ended: "Ended",
   };
 
   const typeLabels = {
@@ -99,57 +110,72 @@ const CampaignCard = ({ campaign, onClick }: CampaignCardProps) => {
     community: "Community",
   };
 
-  const progress = (campaign.participants / campaign.maxParticipants) * 100;
+  const isDisabled = campaign.status === "coming_soon" || campaign.status === "ended";
 
   return (
-    <button
-      onClick={onClick}
-      className="text-left w-full bg-background border border-secondary rounded-xl p-5 hover:border-primary/30 transition-colors duration-150 flex flex-col h-full"
-    >
-      <div className="flex items-start justify-between gap-2 mb-3">
-        <Badge variant="outline" className="text-xs font-medium">
-          {typeLabels[campaign.type]}
-        </Badge>
-        <Badge className={`text-xs font-medium ${statusColors[campaign.status]}`}>
-          {campaign.status.charAt(0).toUpperCase() + campaign.status.slice(1)}
-        </Badge>
-      </div>
-
-      <h3 className="font-semibold text-foreground mb-2 line-clamp-2">
-        {campaign.title}
-      </h3>
-
-      <p className="text-sm text-muted-foreground mb-4 line-clamp-2 flex-1">
-        {campaign.description}
-      </p>
-
-      <div className="space-y-3">
-        <div className="flex items-center gap-2 text-sm">
-          <Gift className="h-4 w-4 text-primary" />
-          <span className="font-medium text-foreground">{campaign.reward}</span>
+    <div className="bg-background border border-secondary rounded-xl p-5 hover:border-primary/30 transition-colors duration-150 flex flex-col h-full">
+      <button
+        onClick={onClick}
+        className="text-left w-full flex flex-col flex-1"
+      >
+        <div className="flex items-start justify-between gap-2 mb-3">
+          <Badge variant="outline" className="text-xs font-medium">
+            {typeLabels[campaign.type]}
+          </Badge>
+          <Badge className={`text-xs font-medium ${statusColors[campaign.status]}`}>
+            {statusLabels[campaign.status]}
+          </Badge>
         </div>
 
-        <div className="flex items-center gap-4 text-xs text-muted-foreground">
-          <div className="flex items-center gap-1">
-            <Users className="h-3.5 w-3.5" />
-            <span>{campaign.participants}/{campaign.maxParticipants}</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Calendar className="h-3.5 w-3.5" />
-            <span>{new Date(campaign.deadline).toLocaleDateString()}</span>
-          </div>
-        </div>
+        <h3 className="font-semibold text-foreground mb-2 line-clamp-2">
+          {campaign.title}
+        </h3>
 
-        {campaign.status === "active" && (
-          <div className="w-full bg-secondary rounded-full h-1.5">
-            <div
-              className="bg-primary h-1.5 rounded-full transition-all duration-300"
-              style={{ width: `${Math.min(progress, 100)}%` }}
-            />
+        <p className="text-sm text-muted-foreground mb-4 line-clamp-2 flex-1">
+          {campaign.description}
+        </p>
+
+        <div className="space-y-3">
+          <div className="flex items-center gap-2 text-sm">
+            <Gift className="h-4 w-4 text-primary" />
+            <span className="font-medium text-foreground">{campaign.reward}</span>
           </div>
-        )}
-      </div>
-    </button>
+
+          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+            <div className="flex items-center gap-1">
+              <Users className="h-3.5 w-3.5" />
+              <span>{campaign.participants}/{campaign.maxParticipants}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Calendar className="h-3.5 w-3.5" />
+              <span>{new Date(campaign.deadline).toLocaleDateString()}</span>
+            </div>
+          </div>
+
+          {campaign.status === "active" && (
+            <div className="w-full bg-secondary rounded-full h-1.5">
+              <div
+                className="bg-primary h-1.5 rounded-full transition-all duration-300"
+                style={{ width: `${Math.min((campaign.participants / campaign.maxParticipants) * 100, 100)}%` }}
+              />
+            </div>
+          )}
+        </div>
+      </button>
+
+      <Button
+        variant={isDisabled ? "outline" : "default"}
+        size="sm"
+        className="w-full mt-4"
+        disabled={isDisabled}
+        onClick={(e) => {
+          e.stopPropagation();
+          onJoinClick();
+        }}
+      >
+        {campaign.status === "coming_soon" ? "Coming Soon" : campaign.status === "ended" ? "Ended" : "Join Campaign"}
+      </Button>
+    </div>
   );
 };
 
