@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu } from "lucide-react";
+import { Menu, ChevronDown } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -9,6 +9,12 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import logo from "@/assets/logo.png";
 import ComingSoonDialog from "./ComingSoonDialog";
 import ScholarshipFormDialog from "./ScholarshipFormDialog";
@@ -20,13 +26,14 @@ interface NavLink {
   comingSoon?: string;
 }
 
-const navLinks: NavLink[] = [
-  { label: "Home", href: "/" },
+const mainLinks: NavLink[] = [
   { label: "Courses", href: "/courses" },
   { label: "Digital Products", href: "/products" },
   { label: "Talent Market", href: "/talent" },
   { label: "Campaigns", href: "/campaigns" },
-  { label: "About", href: "/about" },
+];
+
+const opportunityLinks: NavLink[] = [
   { label: "Bootcamp", comingSoon: "Bootcamp Coming Soon" },
   { label: "Affiliates", comingSoon: "Affiliates Coming Soon" },
   { label: "Jobs", comingSoon: "Jobs Board Coming Soon" },
@@ -62,29 +69,38 @@ const Navbar = () => {
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center gap-8">
-              {navLinks.map((link) => (
-                link.comingSoon ? (
-                  <button
-                    key={link.label}
-                    onClick={() => handleComingSoon(link.comingSoon!)}
-                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-150 flex items-center gap-1.5"
-                  >
-                    {link.label}
-                    <span className="text-[10px] px-1.5 py-0.5 bg-secondary text-muted-foreground rounded">
-                      Soon
-                    </span>
-                  </button>
-                ) : (
-                  <Link
-                    key={link.label}
-                    to={link.href!}
-                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-150"
-                  >
-                    {link.label}
-                  </Link>
-                )
+            <div className="hidden lg:flex items-center gap-6">
+              {mainLinks.map((link) => (
+                <Link
+                  key={link.label}
+                  to={link.href!}
+                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-150"
+                >
+                  {link.label}
+                </Link>
               ))}
+              
+              {/* Opportunities Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-150 outline-none">
+                  Opportunities
+                  <ChevronDown className="h-4 w-4" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="center" className="bg-background border border-border">
+                  {opportunityLinks.map((link) => (
+                    <DropdownMenuItem
+                      key={link.label}
+                      onClick={() => handleComingSoon(link.comingSoon!)}
+                      className="cursor-pointer flex items-center justify-between"
+                    >
+                      {link.label}
+                      <span className="text-[10px] px-1.5 py-0.5 bg-secondary text-muted-foreground rounded ml-2">
+                        Soon
+                      </span>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
 
             {/* CTA Button & Mobile Menu */}
@@ -116,29 +132,33 @@ const Navbar = () => {
                     <SheetTitle className="text-left">Menu</SheetTitle>
                   </SheetHeader>
                   <div className="flex flex-col gap-1 mt-6">
-                    {navLinks.map((link) => (
-                      link.comingSoon ? (
-                        <button
-                          key={link.label}
-                          onClick={() => handleComingSoon(link.comingSoon!)}
-                          className="py-3 px-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-lg transition-colors duration-150 text-left flex items-center justify-between"
-                        >
-                          {link.label}
-                          <span className="text-[10px] px-1.5 py-0.5 bg-secondary text-muted-foreground rounded">
-                            Soon
-                          </span>
-                        </button>
-                      ) : (
-                        <Link
-                          key={link.label}
-                          to={link.href!}
-                          className="py-3 px-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-lg transition-colors duration-150"
-                          onClick={() => setIsMobileMenuOpen(false)}
-                        >
-                          {link.label}
-                        </Link>
-                      )
+                    {mainLinks.map((link) => (
+                      <Link
+                        key={link.label}
+                        to={link.href!}
+                        className="py-3 px-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-lg transition-colors duration-150"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        {link.label}
+                      </Link>
                     ))}
+                    
+                    <div className="py-2 px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider mt-2">
+                      Opportunities
+                    </div>
+                    {opportunityLinks.map((link) => (
+                      <button
+                        key={link.label}
+                        onClick={() => handleComingSoon(link.comingSoon!)}
+                        className="py-3 px-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-lg transition-colors duration-150 text-left flex items-center justify-between"
+                      >
+                        {link.label}
+                        <span className="text-[10px] px-1.5 py-0.5 bg-secondary text-muted-foreground rounded">
+                          Soon
+                        </span>
+                      </button>
+                    ))}
+                    
                     <Button 
                       variant="default" 
                       size="sm" 

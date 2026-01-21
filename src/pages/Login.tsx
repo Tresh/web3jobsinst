@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Mail } from "lucide-react";
+import { Loader2, Mail, X } from "lucide-react";
 import logo from "@/assets/logo.png";
 
 const Login = () => {
@@ -69,7 +69,16 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4">
+    <div className="min-h-screen bg-background flex items-center justify-center px-4 relative">
+      {/* Close Button */}
+      <button
+        onClick={() => navigate("/")}
+        className="absolute top-6 right-6 p-2 rounded-full hover:bg-secondary transition-colors text-muted-foreground hover:text-foreground"
+        aria-label="Close"
+      >
+        <X className="w-6 h-6" />
+      </button>
+
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
