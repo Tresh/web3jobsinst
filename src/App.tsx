@@ -8,6 +8,7 @@ import Courses from "./pages/Courses";
 import Products from "./pages/Products";
 import Affiliates from "./pages/Affiliates";
 import TalentMarket from "./pages/TalentMarket";
+import Campaigns from "./pages/Campaigns";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Privacy from "./pages/Privacy";
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/products" element={<Products />} />
           <Route path="/affiliates" element={<Affiliates />} />
           <Route path="/talent" element={<TalentMarket />} />
+          <Route path="/campaigns" element={<Campaigns />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/privacy" element={<Privacy />} />

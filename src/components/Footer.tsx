@@ -22,7 +22,8 @@ const Footer = () => {
     { label: "Home", href: "/" },
     { label: "Courses", href: "/courses" },
     { label: "Digital Products", href: "/products" },
-    { label: "Talent", href: "/talent" },
+    { label: "Talent Market", href: "/talent" },
+    { label: "Campaigns", href: "/campaigns" },
     { label: "About", href: "/about" },
     { label: "Contact", href: "/contact" },
   ];
