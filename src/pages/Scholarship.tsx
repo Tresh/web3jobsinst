@@ -394,7 +394,7 @@ const Scholarship = () => {
                   ))}
                 </div>
                 <div className="space-y-2">
-                  <Label>Link to your retweet of the scholarship post *</Label>
+                  <Label>Link to your retweet of the scholarship post <a href="https://x.com/web3jobsinc/status/2014106725788352751" className="underline">View Post</a> *</Label>
                   <Input
                     value={formData.retweet_link}
                     onChange={(e) => updateField("retweet_link", e.target.value)}
@@ -402,7 +402,7 @@ const Scholarship = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Link to your tweet tagging 2 friends *</Label>
+                  <Label>Link to your tweet/comment tagging 2 friends and following of Web3 Jobs Institute screenshot <a href="https://x.com/web3jobsinc/status/2014106725788352751" className="underline">View Post</a> *</Label>
                   <Input
                     value={formData.tag_tweet_link}
                     onChange={(e) => updateField("tag_tweet_link", e.target.value)}
