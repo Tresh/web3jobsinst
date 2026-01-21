@@ -25,6 +25,7 @@ const navLinks: NavLinkItem[] = [
   { label: "Courses", href: "/courses" },
   { label: "Digital Products", href: "/products" },
   { label: "Talent Market", href: "/talent" },
+  { label: "Campaigns", href: "/campaigns" },
   { label: "About", href: "/about" },
   { label: "Bootcamp", comingSoon: "Bootcamp Coming Soon" },
   { label: "Affiliates", comingSoon: "Affiliates Coming Soon" },
