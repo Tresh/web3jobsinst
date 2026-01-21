@@ -12,6 +12,7 @@ import {
 import logo from "@/assets/logo.png";
 import ComingSoonDialog from "./ComingSoonDialog";
 import ScholarshipFormDialog from "./ScholarshipFormDialog";
+import UserMenu from "./auth/UserMenu";
 
 interface NavLink {
   label: string;
@@ -89,13 +90,16 @@ const Navbar = () => {
             {/* CTA Button & Mobile Menu */}
             <div className="flex items-center gap-4">
               <Button 
-                variant="default" 
+                variant="outline" 
                 size="sm" 
-                className="hidden sm:inline-flex"
+                className="hidden md:inline-flex"
                 onClick={handleScholarshipClick}
               >
                 Apply for Scholarship
               </Button>
+              <div className="hidden sm:block">
+                <UserMenu />
+              </div>
               
               {/* Mobile Menu */}
               <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
