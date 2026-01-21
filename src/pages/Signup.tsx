@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Mail, X } from "lucide-react";
 import logo from "@/assets/logo.png";
+import { WalletAuthDialog } from "@/components/auth/WalletAuthDialog";
 
 const Signup = () => {
   const [fullName, setFullName] = useState("");
@@ -15,6 +16,7 @@ const Signup = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isOAuthLoading, setIsOAuthLoading] = useState<string | null>(null);
+  const [isWalletDialogOpen, setIsWalletDialogOpen] = useState(false);
   
   const { signUpWithEmail, signInWithGoogle, signInWithTwitter, user } = useAuth();
   const { toast } = useToast();
@@ -136,12 +138,7 @@ const Signup = () => {
             <Button
               variant="outline"
               className="w-full h-12 text-base font-medium"
-              onClick={() => {
-                toast({
-                  title: "Wallet Connection",
-                  description: "Wallet authentication coming soon! Connect with Ethereum or Solana wallets.",
-                });
-              }}
+              onClick={() => setIsWalletDialogOpen(true)}
             >
               <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
@@ -151,6 +148,11 @@ const Signup = () => {
               Sign up with Wallet
             </Button>
           </div>
+
+          <WalletAuthDialog 
+            open={isWalletDialogOpen} 
+            onOpenChange={setIsWalletDialogOpen} 
+          />
 
           {/* Divider */}
           <div className="relative my-6">
