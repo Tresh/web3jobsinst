@@ -1,44 +1,24 @@
 import { useState } from "react";
-import { Megaphone, Share2, Code2, Bot, TrendingUp, Video, Award } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ArrowRight, Award, Clock } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Link } from "react-router-dom";
+import { courses } from "@/data/coursesData";
 import ComingSoonDialog from "./ComingSoonDialog";
 import ScholarshipFormDialog from "./ScholarshipFormDialog";
 
-const courses = [
-  {
-    icon: Megaphone,
-    title: "Meme Coin Marketing",
-    description: "Master viral marketing strategies for token launches",
-  },
-  {
-    icon: Share2,
-    title: "Web3 Social Media Management",
-    description: "Build and grow communities across crypto platforms",
-  },
-  {
-    icon: Code2,
-    title: "Web3 Full-Stack Development",
-    description: "Build decentralized applications from scratch",
-  },
-  {
-    icon: Bot,
-    title: "Telegram Outreach Bot",
-    description: "Automate 10,000+ DMs/month for growth",
-  },
-  {
-    icon: TrendingUp,
-    title: "Forex & Degen Trading",
-    description: "Technical analysis and risk management",
-  },
-  {
-    icon: Video,
-    title: "Content Creation & Monetization",
-    description: "Create and monetize Web3 content",
-  },
-];
+// Show first 6 courses from the actual data
+const displayCourses = courses.slice(0, 6);
 
 const ProgramsSection = () => {
   const [comingSoonOpen, setComingSoonOpen] = useState(false);
   const [scholarshipOpen, setScholarshipOpen] = useState(false);
+
+  const levelColors = {
+    Beginner: "bg-emerald-100 text-emerald-700",
+    Intermediate: "bg-amber-100 text-amber-700",
+    Advanced: "bg-rose-100 text-rose-700",
+  };
 
   return (
     <>
@@ -54,36 +34,70 @@ const ProgramsSection = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {courses.map((course, index) => (
-              <div
-                key={index}
-                className="card-minimal card-minimal-accent bg-card p-6 relative cursor-pointer"
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
+            {displayCourses.map((course) => (
+              <button
+                key={course.id}
                 onClick={() => setComingSoonOpen(true)}
+                className="group text-left bg-card border border-secondary rounded-lg overflow-hidden hover:border-primary/30 hover:shadow-md transition-all duration-200 flex flex-col h-full"
               >
-                {/* Coming Soon Badge */}
-                <div className="absolute top-4 right-4">
-                  <span className="badge-minimal">Coming Soon</span>
+                {/* Image with blur overlay */}
+                <div className="aspect-[4/3] overflow-hidden bg-secondary/30 relative">
+                  <img 
+                    src={course.image} 
+                    alt={course.title}
+                    className="w-full h-full object-cover filter blur-[2px] scale-105"
+                  />
+                  {/* Coming Soon overlay */}
+                  <div className="absolute inset-0 bg-background/60 flex items-center justify-center">
+                    <span className="text-xs font-medium text-foreground bg-secondary/90 px-2 py-1 rounded">
+                      Coming Soon
+                    </span>
+                  </div>
                 </div>
 
-                <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-secondary text-foreground mb-4">
-                  <course.icon className="w-5 h-5" />
+                {/* Content */}
+                <div className="p-3 flex flex-col flex-1">
+                  {/* Level */}
+                  <Badge
+                    variant="secondary"
+                    className={`${levelColors[course.level]} border-0 text-[9px] font-medium px-1.5 py-0 w-fit mb-2`}
+                  >
+                    {course.level}
+                  </Badge>
+
+                  {/* Title */}
+                  <h3 className="font-medium text-xs text-foreground mb-1 group-hover:text-primary transition-colors line-clamp-2 flex-1">
+                    {course.title}
+                  </h3>
+
+                  {/* Meta */}
+                  <div className="flex items-center gap-2 mt-auto pt-2">
+                    {course.duration && (
+                      <div className="flex items-center gap-0.5 text-[10px] text-muted-foreground">
+                        <Clock className="w-2.5 h-2.5" />
+                        {course.duration}
+                      </div>
+                    )}
+                    {course.hasCertificate && (
+                      <div className="flex items-center gap-0.5 text-[10px] text-primary">
+                        <Award className="w-2.5 h-2.5" />
+                      </div>
+                    )}
+                  </div>
                 </div>
-
-                <h3 className="font-semibold text-xl text-foreground mb-2 pr-24">
-                  {course.title}
-                </h3>
-
-                <p className="text-sm text-muted-foreground mb-4">
-                  {course.description}
-                </p>
-
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <Award className="w-3.5 h-3.5" />
-                  <span>Certificate Included</span>
-                </div>
-              </div>
+              </button>
             ))}
+          </div>
+
+          {/* View All Button */}
+          <div className="text-center mt-8">
+            <Button variant="outline" size="lg" asChild>
+              <Link to="/courses">
+                View All Courses
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </Button>
           </div>
         </div>
       </section>

@@ -142,18 +142,19 @@ const CourseCard = ({ course, onClick }: CourseCardProps) => {
       onClick={onClick}
       className="group text-left bg-background border border-secondary rounded-lg overflow-hidden hover:border-primary/30 hover:shadow-md transition-all duration-200 flex flex-col h-full"
     >
-      {/* Image */}
+      {/* Image with blur overlay */}
       <div className="aspect-[4/3] overflow-hidden bg-secondary/30 relative">
         <img 
           src={course.image} 
           alt={course.title}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          className="w-full h-full object-cover filter blur-[2px] scale-105"
         />
-        {course.isComingSoon && (
-          <div className="absolute top-2 right-2 bg-background/90 backdrop-blur-sm text-[10px] font-medium text-muted-foreground px-1.5 py-0.5 rounded">
-            Soon
-          </div>
-        )}
+        {/* Coming Soon overlay */}
+        <div className="absolute inset-0 bg-background/60 flex items-center justify-center">
+          <span className="text-xs font-medium text-foreground bg-secondary/90 px-2 py-1 rounded">
+            Coming Soon
+          </span>
+        </div>
       </div>
 
       {/* Content */}
