@@ -20,6 +20,16 @@ import Terms from "./pages/Terms";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
+
+// User Dashboard
+import Dashboard from "./pages/Dashboard";
+import DashboardOverview from "./pages/dashboard/DashboardOverview";
+import DashboardCourses from "./pages/dashboard/DashboardCourses";
+import DashboardProducts from "./pages/dashboard/DashboardProducts";
+import DashboardTalent from "./pages/dashboard/DashboardTalent";
+import DashboardSettings from "./pages/dashboard/DashboardSettings";
 
 // Admin pages
 import AdminLayout from "@/components/admin/AdminLayout";
@@ -41,45 +51,63 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
-        <BrowserRouter>
-          <Routes>
-            {/* Public routes */}
-            <Route path="/" element={<Index />} />
-            <Route path="/courses" element={<Courses />} />
-            <Route path="/products" element={<Products />} />
-            <Route path="/affiliates" element={<Affiliates />} />
-            <Route path="/talent" element={<TalentMarket />} />
-            <Route path="/campaigns" element={<Campaigns />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/terms" element={<Terms />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
+          <BrowserRouter>
+            <Routes>
+              {/* Public routes */}
+              <Route path="/" element={<Index />} />
+              <Route path="/courses" element={<Courses />} />
+              <Route path="/products" element={<Products />} />
+              <Route path="/affiliates" element={<Affiliates />} />
+              <Route path="/talent" element={<TalentMarket />} />
+              <Route path="/campaigns" element={<Campaigns />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/terms" element={<Terms />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
 
-            {/* Admin routes */}
-            <Route
-              path="/admin"
-              element={
-                <ProtectedRoute requireModerator>
-                  <AdminLayout />
-                </ProtectedRoute>
-              }
-            >
-              <Route index element={<AdminDashboard />} />
-              <Route path="courses" element={<AdminCourses />} />
-              <Route path="products" element={<AdminProducts />} />
-              <Route path="talents" element={<AdminTalents />} />
-              <Route path="campaigns" element={<AdminCampaigns />} />
-              <Route path="users" element={<AdminUsers />} />
-              <Route path="roles" element={<AdminRoles />} />
-              <Route path="settings" element={<AdminSettings />} />
-            </Route>
+              {/* User Dashboard routes */}
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                }
+              >
+                <Route index element={<DashboardOverview />} />
+                <Route path="courses" element={<DashboardCourses />} />
+                <Route path="products" element={<DashboardProducts />} />
+                <Route path="talent" element={<DashboardTalent />} />
+                <Route path="settings" element={<DashboardSettings />} />
+              </Route>
 
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+              {/* Admin routes */}
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute requireModerator>
+                    <AdminLayout />
+                  </ProtectedRoute>
+                }
+              >
+                <Route index element={<AdminDashboard />} />
+                <Route path="courses" element={<AdminCourses />} />
+                <Route path="products" element={<AdminProducts />} />
+                <Route path="talents" element={<AdminTalents />} />
+                <Route path="campaigns" element={<AdminCampaigns />} />
+                <Route path="users" element={<AdminUsers />} />
+                <Route path="roles" element={<AdminRoles />} />
+                <Route path="settings" element={<AdminSettings />} />
+              </Route>
+
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
         </TooltipProvider>
       </AuthProvider>
     </WalletContextProvider>
