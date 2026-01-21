@@ -20,6 +20,29 @@ const DashboardOverview = () => {
 
   return (
     <div className="p-6 lg:p-8">
+      {/* Complete Profile Notice - Shown at top for wallet users */}
+      {isWalletUser && (
+        <Card className="mb-6 border-primary/20 bg-primary/5">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Wallet className="w-5 h-5 text-primary" />
+              Complete Your Profile
+            </CardTitle>
+            <CardDescription>
+              You signed in with a wallet. Add your email to receive notifications and enable password login.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild size="sm">
+              <Link to="/dashboard/settings">
+                Go to Settings
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Welcome Section */}
       <div className="mb-8">
         <h1 className="text-2xl lg:text-3xl font-bold">
@@ -145,28 +168,6 @@ const DashboardOverview = () => {
         </Card>
       </div>
 
-      {/* Wallet Notice */}
-      {isWalletUser && (
-        <Card className="mt-6 border-primary/20 bg-primary/5">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Wallet className="w-5 h-5 text-primary" />
-              Complete Your Profile
-            </CardTitle>
-            <CardDescription>
-              You signed in with a wallet. Add your email to receive notifications and enable password login.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button asChild size="sm">
-              <Link to="/dashboard/settings">
-                Go to Settings
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-      )}
 
       <ComingSoonDialog
         open={comingSoonOpen}

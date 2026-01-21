@@ -93,24 +93,49 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
       return;
     }
 
+    // Don't allow wallet.local emails
+    if (email.includes("@wallet.local")) {
+      toast({
+        title: "Invalid email",
+        description: "Please use a real email address.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
 
-    const { error } = await supabase.auth.updateUser({
-      email: email.trim(),
-    });
+    try {
+      // Use edge function for wallet users to bypass email validation issues
+      const response = await fetch(
+        "https://chmddvsbvhmwhfbvzlwt.supabase.co/functions/v1/update-wallet-email",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+          },
+          body: JSON.stringify({ newEmail: email.trim() }),
+        }
+      );
 
-    if (error) {
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to update email");
+      }
+
+      toast({
+        title: "Email added",
+        description: data.message || "Please check your inbox to verify your email.",
+      });
+      setStep(3);
+    } catch (error: any) {
       toast({
         title: "Error",
         description: error.message,
         variant: "destructive",
       });
-    } else {
-      toast({
-        title: "Verification email sent",
-        description: "Please check your inbox to verify your email.",
-      });
-      setStep(3);
     }
 
     setIsLoading(false);

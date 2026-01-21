@@ -11,6 +11,8 @@ interface Profile {
   full_name: string | null;
   avatar_url: string | null;
   provider: string | null;
+  onboarding_completed: boolean | null;
+  onboarding_step: number | null;
 }
 
 interface AuthContextType {

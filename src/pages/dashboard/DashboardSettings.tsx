@@ -137,22 +137,37 @@ const DashboardSettings = () => {
       return;
     }
 
-    const { error } = await supabase.auth.updateUser({
-      email: newEmail,
-    });
+    try {
+      // Use edge function for wallet users to bypass email validation issues
+      const response = await fetch(
+        "https://chmddvsbvhmwhfbvzlwt.supabase.co/functions/v1/update-wallet-email",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+          },
+          body: JSON.stringify({ newEmail }),
+        }
+      );
 
-    if (error) {
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to update email");
+      }
+
+      toast({
+        title: "Email added",
+        description: data.message || "Please check your inbox to verify your new email.",
+      });
+      setNewEmail("");
+    } catch (error: any) {
       toast({
         title: "Error",
         description: error.message,
         variant: "destructive",
       });
-    } else {
-      toast({
-        title: "Verification email sent",
-        description: "Please check your inbox to verify your new email.",
-      });
-      setNewEmail("");
     }
 
     setIsLoading(false);

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,7 @@ import {
   GraduationCap,
 } from "lucide-react";
 import logo from "@/assets/logo.png";
+import OnboardingFlow from "@/components/onboarding/OnboardingFlow";
 
 const navItems = [
   { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
@@ -31,6 +32,14 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  useEffect(() => {
+    // Show onboarding if profile exists but onboarding not completed
+    if (profile && !profile.onboarding_completed) {
+      setShowOnboarding(true);
+    }
+  }, [profile]);
 
   if (isLoading) {
     return (
@@ -43,6 +52,11 @@ const Dashboard = () => {
   if (!user) {
     navigate("/login");
     return null;
+  }
+
+  // Show onboarding flow if not completed
+  if (showOnboarding) {
+    return <OnboardingFlow onComplete={() => setShowOnboarding(false)} />;
   }
 
   const handleSignOut = async () => {
