@@ -3,11 +3,13 @@ import { Link } from "react-router-dom";
 import logo from "@/assets/logo.png";
 import ComingSoonDialog from "./ComingSoonDialog";
 import ScholarshipFormDialog from "./ScholarshipFormDialog";
+import TutorFormDialog from "./TutorFormDialog";
 
 const Footer = () => {
   const [comingSoonOpen, setComingSoonOpen] = useState(false);
   const [comingSoonTitle, setComingSoonTitle] = useState("");
   const [scholarshipOpen, setScholarshipOpen] = useState(false);
+  const [tutorOpen, setTutorOpen] = useState(false);
   const currentYear = new Date().getFullYear();
 
   const handleComingSoon = (title: string) => {
@@ -18,10 +20,16 @@ const Footer = () => {
   const mainLinks = [
     { label: "Home", href: "/", isRoute: true },
     { label: "Courses", href: "/courses", isRoute: true },
+    { label: "Products", href: "/products", isRoute: true },
+    { label: "Talent Market", href: "/talent", isRoute: true },
+    { label: "Affiliates", href: "/affiliates", isRoute: true },
     { label: "About", href: "/about", isRoute: true },
-    { label: "Scholarship", href: "/#scholarship", isRoute: false },
+  ];
+
+  const opportunityLinks = [
+    { label: "Apply for Scholarship", action: "scholarship" },
+    { label: "Become a Tutor", action: "tutor" },
     { label: "Jobs", comingSoon: "Jobs Board Coming Soon" },
-    { label: "Collab Market", comingSoon: "Collab Market Coming Soon" },
   ];
 
   const legalLinks = [
@@ -30,7 +38,7 @@ const Footer = () => {
   ];
 
   const socialLinks = [
-    { label: "X (Twitter)", href: "https://x.com/web3jobsinc" },
+    { label: "X", href: "https://x.com/web3jobsinc" },
     { label: "Telegram", href: "https://t.me/+Gv2UKErPPsI2NGU0" },
   ];
 
@@ -57,6 +65,23 @@ const Footer = () => {
               <ul className="space-y-2">
                 {mainLinks.map((link) => (
                   <li key={link.label}>
+                    <Link
+                      to={link.href}
+                      className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-150"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Opportunities */}
+            <div>
+              <h4 className="font-semibold text-foreground mb-4 text-sm">Opportunities</h4>
+              <ul className="space-y-2">
+                {opportunityLinks.map((link) => (
+                  <li key={link.label}>
                     {link.comingSoon ? (
                       <button
                         onClick={() => handleComingSoon(link.comingSoon)}
@@ -64,20 +89,13 @@ const Footer = () => {
                       >
                         {link.label}
                       </button>
-                    ) : link.isRoute ? (
-                      <Link
-                        to={link.href!}
-                        className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-150"
-                      >
-                        {link.label}
-                      </Link>
                     ) : (
-                      <a
-                        href={link.href}
+                      <button
+                        onClick={() => link.action === "scholarship" ? setScholarshipOpen(true) : setTutorOpen(true)}
                         className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-150"
                       >
                         {link.label}
-                      </a>
+                      </button>
                     )}
                   </li>
                 ))}
@@ -130,6 +148,7 @@ const Footer = () => {
         onScholarshipClick={() => setScholarshipOpen(true)}
       />
       <ScholarshipFormDialog open={scholarshipOpen} onOpenChange={setScholarshipOpen} />
+      <TutorFormDialog open={tutorOpen} onOpenChange={setTutorOpen} />
     </>
   );
 };
