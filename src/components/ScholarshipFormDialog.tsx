@@ -184,8 +184,16 @@ const ScholarshipFormDialog = ({ open, onOpenChange }: ScholarshipFormDialogProp
             onOpenChange(false);
           }} />
 
-          {/* Note about data persistence */}
+          {/* Legal links */}
           <p className="text-xs text-muted-foreground text-center mt-6">
+            By registering, you agree to our{" "}
+            <a href="/terms" className="text-primary hover:underline">Terms of Service</a>
+            {" "}and{" "}
+            <a href="/privacy" className="text-primary hover:underline">Privacy Policy</a>.
+          </p>
+
+          {/* Note about data persistence */}
+          <p className="text-xs text-muted-foreground text-center mt-2">
             Your progress is automatically saved. You can close and return anytime.
           </p>
         </div>

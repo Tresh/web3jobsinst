@@ -9,8 +9,8 @@ interface LearningPathTabsProps {
 const LearningPathTabs = ({ paths, selectedPath, onPathSelect }: LearningPathTabsProps) => {
   return (
     <div className="relative">
-      {/* Scrollable container */}
-      <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
+      {/* Scrollable container - hidden scrollbar */}
+      <div className="flex gap-2 overflow-x-auto pb-3 -mx-4 px-4 md:mx-0 md:px-0 scrollbar-none" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         {/* All tab */}
         <button
           onClick={() => onPathSelect("all")}
@@ -50,7 +50,7 @@ const LearningPathTabs = ({ paths, selectedPath, onPathSelect }: LearningPathTab
       </div>
 
       {/* Fade edges for scroll indication */}
-      <div className="absolute right-0 top-0 bottom-2 w-8 bg-gradient-to-l from-background to-transparent pointer-events-none md:hidden" />
+      <div className="absolute right-0 top-0 bottom-3 w-8 bg-gradient-to-l from-background to-transparent pointer-events-none md:hidden" />
     </div>
   );
 };
