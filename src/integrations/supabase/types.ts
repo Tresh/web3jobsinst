@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      password_reset_attempts: {
+        Row: {
+          attempt_count: number
+          created_at: string
+          email: string
+          id: string
+          last_attempt_at: string
+          locked_until: string | null
+        }
+        Insert: {
+          attempt_count?: number
+          created_at?: string
+          email: string
+          id?: string
+          last_attempt_at?: string
+          locked_until?: string | null
+        }
+        Update: {
+          attempt_count?: number
+          created_at?: string
+          email?: string
+          id?: string
+          last_attempt_at?: string
+          locked_until?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -21,6 +48,8 @@ export type Database = {
           email: string | null
           full_name: string | null
           id: string
+          onboarding_completed: boolean
+          onboarding_step: number
           provider: string | null
           updated_at: string
           user_id: string
@@ -33,6 +62,8 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+          onboarding_completed?: boolean
+          onboarding_step?: number
           provider?: string | null
           updated_at?: string
           user_id: string
@@ -45,11 +76,159 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+          onboarding_completed?: boolean
+          onboarding_step?: number
           provider?: string | null
           updated_at?: string
           user_id?: string
           wallet_address?: string | null
           wallet_type?: string | null
+        }
+        Relationships: []
+      }
+      scholarship_applications: {
+        Row: {
+          admin_notes: string | null
+          age_range: string
+          agrees_community_rules: boolean
+          country: string
+          created_at: string
+          email: string
+          followed_accounts: Json
+          full_name: string
+          hours_per_week: string
+          how_made_money: string | null
+          id: string
+          intro_video_url: string | null
+          made_money_online: string
+          main_goal: string
+          preferred_track: string
+          program_id: string
+          retweet_link: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["scholarship_status"]
+          tag_tweet_link: string
+          telegram_username: string
+          twitter_handle: string
+          understands_credit_unlock: boolean
+          understands_performance_based: boolean
+          updated_at: string
+          user_id: string
+          why_scholarship: string
+          willing_public_ranking: boolean
+          willing_public_twitter: boolean
+        }
+        Insert: {
+          admin_notes?: string | null
+          age_range: string
+          agrees_community_rules?: boolean
+          country: string
+          created_at?: string
+          email: string
+          followed_accounts?: Json
+          full_name: string
+          hours_per_week: string
+          how_made_money?: string | null
+          id?: string
+          intro_video_url?: string | null
+          made_money_online: string
+          main_goal: string
+          preferred_track: string
+          program_id: string
+          retweet_link: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["scholarship_status"]
+          tag_tweet_link: string
+          telegram_username: string
+          twitter_handle: string
+          understands_credit_unlock?: boolean
+          understands_performance_based?: boolean
+          updated_at?: string
+          user_id: string
+          why_scholarship: string
+          willing_public_ranking?: boolean
+          willing_public_twitter?: boolean
+        }
+        Update: {
+          admin_notes?: string | null
+          age_range?: string
+          agrees_community_rules?: boolean
+          country?: string
+          created_at?: string
+          email?: string
+          followed_accounts?: Json
+          full_name?: string
+          hours_per_week?: string
+          how_made_money?: string | null
+          id?: string
+          intro_video_url?: string | null
+          made_money_online?: string
+          main_goal?: string
+          preferred_track?: string
+          program_id?: string
+          retweet_link?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["scholarship_status"]
+          tag_tweet_link?: string
+          telegram_username?: string
+          twitter_handle?: string
+          understands_credit_unlock?: boolean
+          understands_performance_based?: boolean
+          updated_at?: string
+          user_id?: string
+          why_scholarship?: string
+          willing_public_ranking?: boolean
+          willing_public_twitter?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scholarship_applications_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "scholarship_programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scholarship_programs: {
+        Row: {
+          application_deadline: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          max_applications: number | null
+          requirements: string | null
+          telegram_link: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          application_deadline?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          max_applications?: number | null
+          requirements?: string | null
+          telegram_link?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          application_deadline?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          max_applications?: number | null
+          requirements?: string | null
+          telegram_link?: string | null
+          title?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -93,6 +272,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
+      scholarship_status: "pending" | "approved" | "rejected" | "waitlist"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -221,6 +401,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user"],
+      scholarship_status: ["pending", "approved", "rejected", "waitlist"],
     },
   },
 } as const

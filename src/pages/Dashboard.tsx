@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Link, useNavigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   LayoutDashboard,
   Package,
@@ -14,11 +13,13 @@ import {
   ChevronRight,
   Wallet,
   BookOpen,
+  GraduationCap,
 } from "lucide-react";
 import logo from "@/assets/logo.png";
 
 const navItems = [
   { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
+  { label: "Scholarship", href: "/dashboard/scholarship", icon: GraduationCap },
   { label: "My Courses", href: "/dashboard/courses", icon: BookOpen },
   { label: "My Products", href: "/dashboard/products", icon: Package },
   { label: "Talent Profile", href: "/dashboard/talent", icon: Users },
@@ -56,6 +57,17 @@ const Dashboard = () => {
     return location.pathname.startsWith(path);
   };
 
+  // Get user initial for avatar
+  const getInitial = () => {
+    if (profile?.full_name) return profile.full_name.charAt(0).toUpperCase();
+    if (user.email && !user.email.includes("@wallet.local")) {
+      return user.email.charAt(0).toUpperCase();
+    }
+    return "U";
+  };
+
+  const isWalletUser = user.email?.includes("@wallet.local");
+
   return (
     <div className="min-h-screen bg-secondary/30">
       {/* Mobile Header */}
@@ -89,18 +101,17 @@ const Dashboard = () => {
         {/* User Info */}
         <div className="p-4 border-b border-border">
           <div className="flex items-center gap-3">
-            <Avatar className="h-10 w-10">
-              <AvatarImage src={profile?.avatar_url || undefined} />
-              <AvatarFallback>
-                {profile?.full_name?.charAt(0) || user.email?.charAt(0)?.toUpperCase() || "U"}
-              </AvatarFallback>
-            </Avatar>
+            <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center">
+              <span className="text-sm font-bold text-primary-foreground">
+                {getInitial()}
+              </span>
+            </div>
             <div className="flex-1 min-w-0">
               <p className="font-medium truncate">
                 {profile?.full_name || "User"}
               </p>
               <p className="text-xs text-muted-foreground truncate">
-                {user.email?.includes("@wallet.local") ? (
+                {isWalletUser ? (
                   <span className="flex items-center gap-1">
                     <Wallet className="w-3 h-3" />
                     Wallet Connected

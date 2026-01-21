@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,16 +8,99 @@ import { Loader2, ArrowLeft, Mail } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/logo.png";
 
+interface ResetAttemptState {
+  count: number;
+  lastAttempt: number;
+  lockedUntil: number | null;
+}
+
+const STORAGE_KEY = "password_reset_attempts";
+
+const getResetState = (): ResetAttemptState => {
+  const stored = localStorage.getItem(STORAGE_KEY);
+  if (stored) {
+    return JSON.parse(stored);
+  }
+  return { count: 0, lastAttempt: 0, lockedUntil: null };
+};
+
+const saveResetState = (state: ResetAttemptState) => {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+};
+
+const getWaitTime = (attemptCount: number): number => {
+  // 30 sec for first, then 1 min increments, then 24 hrs after 6 attempts
+  if (attemptCount === 0) return 0;
+  if (attemptCount >= 6) return 24 * 60 * 60; // 24 hours in seconds
+  if (attemptCount === 1) return 30; // 30 seconds
+  return 60 * attemptCount; // 1 min, 2 min, 3 min, etc.
+};
+
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [countdown, setCountdown] = useState(0);
   
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    // Check if user is currently rate limited
+    const state = getResetState();
+    if (state.lockedUntil && state.lockedUntil > Date.now()) {
+      const remainingSeconds = Math.ceil((state.lockedUntil - Date.now()) / 1000);
+      setCountdown(remainingSeconds);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (countdown > 0) {
+      const timer = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            // Reset attempts after 24 hour lockout expires
+            const state = getResetState();
+            if (state.count >= 6) {
+              saveResetState({ count: 0, lastAttempt: 0, lockedUntil: null });
+            }
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [countdown]);
+
+  const formatCountdown = (seconds: number): string => {
+    if (seconds >= 3600) {
+      const hours = Math.floor(seconds / 3600);
+      const mins = Math.floor((seconds % 3600) / 60);
+      return `${hours}h ${mins}m`;
+    }
+    if (seconds >= 60) {
+      const mins = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      return `${mins}m ${secs}s`;
+    }
+    return `${seconds}s`;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Check rate limit
+    const state = getResetState();
+    if (state.lockedUntil && state.lockedUntil > Date.now()) {
+      toast({
+        title: "Too many attempts",
+        description: "Please wait before trying again.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -38,7 +121,33 @@ const ForgotPassword = () => {
       });
     }
 
+    // Update rate limit state
+    const newCount = state.count + 1;
+    const waitSeconds = getWaitTime(newCount);
+    const newState: ResetAttemptState = {
+      count: newCount,
+      lastAttempt: Date.now(),
+      lockedUntil: Date.now() + waitSeconds * 1000,
+    };
+    saveResetState(newState);
+    setCountdown(waitSeconds);
+
     setIsLoading(false);
+  };
+
+  const handleTryAgain = () => {
+    const state = getResetState();
+    if (state.lockedUntil && state.lockedUntil > Date.now()) {
+      const remainingSeconds = Math.ceil((state.lockedUntil - Date.now()) / 1000);
+      setCountdown(remainingSeconds);
+      toast({
+        title: "Please wait",
+        description: `You can try again in ${formatCountdown(remainingSeconds)}`,
+        variant: "destructive",
+      });
+      return;
+    }
+    setIsSubmitted(false);
   };
 
   return (
@@ -72,19 +181,24 @@ const ForgotPassword = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     className="h-12"
+                    disabled={countdown > 0}
                   />
                 </div>
                 <Button
                   type="submit"
                   className="w-full h-12 text-base font-medium"
-                  disabled={isLoading}
+                  disabled={isLoading || countdown > 0}
                 >
                   {isLoading ? (
                     <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                  ) : countdown > 0 ? (
+                    `Wait ${formatCountdown(countdown)}`
                   ) : (
-                    <Mail className="h-5 w-5 mr-2" />
+                    <>
+                      <Mail className="h-5 w-5 mr-2" />
+                      Send Reset Link
+                    </>
                   )}
-                  Send Reset Link
                 </Button>
               </form>
             </>
@@ -100,10 +214,11 @@ const ForgotPassword = () => {
               <p className="text-sm text-muted-foreground">
                 Didn't receive the email?{" "}
                 <button
-                  onClick={() => setIsSubmitted(false)}
+                  onClick={handleTryAgain}
                   className="text-primary hover:underline font-medium"
+                  disabled={countdown > 0}
                 >
-                  Try again
+                  {countdown > 0 ? `Wait ${formatCountdown(countdown)}` : "Try again"}
                 </button>
               </p>
             </div>
