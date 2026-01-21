@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, ChevronDown } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Menu, Search, SlidersHorizontal, ChevronDown } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -16,8 +17,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import logo from "@/assets/logo.png";
-import ComingSoonDialog from "./ComingSoonDialog";
-import UserMenu from "./auth/UserMenu";
+import ComingSoonDialog from "@/components/ComingSoonDialog";
+import UserMenu from "@/components/auth/UserMenu";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface NavLink {
@@ -39,7 +40,23 @@ const opportunityLinks: NavLink[] = [
   { label: "Jobs", comingSoon: "Jobs Board Coming Soon" },
 ];
 
-const Navbar = () => {
+interface UnifiedNavbarProps {
+  searchQuery?: string;
+  onSearchChange?: (value: string) => void;
+  onFilterClick?: () => void;
+  activeFiltersCount?: number;
+  showSearch?: boolean;
+  searchPlaceholder?: string;
+}
+
+const UnifiedNavbar = ({
+  searchQuery = "",
+  onSearchChange,
+  onFilterClick,
+  activeFiltersCount = 0,
+  showSearch = false,
+  searchPlaceholder = "Search...",
+}: UnifiedNavbarProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [comingSoonOpen, setComingSoonOpen] = useState(false);
   const [comingSoonTitle, setComingSoonTitle] = useState("");
@@ -55,17 +72,46 @@ const Navbar = () => {
     <>
       <header className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-secondary h-[72px]">
         <nav className="section-container h-full">
-          <div className="flex items-center justify-between h-full">
+          <div className="flex items-center justify-between h-full gap-4">
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-2">
+            <Link to="/" className="flex items-center gap-2 shrink-0">
               <img src={logo} alt="Web3 Jobs Institute" className="w-8 h-8 object-contain" />
-              <span className="font-bold text-lg text-foreground hidden sm:block">
+              <span className="font-bold text-lg text-foreground hidden md:block">
                 Web3 Jobs Institute
               </span>
             </Link>
 
+            {/* Search Bar - Only shown when enabled */}
+            {showSearch && onSearchChange && (
+              <div className="flex-1 max-w-xl">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    type="text"
+                    placeholder={searchPlaceholder}
+                    value={searchQuery}
+                    onChange={(e) => onSearchChange(e.target.value)}
+                    className="pl-10 pr-12 bg-secondary/50 border-secondary h-10"
+                  />
+                  {onFilterClick && (
+                    <button
+                      onClick={onFilterClick}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-md hover:bg-secondary transition-colors"
+                    >
+                      <SlidersHorizontal className="w-4 h-4 text-muted-foreground" />
+                      {activeFiltersCount > 0 && (
+                        <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-primary-foreground text-[10px] font-bold rounded-full flex items-center justify-center">
+                          {activeFiltersCount}
+                        </span>
+                      )}
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center gap-6">
+            <div className="hidden lg:flex items-center gap-6 shrink-0">
               {mainLinks.map((link) => (
                 <Link
                   key={link.label}
@@ -75,7 +121,7 @@ const Navbar = () => {
                   {link.label}
                 </Link>
               ))}
-              
+
               {/* Opportunities Dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-150 outline-none">
@@ -100,11 +146,11 @@ const Navbar = () => {
             </div>
 
             {/* Auth & Mobile Menu */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 shrink-0">
               <div className="hidden sm:block">
                 <UserMenu />
               </div>
-              
+
               {/* Mobile Menu */}
               <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
                 <SheetTrigger asChild>
@@ -156,7 +202,7 @@ const Navbar = () => {
                         {link.label}
                       </Link>
                     ))}
-                    
+
                     <div className="py-2 px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider mt-2">
                       Opportunities
                     </div>
@@ -190,4 +236,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default UnifiedNavbar;

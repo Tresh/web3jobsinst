@@ -35,7 +35,6 @@ export const useWalletAuth = () => {
     connect: connectSolana,
     disconnect: disconnectSolana,
     signMessage: signSolanaMessage,
-    wallet: solanaWallet,
     select: selectSolanaWallet,
     wallets: solanaWallets,
   } = useWallet();
@@ -77,23 +76,21 @@ This signature does not trigger any blockchain transactions or cost any gas fees
           throw new Error(data.error || 'Authentication failed');
         }
 
-        // If we got a redirect URL, use it to complete auth
-        if (data.redirectUrl) {
-          // Extract the token from the URL and use it
-          const url = new URL(data.redirectUrl);
-          const token = url.searchParams.get('token') || url.hash.replace('#access_token=', '').split('&')[0];
+        // Use the magic link token to sign in
+        if (data.hashedToken && data.email) {
+          const { error } = await supabase.auth.verifyOtp({
+            token_hash: data.hashedToken,
+            type: 'magiclink',
+          });
           
-          if (token) {
-            // Verify the token with Supabase
-            const { error } = await supabase.auth.verifyOtp({
-              token_hash: data.token,
-              type: 'magiclink',
-            });
-            
-            if (error) {
-              // Try alternative approach - refresh the session
-              console.log('Magic link verification failed, trying session refresh');
+          if (error) {
+            console.error('Magic link verification failed:', error);
+            // If verification fails, try to redirect to the action link
+            if (data.actionLink) {
+              window.location.href = data.actionLink;
+              return data;
             }
+            throw new Error('Failed to complete authentication');
           }
         }
 
@@ -114,7 +111,7 @@ This signature does not trigger any blockchain transactions or cost any gas fees
         const connector = connectors.find((c) => c.id === connectorType) || connectors[0];
         
         if (!connector) {
-          throw new Error('No wallet connector available');
+          throw new Error('No wallet connector available. Please install MetaMask.');
         }
 
         const result = await connectAsync({ connector });
@@ -141,11 +138,11 @@ This signature does not trigger any blockchain transactions or cost any gas fees
         });
 
         // Reload to get the new session
-        window.location.reload();
+        window.location.href = '/dashboard';
 
         return authResult;
-      } catch (error: any) {
-        const errorMessage = error.message || 'Failed to connect Ethereum wallet';
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Failed to connect Ethereum wallet';
         setState((prev) => ({ ...prev, isConnecting: false, isSigningMessage: false, error: errorMessage }));
         
         toast({
@@ -169,19 +166,16 @@ This signature does not trigger any blockchain transactions or cost any gas fees
       
       if (phantomWallet) {
         selectSolanaWallet(phantomWallet.adapter.name);
-        await connectSolana();
+      } else if (solanaWallets.length > 0) {
+        selectSolanaWallet(solanaWallets[0].adapter.name);
       } else {
-        // Try any available wallet
-        if (solanaWallets.length > 0) {
-          selectSolanaWallet(solanaWallets[0].adapter.name);
-          await connectSolana();
-        } else {
-          throw new Error('No Solana wallet found. Please install Phantom.');
-        }
+        throw new Error('No Solana wallet found. Please install Phantom.');
       }
 
+      await connectSolana();
+
       // Wait for connection
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       if (!solanaPublicKey) {
         throw new Error('Failed to get Solana public key');
@@ -212,12 +206,12 @@ This signature does not trigger any blockchain transactions or cost any gas fees
         description: `Connected with ${address.slice(0, 4)}...${address.slice(-4)}`,
       });
 
-      // Reload to get the new session
-      window.location.reload();
+      // Redirect to dashboard
+      window.location.href = '/dashboard';
 
       return authResult;
-    } catch (error: any) {
-      const errorMessage = error.message || 'Failed to connect Solana wallet';
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to connect Solana wallet';
       setState((prev) => ({ ...prev, isConnecting: false, isSigningMessage: false, error: errorMessage }));
       
       toast({
@@ -248,7 +242,7 @@ This signature does not trigger any blockchain transactions or cost any gas fees
         await disconnectSolana();
       }
       await supabase.auth.signOut();
-      window.location.reload();
+      window.location.href = '/';
     } catch (error) {
       console.error('Disconnect error:', error);
     }
