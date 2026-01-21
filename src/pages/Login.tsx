@@ -13,15 +13,14 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isOAuthLoading, setIsOAuthLoading] = useState<string | null>(null);
   const [isWalletDialogOpen, setIsWalletDialogOpen] = useState(false);
   
-  const { signInWithEmail, signInWithGoogle, signInWithTwitter, user } = useAuth();
+  const { signInWithEmail, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
 
-  const from = (location.state as { from?: Location })?.from?.pathname || "/";
+  const from = (location.state as { from?: Location })?.from?.pathname || "/dashboard";
 
   // Redirect if already logged in
   if (user) {
@@ -52,24 +51,6 @@ const Login = () => {
     setIsLoading(false);
   };
 
-  const handleOAuthLogin = async (provider: "google" | "twitter") => {
-    setIsOAuthLoading(provider);
-    try {
-      if (provider === "google") {
-        await signInWithGoogle();
-      } else {
-        await signInWithTwitter();
-      }
-    } catch (error: any) {
-      toast({
-        title: "Login failed",
-        description: error.message,
-        variant: "destructive",
-      });
-      setIsOAuthLoading(null);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4 relative">
       {/* Close Button */}
@@ -97,28 +78,10 @@ const Login = () => {
             Sign in to your account to continue
           </p>
 
-          {/* OAuth Buttons */}
+          {/* Wallet Connection - Primary */}
           <div className="space-y-3 mb-6">
-            {/* X (Twitter) - Primary */}
             <Button
               variant="default"
-              className="w-full h-12 text-base font-medium"
-              onClick={() => handleOAuthLogin("twitter")}
-              disabled={isOAuthLoading !== null}
-            >
-              {isOAuthLoading === "twitter" ? (
-                <Loader2 className="h-5 w-5 animate-spin mr-2" />
-              ) : (
-                <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                </svg>
-              )}
-              Continue with X
-            </Button>
-
-            {/* Wallet Connection */}
-            <Button
-              variant="outline"
               className="w-full h-12 text-base font-medium"
               onClick={() => setIsWalletDialogOpen(true)}
             >

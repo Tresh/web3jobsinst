@@ -5,9 +5,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Mail, X } from "lucide-react";
+import { Loader2, Mail, X, CheckCircle } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { WalletAuthDialog } from "@/components/auth/WalletAuthDialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 const Signup = () => {
   const [fullName, setFullName] = useState("");
@@ -15,16 +22,17 @@ const Signup = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isOAuthLoading, setIsOAuthLoading] = useState<string | null>(null);
   const [isWalletDialogOpen, setIsWalletDialogOpen] = useState(false);
+  const [showEmailSentDialog, setShowEmailSentDialog] = useState(false);
+  const [submittedEmail, setSubmittedEmail] = useState("");
   
-  const { signUpWithEmail, signInWithGoogle, signInWithTwitter, user } = useAuth();
+  const { signUpWithEmail, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
   // Redirect if already logged in
   if (user) {
-    navigate("/", { replace: true });
+    navigate("/dashboard", { replace: true });
     return null;
   }
 
@@ -60,32 +68,11 @@ const Signup = () => {
         variant: "destructive",
       });
     } else {
-      toast({
-        title: "Check your email",
-        description: "We've sent you a confirmation link to complete your registration.",
-      });
-      navigate("/login");
+      setSubmittedEmail(email);
+      setShowEmailSentDialog(true);
     }
     
     setIsLoading(false);
-  };
-
-  const handleOAuthLogin = async (provider: "google" | "twitter") => {
-    setIsOAuthLoading(provider);
-    try {
-      if (provider === "google") {
-        await signInWithGoogle();
-      } else {
-        await signInWithTwitter();
-      }
-    } catch (error: any) {
-      toast({
-        title: "Sign up failed",
-        description: error.message,
-        variant: "destructive",
-      });
-      setIsOAuthLoading(null);
-    }
   };
 
   return (
@@ -115,28 +102,10 @@ const Signup = () => {
             Join the Web3 Jobs Institute community
           </p>
 
-          {/* OAuth Buttons */}
+          {/* Wallet Connection - Primary */}
           <div className="space-y-3 mb-6">
-            {/* X (Twitter) - Primary */}
             <Button
               variant="default"
-              className="w-full h-12 text-base font-medium"
-              onClick={() => handleOAuthLogin("twitter")}
-              disabled={isOAuthLoading !== null}
-            >
-              {isOAuthLoading === "twitter" ? (
-                <Loader2 className="h-5 w-5 animate-spin mr-2" />
-              ) : (
-                <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                </svg>
-              )}
-              Sign up with X
-            </Button>
-
-            {/* Wallet Connection */}
-            <Button
-              variant="outline"
               className="w-full h-12 text-base font-medium"
               onClick={() => setIsWalletDialogOpen(true)}
             >
@@ -237,6 +206,38 @@ const Signup = () => {
           </p>
         </div>
       </div>
+
+      {/* Email Confirmation Dialog */}
+      <Dialog open={showEmailSentDialog} onOpenChange={setShowEmailSentDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <div className="mx-auto mb-4 w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+              <CheckCircle className="w-8 h-8 text-primary" />
+            </div>
+            <DialogTitle className="text-center text-xl">Check your email</DialogTitle>
+            <DialogDescription className="text-center">
+              We've sent a confirmation link to <strong>{submittedEmail}</strong>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 pt-4">
+            <p className="text-sm text-muted-foreground text-center">
+              Please click the link in the email to verify your account, then return here to log in.
+            </p>
+            <Button
+              className="w-full"
+              onClick={() => {
+                setShowEmailSentDialog(false);
+                navigate("/login");
+              }}
+            >
+              Go to Login
+            </Button>
+            <p className="text-xs text-muted-foreground text-center">
+              Didn't receive the email? Check your spam folder or try signing up again.
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

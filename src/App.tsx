@@ -30,6 +30,8 @@ import DashboardCourses from "./pages/dashboard/DashboardCourses";
 import DashboardProducts from "./pages/dashboard/DashboardProducts";
 import DashboardTalent from "./pages/dashboard/DashboardTalent";
 import DashboardSettings from "./pages/dashboard/DashboardSettings";
+import DashboardScholarship from "./pages/dashboard/DashboardScholarship";
+import Scholarship from "./pages/Scholarship";
 
 // Admin pages
 import AdminLayout from "@/components/admin/AdminLayout";
@@ -41,6 +43,7 @@ import AdminCampaigns from "./pages/admin/AdminCampaigns";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminRoles from "./pages/admin/AdminRoles";
 import AdminSettings from "./pages/admin/AdminSettings";
+import AdminScholarships from "./pages/admin/AdminScholarships";
 
 const queryClient = new QueryClient();
 
@@ -68,6 +71,7 @@ const App = () => (
               <Route path="/signup" element={<Signup />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/scholarship/:programId" element={<Scholarship />} />
 
               {/* User Dashboard routes */}
               <Route
@@ -79,6 +83,7 @@ const App = () => (
                 }
               >
                 <Route index element={<DashboardOverview />} />
+                <Route path="scholarship" element={<DashboardScholarship />} />
                 <Route path="courses" element={<DashboardCourses />} />
                 <Route path="products" element={<DashboardProducts />} />
                 <Route path="talent" element={<DashboardTalent />} />
@@ -101,6 +106,7 @@ const App = () => (
                 <Route path="campaigns" element={<AdminCampaigns />} />
                 <Route path="users" element={<AdminUsers />} />
                 <Route path="roles" element={<AdminRoles />} />
+                <Route path="scholarships" element={<AdminScholarships />} />
                 <Route path="settings" element={<AdminSettings />} />
               </Route>
 

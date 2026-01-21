@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useAccount, useConnect, useDisconnect, useSignMessage } from 'wagmi';
 import { useWallet } from '@solana/wallet-adapter-react';
 import bs58 from 'bs58';
@@ -11,6 +11,7 @@ interface WalletAuthState {
   isConnecting: boolean;
   isSigningMessage: boolean;
   error: string | null;
+  pendingSolanaAuth: boolean;
 }
 
 export const useWalletAuth = () => {
@@ -18,6 +19,7 @@ export const useWalletAuth = () => {
     isConnecting: false,
     isSigningMessage: false,
     error: null,
+    pendingSolanaAuth: false,
   });
 
   const { toast } = useToast();
@@ -36,7 +38,7 @@ export const useWalletAuth = () => {
     disconnect: disconnectSolana,
     signMessage: signSolanaMessage,
     select: selectSolanaWallet,
-    wallets: solanaWallets,
+    wallet: selectedSolanaWallet,
   } = useWallet();
 
   const generateAuthMessage = useCallback((walletAddress: string) => {
@@ -157,81 +159,88 @@ This signature does not trigger any blockchain transactions or cost any gas fees
     [connectors, connectAsync, signEthMessage, generateAuthMessage, authenticateWithWallet, toast]
   );
 
+  // Complete Solana auth when wallet is connected and we have a pending auth
+  useEffect(() => {
+    const completeSolanaAuth = async () => {
+      if (!state.pendingSolanaAuth || !isSolanaConnected || !solanaPublicKey || !signSolanaMessage) {
+        return;
+      }
+
+      setState((prev) => ({ ...prev, pendingSolanaAuth: false, isConnecting: false, isSigningMessage: true }));
+
+      try {
+        const address = solanaPublicKey.toBase58();
+
+        // Generate and sign message
+        const message = generateAuthMessage(address);
+        const encodedMessage = new TextEncoder().encode(message);
+        
+        const signatureBytes = await signSolanaMessage(encodedMessage);
+        const signature = bs58.encode(signatureBytes);
+
+        // Authenticate with backend
+        const authResult = await authenticateWithWallet(address, signature, message, 'solana');
+
+        setState((prev) => ({ ...prev, isSigningMessage: false }));
+
+        toast({
+          title: authResult.isNewUser ? 'Welcome!' : 'Welcome back!',
+          description: `Connected with ${address.slice(0, 4)}...${address.slice(-4)}`,
+        });
+
+        // Redirect to dashboard
+        window.location.href = '/dashboard';
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Failed to sign message';
+        setState((prev) => ({ ...prev, isSigningMessage: false, error: errorMessage }));
+        
+        toast({
+          title: 'Authentication failed',
+          description: errorMessage,
+          variant: 'destructive',
+        });
+      }
+    };
+
+    completeSolanaAuth();
+  }, [state.pendingSolanaAuth, isSolanaConnected, solanaPublicKey, signSolanaMessage, generateAuthMessage, authenticateWithWallet, toast]);
+
   const connectSolanaWallet = useCallback(async () => {
     setState((prev) => ({ ...prev, isConnecting: true, error: null }));
 
     try {
-      // Find Phantom wallet
-      const phantomWallet = solanaWallets.find((w) => w.adapter.name === 'Phantom');
+      // First, select Phantom wallet explicitly
+      selectSolanaWallet('Phantom' as any);
       
-      if (phantomWallet) {
-        selectSolanaWallet(phantomWallet.adapter.name);
-      } else if (solanaWallets.length > 0) {
-        selectSolanaWallet(solanaWallets[0].adapter.name);
-      } else {
-        throw new Error('No Solana wallet found. Please install Phantom.');
-      }
+      // Mark that we're waiting for connection to complete
+      setState((prev) => ({ ...prev, pendingSolanaAuth: true }));
 
+      // Trigger connect - this will prompt the Phantom popup
       await connectSolana();
 
-      // Wait for connection
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      if (!solanaPublicKey) {
-        throw new Error('Failed to get Solana public key');
-      }
-
-      const address = solanaPublicKey.toBase58();
-
-      setState((prev) => ({ ...prev, isConnecting: false, isSigningMessage: true }));
-
-      // Generate and sign message
-      const message = generateAuthMessage(address);
-      const encodedMessage = new TextEncoder().encode(message);
-      
-      if (!signSolanaMessage) {
-        throw new Error('Wallet does not support message signing');
-      }
-
-      const signatureBytes = await signSolanaMessage(encodedMessage);
-      const signature = bs58.encode(signatureBytes);
-
-      // Authenticate with backend
-      const authResult = await authenticateWithWallet(address, signature, message, 'solana');
-
-      setState((prev) => ({ ...prev, isSigningMessage: false }));
-
-      toast({
-        title: authResult.isNewUser ? 'Welcome!' : 'Welcome back!',
-        description: `Connected with ${address.slice(0, 4)}...${address.slice(-4)}`,
-      });
-
-      // Redirect to dashboard
-      window.location.href = '/dashboard';
-
-      return authResult;
+      // The useEffect above will handle the rest when connection completes
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to connect Solana wallet';
-      setState((prev) => ({ ...prev, isConnecting: false, isSigningMessage: false, error: errorMessage }));
+      setState((prev) => ({ ...prev, isConnecting: false, pendingSolanaAuth: false, error: errorMessage }));
       
-      toast({
-        title: 'Connection failed',
-        description: errorMessage,
-        variant: 'destructive',
-      });
+      // Check if it's the Ethereum/Solana conflict error
+      if (errorMessage.includes('Ethereum') || errorMessage.includes('unsupported')) {
+        toast({
+          title: 'Wallet conflict detected',
+          description: 'Please make sure Phantom is set to Solana mode, not Ethereum mode. You can change this in Phantom settings.',
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Connection failed',
+          description: errorMessage,
+          variant: 'destructive',
+        });
+      }
       
       throw error;
     }
-  }, [
-    solanaWallets,
-    selectSolanaWallet,
-    connectSolana,
-    solanaPublicKey,
-    signSolanaMessage,
-    generateAuthMessage,
-    authenticateWithWallet,
-    toast,
-  ]);
+  }, [selectSolanaWallet, connectSolana, toast]);
 
   const disconnect = useCallback(async () => {
     try {
@@ -263,6 +272,7 @@ This signature does not trigger any blockchain transactions or cost any gas fees
     solanaAddress: solanaPublicKey?.toBase58(),
     isSolanaConnected,
     connectSolanaWallet,
+    selectedSolanaWallet,
     
     // Common
     disconnect,
