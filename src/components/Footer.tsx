@@ -10,6 +10,7 @@ const Footer = () => {
   const [comingSoonTitle, setComingSoonTitle] = useState("");
   const [scholarshipOpen, setScholarshipOpen] = useState(false);
   const [tutorOpen, setTutorOpen] = useState(false);
+  const [listProductOpen, setListProductOpen] = useState(false);
   const currentYear = new Date().getFullYear();
 
   const handleComingSoon = (title: string) => {
@@ -18,17 +19,19 @@ const Footer = () => {
   };
 
   const mainLinks = [
-    { label: "Home", href: "/", isRoute: true },
-    { label: "Courses", href: "/courses", isRoute: true },
-    { label: "Products", href: "/products", isRoute: true },
-    { label: "Talent Market", href: "/talent", isRoute: true },
-    { label: "Affiliates", href: "/affiliates", isRoute: true },
-    { label: "About", href: "/about", isRoute: true },
+    { label: "Home", href: "/" },
+    { label: "Courses", href: "/courses" },
+    { label: "Digital Products", href: "/products" },
+    { label: "Talent", href: "/talent" },
+    { label: "About", href: "/about" },
+    { label: "Contact", href: "/contact" },
   ];
 
   const opportunityLinks = [
     { label: "Apply for Scholarship", action: "scholarship" },
     { label: "Become a Tutor", action: "tutor" },
+    { label: "List a Product", action: "listProduct" },
+    { label: "Affiliates", comingSoon: "Affiliates Coming Soon" },
     { label: "Jobs", comingSoon: "Jobs Board Coming Soon" },
   ];
 
@@ -91,7 +94,14 @@ const Footer = () => {
                       </button>
                     ) : (
                       <button
-                        onClick={() => link.action === "scholarship" ? setScholarshipOpen(true) : setTutorOpen(true)}
+                        onClick={() => {
+                          if (link.action === "scholarship") setScholarshipOpen(true);
+                          else if (link.action === "tutor") setTutorOpen(true);
+                          else if (link.action === "listProduct") {
+                            setComingSoonTitle("List a Product - Coming Soon");
+                            setComingSoonOpen(true);
+                          }
+                        }}
                         className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-150"
                       >
                         {link.label}

@@ -1,0 +1,171 @@
+export interface Talent {
+  id: string;
+  name: string;
+  avatar?: string;
+  title: string;
+  skills: string[];
+  rating: number;
+  completedProjects: number;
+  hourlyRate?: number;
+  available: boolean;
+  location: string;
+  bio: string;
+}
+
+export type TalentCategory = "all" | "developer" | "designer" | "marketer" | "writer" | "trader" | "community";
+
+export const talentCategoryLabels: Record<TalentCategory, string> = {
+  all: "All Talents",
+  developer: "Developers",
+  designer: "Designers",
+  marketer: "Marketers",
+  writer: "Writers",
+  trader: "Traders",
+  community: "Community Managers",
+};
+
+export const talents: Talent[] = [
+  {
+    id: "1",
+    name: "Alex Chen",
+    title: "Smart Contract Developer",
+    skills: ["Solidity", "Rust", "Auditing", "EVM"],
+    rating: 4.9,
+    completedProjects: 23,
+    hourlyRate: 150,
+    available: true,
+    location: "Remote",
+    bio: "Experienced blockchain developer with 5+ years in DeFi protocols.",
+  },
+  {
+    id: "2",
+    name: "Sarah Kim",
+    title: "Web3 UI/UX Designer",
+    skills: ["Figma", "NFT Art", "Branding", "Motion"],
+    rating: 4.8,
+    completedProjects: 31,
+    hourlyRate: 120,
+    available: true,
+    location: "Remote",
+    bio: "Creating intuitive experiences for decentralized applications.",
+  },
+  {
+    id: "3",
+    name: "Marcus Johnson",
+    title: "DeFi Marketing Lead",
+    skills: ["Growth", "Twitter/X", "KOL Mgmt", "Content"],
+    rating: 4.7,
+    completedProjects: 18,
+    hourlyRate: 100,
+    available: false,
+    location: "Remote",
+    bio: "Helped launch 10+ successful DeFi protocols with viral campaigns.",
+  },
+  {
+    id: "4",
+    name: "Elena Rodriguez",
+    title: "Technical Writer",
+    skills: ["Documentation", "Whitepapers", "Blogs", "Tutorials"],
+    rating: 5.0,
+    completedProjects: 42,
+    hourlyRate: 80,
+    available: true,
+    location: "Remote",
+    bio: "Translating complex blockchain concepts into clear documentation.",
+  },
+  {
+    id: "5",
+    name: "James Okonkwo",
+    title: "Full-Stack Developer",
+    skills: ["React", "Node.js", "Web3.js", "GraphQL"],
+    rating: 4.6,
+    completedProjects: 15,
+    hourlyRate: 130,
+    available: true,
+    location: "Remote",
+    bio: "Building decentralized apps from frontend to smart contracts.",
+  },
+  {
+    id: "6",
+    name: "Mia Zhang",
+    title: "NFT Artist & Designer",
+    skills: ["Digital Art", "PFP Collections", "3D Modeling", "Animation"],
+    rating: 4.9,
+    completedProjects: 28,
+    hourlyRate: 200,
+    available: true,
+    location: "Remote",
+    bio: "Created artwork for multiple 10K PFP collections.",
+  },
+  {
+    id: "7",
+    name: "David Park",
+    title: "Crypto Trading Analyst",
+    skills: ["Technical Analysis", "DeFi Strategies", "Risk Management"],
+    rating: 4.5,
+    completedProjects: 12,
+    available: false,
+    location: "Remote",
+    bio: "Former hedge fund analyst now focused on crypto markets.",
+  },
+  {
+    id: "8",
+    name: "Lisa Thompson",
+    title: "Community Manager",
+    skills: ["Discord", "Telegram", "Events", "Moderation"],
+    rating: 4.8,
+    completedProjects: 20,
+    hourlyRate: 60,
+    available: true,
+    location: "Remote",
+    bio: "Built and managed communities with 100K+ members.",
+  },
+  {
+    id: "9",
+    name: "Omar Hassan",
+    title: "Blockchain Security Researcher",
+    skills: ["Auditing", "Pen Testing", "Formal Verification"],
+    rating: 5.0,
+    completedProjects: 35,
+    hourlyRate: 250,
+    available: true,
+    location: "Remote",
+    bio: "Found critical vulnerabilities in major DeFi protocols.",
+  },
+  {
+    id: "10",
+    name: "Nina Petrov",
+    title: "Tokenomics Designer",
+    skills: ["Economic Modeling", "Game Theory", "Governance"],
+    rating: 4.7,
+    completedProjects: 14,
+    hourlyRate: 180,
+    available: true,
+    location: "Remote",
+    bio: "Designed sustainable token economies for leading DAOs.",
+  },
+  {
+    id: "11",
+    name: "Carlos Mendez",
+    title: "Growth Hacker",
+    skills: ["Viral Marketing", "Airdrops", "Partnerships"],
+    rating: 4.6,
+    completedProjects: 22,
+    hourlyRate: 110,
+    available: true,
+    location: "Remote",
+    bio: "Scaled multiple projects from 0 to 50K users in months.",
+  },
+  {
+    id: "12",
+    name: "Aisha Bello",
+    title: "Content Strategist",
+    skills: ["SEO", "Threads", "Newsletters", "Video Scripts"],
+    rating: 4.8,
+    completedProjects: 19,
+    hourlyRate: 90,
+    available: false,
+    location: "Remote",
+    bio: "Content that educates and converts in the Web3 space.",
+  },
+];
