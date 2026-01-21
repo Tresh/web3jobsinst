@@ -37,13 +37,13 @@ const About = () => {
       <Navbar />
       <main className="pt-[72px]">
         {/* Hero */}
-        <section className="section-container py-16 md:py-24">
+        <section className="section-container py-12 md:py-24">
           <div className="max-w-3xl mx-auto text-center">
-            <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium mb-6 inline-block">About Us</span>
-            <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-6 text-balance">
+            <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium mb-4 md:mb-6 inline-block">About Us</span>
+            <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-3 md:mb-6 text-balance">
               About <span className="text-primary">Web3 Jobs Institute</span>
             </h1>
-            <p className="text-lg text-muted-foreground leading-relaxed">
+            <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
               Web3 Jobs Institute is built for beginners, creators, builders, and freelancers who want to 
               thrive in the decentralized economy. We focus on practical, income-driven Web3 skills that 
               translate directly into real opportunities.

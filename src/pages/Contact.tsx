@@ -8,13 +8,13 @@ const Contact = () => {
       <Navbar />
       <main className="pt-[72px]">
         {/* Hero */}
-        <section className="section-container py-16 md:py-24">
+        <section className="section-container py-12 md:py-24">
           <div className="max-w-2xl mx-auto text-center">
-            <span className="badge-minimal mb-6 inline-block">Contact</span>
-            <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-6 text-balance">
+            <span className="badge-minimal mb-4 md:mb-6 inline-block">Contact</span>
+            <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-3 md:mb-6 text-balance">
               Get in Touch
             </h1>
-            <p className="text-lg text-muted-foreground leading-relaxed">
+            <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
               Have questions about our programs, courses, or opportunities? 
               We'd love to hear from you. Reach out through any of the channels below.
             </p>
