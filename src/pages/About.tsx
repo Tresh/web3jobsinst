@@ -39,9 +39,9 @@ const About = () => {
         {/* Hero */}
         <section className="section-container py-16 md:py-24">
           <div className="max-w-3xl mx-auto text-center">
-            <span className="badge-minimal mb-6 inline-block">About Us</span>
+            <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium mb-6 inline-block">About Us</span>
             <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-6 text-balance">
-              About Web3 Jobs Institute
+              About <span className="text-primary">Web3 Jobs Institute</span>
             </h1>
             <p className="text-lg text-muted-foreground leading-relaxed">
               Web3 Jobs Institute is built for beginners, creators, builders, and freelancers who want to 
@@ -56,7 +56,7 @@ const About = () => {
           <div className="section-container">
             <div className="max-w-3xl mx-auto text-center">
               <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-6">
-                Our Mission
+                Our <span className="text-primary">Mission</span>
               </h2>
               <p className="text-lg text-muted-foreground leading-relaxed">
                 To democratize access to Web3 education and opportunities. We believe that anyone, 
@@ -81,9 +81,9 @@ const About = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
             {values.map((value, index) => (
-              <div key={index} className="card-minimal p-6">
-                <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center mb-4">
-                  <value.icon className="w-5 h-5 text-foreground" />
+              <div key={index} className="card-minimal p-6 hover:border-primary/30 transition-colors">
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                  <value.icon className="w-5 h-5 text-primary" />
                 </div>
                 <h3 className="font-semibold text-lg text-foreground mb-2">
                   {value.title}
@@ -97,7 +97,7 @@ const About = () => {
         </section>
 
         {/* CTA */}
-        <section className="bg-secondary/30 section-padding">
+        <section className="bg-primary/5 border-t border-primary/10 section-padding">
           <div className="section-container text-center">
             <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
               Ready to Start Your Web3 Journey?
