@@ -12,7 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, ArrowRight, User, Mail, Check, GraduationCap } from "lucide-react";
+import { Loader2, ArrowRight, User, Check, GraduationCap } from "lucide-react";
 
 interface OnboardingFlowProps {
   onComplete: () => void;
@@ -24,22 +24,17 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
   const [step, setStep] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [fullName, setFullName] = useState(profile?.full_name || "");
-  const [email, setEmail] = useState("");
   const [showScholarshipPrompt, setShowScholarshipPrompt] = useState(false);
-
-  const isWalletUser = user?.email?.includes("@wallet.local");
 
   useEffect(() => {
     // Determine starting step based on profile completeness
     if (!profile?.full_name) {
       setStep(1);
-    } else if (isWalletUser && !profile?.email) {
-      setStep(2);
     } else {
-      // Profile is complete, check for scholarship prompt
+      // Profile is complete, show scholarship prompt
       setShowScholarshipPrompt(true);
     }
-  }, [profile, isWalletUser]);
+  }, [profile]);
 
   const handleSaveName = async () => {
     if (!fullName.trim()) {
@@ -65,77 +60,7 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
         variant: "destructive",
       });
     } else {
-      if (isWalletUser) {
-        setStep(2);
-      } else {
-        setStep(3);
-      }
-    }
-
-    setIsLoading(false);
-  };
-
-  const handleSaveEmail = async () => {
-    if (!email.trim()) {
-      // Skip email step
-      setStep(3);
-      return;
-    }
-
-    // Validate email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      toast({
-        title: "Invalid email",
-        description: "Please enter a valid email address.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Don't allow wallet.local emails
-    if (email.includes("@wallet.local")) {
-      toast({
-        title: "Invalid email",
-        description: "Please use a real email address.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      // Use edge function for wallet users to bypass email validation issues
-      const response = await fetch(
-        "https://chmddvsbvhmwhfbvzlwt.supabase.co/functions/v1/update-wallet-email",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
-          },
-          body: JSON.stringify({ newEmail: email.trim() }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to update email");
-      }
-
-      toast({
-        title: "Email added",
-        description: data.message || "Please check your inbox to verify your email.",
-      });
-      setStep(3);
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+      setStep(2);
     }
 
     setIsLoading(false);
@@ -146,7 +71,7 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
 
     const { error } = await supabase
       .from("profiles")
-      .update({ onboarding_completed: true, onboarding_step: 3 })
+      .update({ onboarding_completed: true, onboarding_step: 2 })
       .eq("user_id", user?.id);
 
     if (error) {
@@ -165,7 +90,7 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
     }
   };
 
-  // Step 3: Completion with scholarship prompt
+  // Scholarship prompt after completion
   if (showScholarshipPrompt) {
     return (
       <Dialog open onOpenChange={() => handleScholarshipChoice(false)}>
@@ -232,52 +157,8 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
     );
   }
 
-  // Step 2: Email (wallet users only)
+  // Step 2: Complete
   if (step === 2) {
-    return (
-      <Dialog open onOpenChange={() => {}}>
-        <DialogContent className="sm:max-w-md" onPointerDownOutside={(e) => e.preventDefault()}>
-          <DialogHeader>
-            <div className="mx-auto mb-4 w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-              <Mail className="w-8 h-8 text-primary" />
-            </div>
-            <DialogTitle className="text-center">Add an email address?</DialogTitle>
-            <DialogDescription className="text-center">
-              Optional: Add an email for notifications and account recovery
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 pt-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email Address</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="your@email.com (optional)"
-              />
-            </div>
-            <div className="flex gap-2">
-              <Button variant="outline" className="flex-1" onClick={() => setStep(3)} disabled={isLoading}>
-                Skip
-              </Button>
-              <Button className="flex-1" onClick={handleSaveEmail} disabled={isLoading}>
-                {isLoading ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <ArrowRight className="w-4 h-4 mr-2" />
-                )}
-                Add Email
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
-  // Step 3: Complete
-  if (step === 3) {
     return (
       <Dialog open onOpenChange={() => {}}>
         <DialogContent className="sm:max-w-md" onPointerDownOutside={(e) => e.preventDefault()}>

@@ -11,7 +11,6 @@ import {
   Menu,
   X,
   ChevronRight,
-  Wallet,
   BookOpen,
   GraduationCap,
 } from "lucide-react";
@@ -36,7 +35,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     // Show onboarding if profile exists but onboarding not completed
-    if (profile && !profile.onboarding_completed) {
+    if (profile && profile.onboarding_completed === false) {
       setShowOnboarding(true);
     }
   }, [profile]);
@@ -74,13 +73,11 @@ const Dashboard = () => {
   // Get user initial for avatar
   const getInitial = () => {
     if (profile?.full_name) return profile.full_name.charAt(0).toUpperCase();
-    if (user.email && !user.email.includes("@wallet.local")) {
+    if (user.email) {
       return user.email.charAt(0).toUpperCase();
     }
     return "U";
   };
-
-  const isWalletUser = user.email?.includes("@wallet.local");
 
   return (
     <div className="min-h-screen bg-secondary/30">
@@ -125,14 +122,7 @@ const Dashboard = () => {
                 {profile?.full_name || "User"}
               </p>
               <p className="text-xs text-muted-foreground truncate">
-                {isWalletUser ? (
-                  <span className="flex items-center gap-1">
-                    <Wallet className="w-3 h-3" />
-                    Wallet Connected
-                  </span>
-                ) : (
-                  user.email
-                )}
+                {user.email}
               </p>
             </div>
           </div>

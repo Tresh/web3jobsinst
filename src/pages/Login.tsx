@@ -7,13 +7,11 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Mail, X } from "lucide-react";
 import logo from "@/assets/logo.png";
-import { WalletAuthDialog } from "@/components/auth/WalletAuthDialog";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isWalletDialogOpen, setIsWalletDialogOpen] = useState(false);
   
   const { signInWithEmail, user } = useAuth();
   const { toast } = useToast();
@@ -78,37 +76,6 @@ const Login = () => {
             Sign in to your account to continue
           </p>
 
-          {/* Wallet Connection - Primary */}
-          <div className="space-y-3 mb-6">
-            <Button
-              variant="default"
-              className="w-full h-12 text-base font-medium"
-              onClick={() => setIsWalletDialogOpen(true)}
-            >
-              <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
-                <path d="M3 5v14a2 2 0 0 0 2 2h16v-5" />
-                <path d="M18 12a2 2 0 0 0 0 4h4v-4Z" />
-              </svg>
-              Continue with Wallet
-            </Button>
-          </div>
-
-          <WalletAuthDialog 
-            open={isWalletDialogOpen} 
-            onOpenChange={setIsWalletDialogOpen} 
-          />
-
-          {/* Divider */}
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-border" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-card text-muted-foreground">or continue with email</span>
-            </div>
-          </div>
-
           {/* Email Form */}
           <form onSubmit={handleEmailLogin} className="space-y-4">
             <div className="space-y-2">
@@ -137,7 +104,6 @@ const Login = () => {
             </div>
             <Button
               type="submit"
-              variant="secondary"
               className="w-full h-12 text-base font-medium"
               disabled={isLoading}
             >
@@ -146,7 +112,7 @@ const Login = () => {
               ) : (
                 <Mail className="h-5 w-5 mr-2" />
               )}
-              Sign in with Email
+              Sign in
             </Button>
           </form>
 
