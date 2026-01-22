@@ -14,7 +14,7 @@ import {
   BookOpen,
   GraduationCap,
 } from "lucide-react";
-import logo from "@/assets/logo.png";
+
 import OnboardingFlow from "@/components/onboarding/OnboardingFlow";
 
 const navItems = [
@@ -84,7 +84,7 @@ const Dashboard = () => {
       {/* Mobile Header */}
       <header className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-background border-b border-border h-16 px-4 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
-          <img src={logo} alt="Web3 Jobs Institute" className="w-8 h-8" />
+          <img src="/favicon.png" alt="Web3 Jobs Institute" className="w-8 h-8" />
           <span className="font-bold text-foreground">W3JI</span>
         </Link>
         <button
@@ -104,7 +104,7 @@ const Dashboard = () => {
         {/* Sidebar Header */}
         <div className="h-16 border-b border-border px-4 flex items-center gap-2">
           <Link to="/" className="flex items-center gap-2">
-            <img src={logo} alt="Web3 Jobs Institute" className="w-8 h-8" />
+            <img src="/favicon.png" alt="Web3 Jobs Institute" className="w-8 h-8" />
             <span className="font-bold text-foreground">Web3 Jobs Institute</span>
           </Link>
         </div>

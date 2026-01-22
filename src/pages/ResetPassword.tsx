@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Lock, CheckCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import logo from "@/assets/logo.png";
+
 
 const ResetPassword = () => {
   const [password, setPassword] = useState("");
@@ -81,7 +81,7 @@ const ResetPassword = () => {
         {/* Logo */}
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-2">
-            <img src={logo} alt="Web3 Jobs Institute" className="w-10 h-10 object-contain" />
+            <img src="/favicon.png" alt="Web3 Jobs Institute" className="w-10 h-10 object-contain" />
             <span className="font-bold text-xl text-foreground">Web3 Jobs Institute</span>
           </Link>
         </div>

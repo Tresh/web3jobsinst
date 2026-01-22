@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Mail, X } from "lucide-react";
-import logo from "@/assets/logo.png";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -64,7 +63,7 @@ const Login = () => {
         {/* Logo */}
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-2">
-            <img src={logo} alt="Web3 Jobs Institute" className="w-10 h-10 object-contain" />
+            <img src="/favicon.png" alt="Web3 Jobs Institute" className="w-10 h-10 object-contain" />
             <span className="font-bold text-xl text-foreground">Web3 Jobs Institute</span>
           </Link>
         </div>
