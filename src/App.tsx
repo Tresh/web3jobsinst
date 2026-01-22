@@ -21,6 +21,9 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import Tutors from "./pages/Tutors";
+import Institutions from "./pages/Institutions";
+import InstitutionPortal from "./pages/InstitutionPortal";
 
 // User Dashboard
 import Dashboard from "./pages/Dashboard";
@@ -70,6 +73,9 @@ const App = () => (
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/scholarship/:programId" element={<Scholarship />} />
+            <Route path="/tutors" element={<Tutors />} />
+            <Route path="/institutions" element={<Institutions />} />
+            <Route path="/institutions/:slug" element={<InstitutionPortal />} />
 
             {/* User Dashboard routes */}
             <Route
