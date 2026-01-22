@@ -18,6 +18,29 @@ interface OnboardingFlowProps {
   onComplete: () => void;
 }
 
+const SCHOLARSHIP_POPUP_KEY = "scholarship_popup_dismissed_at";
+
+const shouldShowScholarshipPopup = (userId: string): boolean => {
+  const key = `${SCHOLARSHIP_POPUP_KEY}_${userId}`;
+  const dismissedAt = localStorage.getItem(key);
+  
+  if (!dismissedAt) {
+    return true; // Never dismissed, show it
+  }
+  
+  const dismissedDate = new Date(dismissedAt);
+  const now = new Date();
+  const oneDayInMs = 24 * 60 * 60 * 1000;
+  
+  // Show again if more than 24 hours have passed
+  return now.getTime() - dismissedDate.getTime() > oneDayInMs;
+};
+
+const dismissScholarshipPopup = (userId: string): void => {
+  const key = `${SCHOLARSHIP_POPUP_KEY}_${userId}`;
+  localStorage.setItem(key, new Date().toISOString());
+};
+
 const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
   const { user, profile } = useAuth();
   const { toast } = useToast();
@@ -30,11 +53,14 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
     // Determine starting step based on profile completeness
     if (!profile?.full_name) {
       setStep(1);
-    } else {
-      // Profile is complete, show scholarship prompt
+    } else if (user?.id && shouldShowScholarshipPopup(user.id)) {
+      // Profile is complete, check if we should show scholarship prompt
       setShowScholarshipPrompt(true);
+    } else {
+      // Popup was dismissed recently, complete onboarding silently
+      onComplete();
     }
-  }, [profile]);
+  }, [profile, user?.id, onComplete]);
 
   const handleSaveName = async () => {
     if (!fullName.trim()) {
@@ -79,10 +105,19 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
     }
 
     setIsLoading(false);
-    setShowScholarshipPrompt(true);
+    
+    // Only show scholarship prompt if it hasn't been dismissed recently
+    if (user?.id && shouldShowScholarshipPopup(user.id)) {
+      setShowScholarshipPrompt(true);
+    } else {
+      onComplete();
+    }
   };
 
   const handleScholarshipChoice = (apply: boolean) => {
+    if (user?.id) {
+      dismissScholarshipPopup(user.id);
+    }
     setShowScholarshipPrompt(false);
     onComplete();
     if (apply) {

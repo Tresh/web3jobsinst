@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import logo from "@/assets/logo.png";
+import faviconLogo from "/favicon.png";
 import ComingSoonDialog from "./ComingSoonDialog";
 import TutorFormDialog from "./TutorFormDialog";
 import { useAuth } from "@/contexts/AuthContext";
@@ -63,7 +63,7 @@ const Footer = () => {
             {/* Logo & Description */}
             <div className="col-span-2 md:col-span-1">
               <Link to="/" className="inline-flex items-center gap-2 mb-4">
-                <img src={logo} alt="Web3 Jobs Institute" className="w-8 h-8 object-contain" />
+                <img src={faviconLogo} alt="Web3 Jobs Institute" className="w-8 h-8 object-contain" />
                 <span className="font-bold text-lg text-foreground">Web3 Jobs Institute</span>
               </Link>
               <p className="text-muted-foreground text-sm max-w-sm">
