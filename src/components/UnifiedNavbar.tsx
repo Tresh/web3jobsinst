@@ -36,6 +36,8 @@ const mainLinks: NavLink[] = [
 ];
 
 const opportunityLinks: NavLink[] = [
+  { label: "Become a Tutor", href: "/tutors" },
+  { label: "Verified Institutions", href: "/institutions" },
   { label: "Bootcamp", comingSoon: "Bootcamp Coming Soon" },
   { label: "Affiliates", comingSoon: "Affiliates Coming Soon" },
   { label: "Jobs", comingSoon: "Jobs Board Coming Soon" },
@@ -142,16 +144,24 @@ const UnifiedNavbar = ({
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="center" className="bg-background border border-border">
                   {opportunityLinks.map((link) => (
-                    <DropdownMenuItem
-                      key={link.label}
-                      onClick={() => handleComingSoon(link.comingSoon!)}
-                      className="cursor-pointer flex items-center justify-between"
-                    >
-                      {link.label}
-                      <span className="text-[10px] px-1.5 py-0.5 bg-secondary text-muted-foreground rounded ml-2">
-                        Soon
-                      </span>
-                    </DropdownMenuItem>
+                    link.href ? (
+                      <DropdownMenuItem key={link.label} asChild>
+                        <Link to={link.href} className="cursor-pointer">
+                          {link.label}
+                        </Link>
+                      </DropdownMenuItem>
+                    ) : (
+                      <DropdownMenuItem
+                        key={link.label}
+                        onClick={() => handleComingSoon(link.comingSoon!)}
+                        className="cursor-pointer flex items-center justify-between"
+                      >
+                        {link.label}
+                        <span className="text-[10px] px-1.5 py-0.5 bg-secondary text-muted-foreground rounded ml-2">
+                          Soon
+                        </span>
+                      </DropdownMenuItem>
+                    )
                   ))}
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -204,16 +214,27 @@ const UnifiedNavbar = ({
                         Opportunities
                       </div>
                       {opportunityLinks.map((link) => (
-                        <button
-                          key={link.label}
-                          onClick={() => handleComingSoon(link.comingSoon!)}
-                          className="py-3 px-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-lg transition-colors duration-150 text-left flex items-center justify-between"
-                        >
-                          {link.label}
-                          <span className="text-[10px] px-1.5 py-0.5 bg-secondary text-muted-foreground rounded">
-                            Soon
-                          </span>
-                        </button>
+                        link.href ? (
+                          <Link
+                            key={link.label}
+                            to={link.href}
+                            className="py-3 px-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-lg transition-colors duration-150"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                          >
+                            {link.label}
+                          </Link>
+                        ) : (
+                          <button
+                            key={link.label}
+                            onClick={() => handleComingSoon(link.comingSoon!)}
+                            className="py-3 px-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-lg transition-colors duration-150 text-left flex items-center justify-between"
+                          >
+                            {link.label}
+                            <span className="text-[10px] px-1.5 py-0.5 bg-secondary text-muted-foreground rounded">
+                              Soon
+                            </span>
+                          </button>
+                        )
                       ))}
 
                       {/* Auth buttons for mobile - at bottom */}

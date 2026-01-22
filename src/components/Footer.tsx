@@ -2,13 +2,11 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import faviconLogo from "/favicon.png";
 import ComingSoonDialog from "./ComingSoonDialog";
-import TutorFormDialog from "./TutorFormDialog";
 import { useAuth } from "@/contexts/AuthContext";
 
 const Footer = () => {
   const [comingSoonOpen, setComingSoonOpen] = useState(false);
   const [comingSoonTitle, setComingSoonTitle] = useState("");
-  const [tutorOpen, setTutorOpen] = useState(false);
   const currentYear = new Date().getFullYear();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -38,7 +36,8 @@ const Footer = () => {
 
   const opportunityLinks = [
     { label: "Apply for Scholarship", action: "scholarship" },
-    { label: "Become a Tutor", action: "tutor" },
+    { label: "Become a Tutor", href: "/tutors" },
+    { label: "Verified Institutions", href: "/institutions" },
     { label: "List a Product", action: "listProduct" },
     { label: "List as a Talent", action: "listTalent" },
     { label: "Affiliates", comingSoon: "Affiliates Coming Soon" },
@@ -95,7 +94,14 @@ const Footer = () => {
               <ul className="space-y-2">
                 {opportunityLinks.map((link) => (
                   <li key={link.label}>
-                    {link.comingSoon ? (
+                    {link.href ? (
+                      <Link
+                        to={link.href}
+                        className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-150"
+                      >
+                        {link.label}
+                      </Link>
+                    ) : link.comingSoon ? (
                       <button
                         onClick={() => handleComingSoon(link.comingSoon)}
                         className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-150"
@@ -106,7 +112,6 @@ const Footer = () => {
                       <button
                         onClick={() => {
                           if (link.action === "scholarship") handleScholarshipClick();
-                          else if (link.action === "tutor") setTutorOpen(true);
                           else if (link.action === "listProduct") {
                             setComingSoonTitle("List a Product - Coming Soon");
                             setComingSoonOpen(true);
@@ -170,7 +175,6 @@ const Footer = () => {
         title={comingSoonTitle}
         onScholarshipClick={handleScholarshipClick}
       />
-      <TutorFormDialog open={tutorOpen} onOpenChange={setTutorOpen} />
     </>
   );
 };
