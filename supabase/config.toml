@@ -1,7 +1,1 @@
 project_id = "chmddvsbvhmwhfbvzlwt"
-
-[functions.wallet-auth]
-verify_jwt = false
-
-[functions.update-wallet-email]
-verify_jwt = false

@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, User, Lock, Mail, Wallet, AlertCircle } from "lucide-react";
+import { Loader2, User, Lock, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const DashboardSettings = () => {
@@ -21,10 +21,6 @@ const DashboardSettings = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
-  
-  const [newEmail, setNewEmail] = useState("");
-
-  const isWalletUser = user?.email?.includes("@wallet.local");
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -110,69 +106,6 @@ const DashboardSettings = () => {
     setIsLoading(false);
   };
 
-  const handleAddEmail = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(newEmail)) {
-      toast({
-        title: "Invalid email",
-        description: "Please enter a valid email address.",
-        variant: "destructive",
-      });
-      setIsLoading(false);
-      return;
-    }
-
-    // Don't allow wallet.local emails
-    if (newEmail.includes("@wallet.local")) {
-      toast({
-        title: "Invalid email",
-        description: "Please use a real email address.",
-        variant: "destructive",
-      });
-      setIsLoading(false);
-      return;
-    }
-
-    try {
-      // Use edge function for wallet users to bypass email validation issues
-      const response = await fetch(
-        "https://chmddvsbvhmwhfbvzlwt.supabase.co/functions/v1/update-wallet-email",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
-          },
-          body: JSON.stringify({ newEmail }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to update email");
-      }
-
-      toast({
-        title: "Email added",
-        description: data.message || "Please check your inbox to verify your new email.",
-      });
-      setNewEmail("");
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-
-    setIsLoading(false);
-  };
-
   // Get display initial
   const getInitial = () => {
     if (fullName) return fullName.charAt(0).toUpperCase();
@@ -195,18 +128,10 @@ const DashboardSettings = () => {
             <User className="w-4 h-4" />
             Profile
           </TabsTrigger>
-          {!isWalletUser && (
-            <TabsTrigger value="security" className="gap-2">
-              <Lock className="w-4 h-4" />
-              Security
-            </TabsTrigger>
-          )}
-          {isWalletUser && (
-            <TabsTrigger value="email" className="gap-2">
-              <Mail className="w-4 h-4" />
-              Add Email
-            </TabsTrigger>
-          )}
+          <TabsTrigger value="security" className="gap-2">
+            <Lock className="w-4 h-4" />
+            Security
+          </TabsTrigger>
         </TabsList>
 
         {/* Profile Tab */}
@@ -250,21 +175,13 @@ const DashboardSettings = () => {
                 {/* Email (read-only) */}
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      id="email"
-                      type="email"
-                      value={isWalletUser ? "No email linked" : (user?.email || "")}
-                      disabled
-                      className="bg-secondary"
-                    />
-                    {isWalletUser && (
-                      <span className="flex items-center gap-1 text-xs text-muted-foreground whitespace-nowrap">
-                        <Wallet className="w-3 h-3" />
-                        Wallet User
-                      </span>
-                    )}
-                  </div>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={user?.email || ""}
+                    disabled
+                    className="bg-secondary"
+                  />
                 </div>
 
                 <Button type="submit" disabled={isLoading}>
@@ -276,110 +193,68 @@ const DashboardSettings = () => {
           </Card>
         </TabsContent>
 
-        {/* Security Tab - Only for email users */}
-        {!isWalletUser && (
-          <TabsContent value="security">
-            <Card>
-              <CardHeader>
-                <CardTitle>Change Password</CardTitle>
-                <CardDescription>
-                  Update your password to keep your account secure
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleChangePassword} className="space-y-4">
-                  {passwordError && (
-                    <Alert variant="destructive">
-                      <AlertCircle className="h-4 w-4" />
-                      <AlertDescription>{passwordError}</AlertDescription>
-                    </Alert>
-                  )}
+        {/* Security Tab */}
+        <TabsContent value="security">
+          <Card>
+            <CardHeader>
+              <CardTitle>Change Password</CardTitle>
+              <CardDescription>
+                Update your password to keep your account secure
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleChangePassword} className="space-y-4">
+                {passwordError && (
+                  <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>{passwordError}</AlertDescription>
+                  </Alert>
+                )}
 
-                  <div className="space-y-2">
-                    <Label htmlFor="currentPassword">Current Password</Label>
-                    <Input
-                      id="currentPassword"
-                      type="password"
-                      placeholder="••••••••"
-                      value={currentPassword}
-                      onChange={(e) => setCurrentPassword(e.target.value)}
-                      required
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="currentPassword">Current Password</Label>
+                  <Input
+                    id="currentPassword"
+                    type="password"
+                    placeholder="••••••••"
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    required
+                  />
+                </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="newPassword">New Password</Label>
-                    <Input
-                      id="newPassword"
-                      type="password"
-                      placeholder="••••••••"
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      required
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="newPassword">New Password</Label>
+                  <Input
+                    id="newPassword"
+                    type="password"
+                    placeholder="••••••••"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    required
+                  />
+                </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">Confirm New Password</Label>
-                    <Input
-                      id="confirmPassword"
-                      type="password"
-                      placeholder="••••••••"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      required
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                  <Input
+                    id="confirmPassword"
+                    type="password"
+                    placeholder="••••••••"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                  />
+                </div>
 
-                  <Button type="submit" disabled={isLoading}>
-                    {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                    Update Password
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        )}
-
-        {/* Add Email Tab (for wallet users) */}
-        {isWalletUser && (
-          <TabsContent value="email">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Mail className="w-5 h-5" />
-                  Add Email Address
-                </CardTitle>
-                <CardDescription>
-                  Add an email to receive notifications and enable email/password login
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleAddEmail} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="newEmail">Email Address</Label>
-                    <Input
-                      id="newEmail"
-                      type="email"
-                      placeholder="you@example.com"
-                      value={newEmail}
-                      onChange={(e) => setNewEmail(e.target.value)}
-                      required
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      A verification link will be sent to this email address. After verification, you can use this email to log in.
-                    </p>
-                  </div>
-
-                  <Button type="submit" disabled={isLoading}>
-                    {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                    Add Email
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        )}
+                <Button type="submit" disabled={isLoading}>
+                  {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                  Update Password
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
     </div>
   );

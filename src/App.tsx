@@ -4,7 +4,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { WalletContextProvider } from "@/contexts/WalletContext";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
 import Index from "./pages/Index";
@@ -49,74 +48,72 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <WalletContextProvider>
-      <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              {/* Public routes */}
-              <Route path="/" element={<Index />} />
-              <Route path="/courses" element={<Courses />} />
-              <Route path="/products" element={<Products />} />
-              <Route path="/affiliates" element={<Affiliates />} />
-              <Route path="/talent" element={<TalentMarket />} />
-              <Route path="/campaigns" element={<Campaigns />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/privacy" element={<Privacy />} />
-              <Route path="/terms" element={<Terms />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/scholarship/:programId" element={<Scholarship />} />
+    <AuthProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            {/* Public routes */}
+            <Route path="/" element={<Index />} />
+            <Route path="/courses" element={<Courses />} />
+            <Route path="/products" element={<Products />} />
+            <Route path="/affiliates" element={<Affiliates />} />
+            <Route path="/talent" element={<TalentMarket />} />
+            <Route path="/campaigns" element={<Campaigns />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/scholarship/:programId" element={<Scholarship />} />
 
-              {/* User Dashboard routes */}
-              <Route
-                path="/dashboard"
-                element={
-                  <ProtectedRoute>
-                    <Dashboard />
-                  </ProtectedRoute>
-                }
-              >
-                <Route index element={<DashboardOverview />} />
-                <Route path="scholarship" element={<DashboardScholarship />} />
-                <Route path="courses" element={<DashboardCourses />} />
-                <Route path="products" element={<DashboardProducts />} />
-                <Route path="talent" element={<DashboardTalent />} />
-                <Route path="settings" element={<DashboardSettings />} />
-              </Route>
+            {/* User Dashboard routes */}
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            >
+              <Route index element={<DashboardOverview />} />
+              <Route path="scholarship" element={<DashboardScholarship />} />
+              <Route path="courses" element={<DashboardCourses />} />
+              <Route path="products" element={<DashboardProducts />} />
+              <Route path="talent" element={<DashboardTalent />} />
+              <Route path="settings" element={<DashboardSettings />} />
+            </Route>
 
-              {/* Admin routes */}
-              <Route
-                path="/admin"
-                element={
-                  <ProtectedRoute requireModerator>
-                    <AdminLayout />
-                  </ProtectedRoute>
-                }
-              >
-                <Route index element={<AdminDashboard />} />
-                <Route path="courses" element={<AdminCourses />} />
-                <Route path="products" element={<AdminProducts />} />
-                <Route path="talents" element={<AdminTalents />} />
-                <Route path="campaigns" element={<AdminCampaigns />} />
-                <Route path="users" element={<AdminUsers />} />
-                <Route path="roles" element={<AdminRoles />} />
-                <Route path="scholarships" element={<AdminScholarships />} />
-                <Route path="settings" element={<AdminSettings />} />
-              </Route>
+            {/* Admin routes */}
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute requireModerator>
+                  <AdminLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route index element={<AdminDashboard />} />
+              <Route path="courses" element={<AdminCourses />} />
+              <Route path="products" element={<AdminProducts />} />
+              <Route path="talents" element={<AdminTalents />} />
+              <Route path="campaigns" element={<AdminCampaigns />} />
+              <Route path="users" element={<AdminUsers />} />
+              <Route path="roles" element={<AdminRoles />} />
+              <Route path="scholarships" element={<AdminScholarships />} />
+              <Route path="settings" element={<AdminSettings />} />
+            </Route>
 
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </AuthProvider>
-    </WalletContextProvider>
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 
