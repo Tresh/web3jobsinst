@@ -110,7 +110,14 @@ const App = () => (
               <Route path="campaigns" element={<AdminCampaigns />} />
               <Route path="users" element={<AdminUsers />} />
               <Route path="roles" element={<AdminRoles />} />
-              <Route path="scholarships" element={<AdminScholarships />} />
+              <Route
+                path="scholarships"
+                element={
+                  <ProtectedRoute requireAdmin>
+                    <AdminScholarships />
+                  </ProtectedRoute>
+                }
+              />
               <Route path="settings" element={<AdminSettings />} />
             </Route>
 
