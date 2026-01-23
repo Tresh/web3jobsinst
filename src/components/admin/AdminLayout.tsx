@@ -27,6 +27,7 @@ import {
   LogOut,
   Home,
   ShieldCheck,
+  GraduationCap,
 } from "lucide-react";
 import logo from "@/assets/logo.png";
 
@@ -55,6 +56,11 @@ const adminNavItems = [
     title: "Campaigns",
     icon: Megaphone,
     href: "/admin/campaigns",
+  },
+  {
+    title: "Scholarships",
+    icon: GraduationCap,
+    href: "/admin/scholarships",
   },
 ];
 
