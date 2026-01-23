@@ -4,25 +4,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { GraduationCap, Clock, CheckCircle, XCircle, Loader2, ExternalLink } from "lucide-react";
+import { GraduationCap, Clock, CheckCircle, XCircle, Loader2, ExternalLink, AlertCircle } from "lucide-react";
 import { Link } from "react-router-dom";
-
-interface ScholarshipProgram {
-  id: string;
-  title: string;
-  description: string | null;
-  is_active: boolean;
-  application_deadline: string | null;
-  telegram_link: string | null;
-}
-
-interface ScholarshipApplication {
-  id: string;
-  program_id: string;
-  status: string;
-  created_at: string;
-  program?: ScholarshipProgram;
-}
+import { ScholarshipPortal } from "@/components/scholarship/ScholarshipPortal";
+import type { ScholarshipApplication, ScholarshipProgram } from "@/types/scholarship";
 
 const DashboardScholarship = () => {
   const { user } = useAuth();
@@ -34,26 +19,34 @@ const DashboardScholarship = () => {
     const fetchData = async () => {
       if (!user) return;
 
-      // Fetch user's applications
       const { data: apps } = await supabase
         .from("scholarship_applications")
         .select("*")
-        .eq("user_id", user.id);
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
 
-      // Fetch active programs
       const { data: programs } = await supabase
         .from("scholarship_programs")
         .select("*")
         .eq("is_active", true);
 
-      setApplications(apps || []);
-      setActivePrograms(programs || []);
+      setApplications((apps || []) as unknown as ScholarshipApplication[]);
+      setActivePrograms((programs || []) as unknown as ScholarshipProgram[]);
       setIsLoading(false);
     };
 
     fetchData();
   }, [user]);
 
+  // Check if user has an approved application
+  const approvedApplication = applications.find((app) => app.status === "approved");
+
+  // If approved, show the full portal
+  if (!isLoading && approvedApplication) {
+    return <ScholarshipPortal />;
+  }
+
+  // Helper functions for non-approved users
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "approved":
@@ -73,6 +66,8 @@ const DashboardScholarship = () => {
         return <CheckCircle className="w-5 h-5 text-green-500" />;
       case "rejected":
         return <XCircle className="w-5 h-5 text-red-500" />;
+      case "waitlist":
+        return <AlertCircle className="w-5 h-5 text-yellow-500" />;
       default:
         return <Clock className="w-5 h-5 text-blue-500" />;
     }
@@ -135,15 +130,30 @@ const DashboardScholarship = () => {
                         )}
                       </div>
                     </div>
+                    
                     {app.status === "pending" && (
-                      <p className="text-sm text-muted-foreground mt-4 bg-secondary/50 p-3 rounded-lg">
-                        Your application is being reviewed. You'll receive an email notification once a decision is made.
-                      </p>
+                      <div className="mt-4 bg-secondary/50 p-4 rounded-lg">
+                        <p className="text-sm text-muted-foreground">
+                          <Clock className="w-4 h-4 inline mr-2" />
+                          Your application is being reviewed. You'll receive a notification once a decision is made.
+                        </p>
+                      </div>
                     )}
-                    {app.status === "approved" && (
-                      <div className="mt-4 bg-green-500/10 p-3 rounded-lg">
-                        <p className="text-sm text-green-600 dark:text-green-400">
-                          🎉 Congratulations! Your application has been approved. Join the scholarship community to get started.
+                    
+                    {app.status === "rejected" && (
+                      <div className="mt-4 bg-red-500/10 p-4 rounded-lg">
+                        <p className="text-sm font-medium text-red-500 mb-1">Application Not Accepted</p>
+                        <p className="text-sm text-muted-foreground">
+                          {app.rejection_reason || "Unfortunately, your application was not accepted at this time. You may apply for future programs."}
+                        </p>
+                      </div>
+                    )}
+                    
+                    {app.status === "waitlist" && (
+                      <div className="mt-4 bg-yellow-500/10 p-4 rounded-lg">
+                        <p className="text-sm font-medium text-yellow-600 dark:text-yellow-400 mb-1">You're on the Waitlist</p>
+                        <p className="text-sm text-muted-foreground">
+                          Your application is on the waitlist. We'll notify you if a spot becomes available.
                         </p>
                       </div>
                     )}

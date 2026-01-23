@@ -15,6 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import {
   Select,
@@ -23,46 +24,63 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { GraduationCap, Plus, Loader2, Eye, CheckCircle, XCircle, Clock, Users } from "lucide-react";
-
-interface ScholarshipProgram {
-  id: string;
-  title: string;
-  description: string | null;
-  is_active: boolean;
-  max_applications: number | null;
-  application_deadline: string | null;
-  telegram_link: string | null;
-  created_at: string;
-}
-
-interface ScholarshipApplication {
-  id: string;
-  user_id: string;
-  program_id: string;
-  status: string;
-  full_name: string;
-  email: string;
-  telegram_username: string;
-  twitter_handle: string;
-  country: string;
-  age_range: string;
-  main_goal: string;
-  hours_per_week: string;
-  preferred_track: string;
-  why_scholarship: string;
-  created_at: string;
-}
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  GraduationCap,
+  Plus,
+  Loader2,
+  Eye,
+  CheckCircle,
+  XCircle,
+  Clock,
+  Users,
+  ListTodo,
+  BookOpen,
+  Send,
+  Calendar,
+  Zap,
+  ExternalLink,
+} from "lucide-react";
+import { format } from "date-fns";
+import type {
+  ScholarshipProgram,
+  ScholarshipApplication,
+  ScholarshipTask,
+  ScholarshipTaskSubmission,
+  ScholarshipModule,
+} from "@/types/scholarship";
+import { TASK_TYPE_LABELS, TaskType } from "@/types/scholarship";
 
 const AdminScholarships = () => {
+  const { user } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [programs, setPrograms] = useState<ScholarshipProgram[]>([]);
   const [applications, setApplications] = useState<ScholarshipApplication[]>([]);
+  const [tasks, setTasks] = useState<ScholarshipTask[]>([]);
+  const [submissions, setSubmissions] = useState<(ScholarshipTaskSubmission & { task?: ScholarshipTask; applicant?: ScholarshipApplication })[]>([]);
+  const [modules, setModules] = useState<ScholarshipModule[]>([]);
+  
   const [selectedApplication, setSelectedApplication] = useState<ScholarshipApplication | null>(null);
+  const [selectedSubmission, setSelectedSubmission] = useState<(ScholarshipTaskSubmission & { task?: ScholarshipTask; applicant?: ScholarshipApplication }) | null>(null);
+  const [rejectionReason, setRejectionReason] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [isCreating, setIsCreating] = useState(false);
+  const [submissionFilter, setSubmissionFilter] = useState<string>("pending");
+
+  // Form states
+  const [isCreatingProgram, setIsCreatingProgram] = useState(false);
+  const [isCreatingTask, setIsCreatingTask] = useState(false);
+  const [isCreatingModule, setIsCreatingModule] = useState(false);
+  
   const [newProgram, setNewProgram] = useState({
     title: "",
     description: "",
@@ -71,21 +89,49 @@ const AdminScholarships = () => {
     application_deadline: "",
   });
 
+  const [newTask, setNewTask] = useState({
+    program_id: "",
+    title: "",
+    description: "",
+    task_type: "custom" as TaskType,
+    xp_value: "10",
+    due_date: "",
+    is_global: false,
+  });
+
+  const [newModule, setNewModule] = useState({
+    program_id: "",
+    title: "",
+    description: "",
+    unlock_type: "day" as "day" | "task" | "manual",
+    unlock_day: "",
+    order_index: "0",
+  });
+
   const fetchData = async () => {
     setIsLoading(true);
-    
-    const { data: progs } = await supabase
-      .from("scholarship_programs")
-      .select("*")
-      .order("created_at", { ascending: false });
 
-    const { data: apps } = await supabase
-      .from("scholarship_applications")
-      .select("*")
-      .order("created_at", { ascending: false });
+    const [progsRes, appsRes, tasksRes, subsRes, modsRes] = await Promise.all([
+      supabase.from("scholarship_programs").select("*").order("created_at", { ascending: false }),
+      supabase.from("scholarship_applications").select("*").order("created_at", { ascending: false }),
+      supabase.from("scholarship_tasks").select("*").order("created_at", { ascending: false }),
+      supabase.from("scholarship_task_submissions").select("*").order("created_at", { ascending: false }),
+      supabase.from("scholarship_modules").select("*").order("order_index", { ascending: true }),
+    ]);
 
-    setPrograms(progs || []);
-    setApplications(apps || []);
+    setPrograms((progsRes.data || []) as unknown as ScholarshipProgram[]);
+    setApplications((appsRes.data || []) as unknown as ScholarshipApplication[]);
+    setTasks((tasksRes.data || []) as unknown as ScholarshipTask[]);
+    setModules((modsRes.data || []) as unknown as ScholarshipModule[]);
+
+    // Enrich submissions with task and applicant data
+    const enrichedSubmissions = (subsRes.data || []).map((sub) => {
+      const task = (tasksRes.data || []).find((t) => t.id === sub.task_id);
+      const applicant = (appsRes.data || []).find((a) => a.user_id === sub.user_id);
+      return { ...sub, task, applicant };
+    });
+    setSubmissions(enrichedSubmissions as unknown as typeof submissions);
+
     setIsLoading(false);
   };
 
@@ -93,17 +139,13 @@ const AdminScholarships = () => {
     fetchData();
   }, []);
 
+  // Program functions
   const handleCreateProgram = async () => {
     if (!newProgram.title) {
-      toast({
-        title: "Error",
-        description: "Please enter a program title",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: "Please enter a program title", variant: "destructive" });
       return;
     }
-
-    setIsCreating(true);
+    setIsCreatingProgram(true);
 
     const { error } = await supabase.from("scholarship_programs").insert({
       title: newProgram.title,
@@ -115,27 +157,13 @@ const AdminScholarships = () => {
     });
 
     if (error) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
-      toast({
-        title: "Program created",
-        description: "The scholarship program has been created.",
-      });
-      setNewProgram({
-        title: "",
-        description: "",
-        telegram_link: "",
-        max_applications: "",
-        application_deadline: "",
-      });
+      toast({ title: "Program created" });
+      setNewProgram({ title: "", description: "", telegram_link: "", max_applications: "", application_deadline: "" });
       fetchData();
     }
-
-    setIsCreating(false);
+    setIsCreatingProgram(false);
   };
 
   const toggleProgramActive = async (programId: string, currentStatus: boolean) => {
@@ -144,42 +172,209 @@ const AdminScholarships = () => {
       .update({ is_active: !currentStatus })
       .eq("id", programId);
 
+    if (!error) fetchData();
+  };
+
+  // Application functions
+  const updateApplicationStatus = async (
+    applicationId: string,
+    newStatus: "pending" | "approved" | "rejected" | "waitlist",
+    startDate?: string
+  ) => {
+    const updateData: Record<string, unknown> = { status: newStatus };
+    
+    if (newStatus === "rejected" && rejectionReason) {
+      updateData.rejection_reason = rejectionReason;
+    }
+    if (newStatus === "approved" && startDate) {
+      updateData.scholarship_start_date = startDate;
+    }
+
+    const { error } = await supabase
+      .from("scholarship_applications")
+      .update(updateData)
+      .eq("id", applicationId);
+
     if (error) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
+      toast({ title: "Status updated", description: `Application ${newStatus}` });
+      
+      // Create notification for user
+      const app = applications.find((a) => a.id === applicationId);
+      if (app) {
+        await supabase.from("scholarship_notifications").insert({
+          user_id: app.user_id,
+          title: newStatus === "approved" ? "Scholarship Approved! 🎉" : `Application ${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}`,
+          message: newStatus === "approved"
+            ? "Congratulations! Your scholarship application has been approved. Access your portal now."
+            : newStatus === "rejected"
+            ? rejectionReason || "Your application was not accepted at this time."
+            : "Your application status has been updated.",
+          type: "status_change",
+        });
+      }
+
+      setSelectedApplication(null);
+      setRejectionReason("");
       fetchData();
     }
   };
 
-  const updateApplicationStatus = async (applicationId: string, newStatus: "pending" | "approved" | "rejected" | "waitlist") => {
-    const { error } = await supabase
-      .from("scholarship_applications")
-      .update({ status: newStatus })
-      .eq("id", applicationId);
+  // Task functions
+  const handleCreateTask = async () => {
+    if (!newTask.title) {
+      toast({ title: "Error", description: "Please enter a task title", variant: "destructive" });
+      return;
+    }
+    setIsCreatingTask(true);
+
+    const { error } = await supabase.from("scholarship_tasks").insert({
+      program_id: newTask.program_id || null,
+      title: newTask.title,
+      description: newTask.description || null,
+      task_type: newTask.task_type,
+      xp_value: parseInt(newTask.xp_value) || 10,
+      due_date: newTask.due_date || null,
+      is_global: newTask.is_global,
+      is_published: false,
+      created_by: user?.id,
+    });
 
     if (error) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
-      toast({
-        title: "Status updated",
-        description: `Application status changed to ${newStatus}`,
-      });
-      setSelectedApplication(null);
+      toast({ title: "Task created" });
+      setNewTask({ program_id: "", title: "", description: "", task_type: "custom", xp_value: "10", due_date: "", is_global: false });
       fetchData();
     }
+    setIsCreatingTask(false);
+  };
+
+  const toggleTaskPublished = async (taskId: string, currentStatus: boolean) => {
+    const { error } = await supabase
+      .from("scholarship_tasks")
+      .update({ is_published: !currentStatus })
+      .eq("id", taskId);
+
+    if (!error) {
+      // If publishing, create notifications for approved scholars
+      if (!currentStatus) {
+        const task = tasks.find((t) => t.id === taskId);
+        const approvedApps = applications.filter((a) => a.status === "approved");
+        
+        const notifications = approvedApps.map((app) => ({
+          user_id: app.user_id,
+          title: "New Task Available",
+          message: `A new task "${task?.title}" has been assigned. Complete it to earn ${task?.xp_value} XP.`,
+          type: "new_task" as const,
+          metadata: { task_id: taskId },
+        }));
+
+        if (notifications.length > 0) {
+          await supabase.from("scholarship_notifications").insert(notifications);
+        }
+      }
+      fetchData();
+    }
+  };
+
+  // Submission review
+  const reviewSubmission = async (submissionId: string, approved: boolean, xpValue: number) => {
+    const updateData: Record<string, unknown> = {
+      status: approved ? "approved" : "rejected",
+      reviewed_by: user?.id,
+      reviewed_at: new Date().toISOString(),
+    };
+
+    if (approved) {
+      updateData.xp_awarded = xpValue;
+    } else if (rejectionReason) {
+      updateData.rejection_reason = rejectionReason;
+    }
+
+    const { error } = await supabase
+      .from("scholarship_task_submissions")
+      .update(updateData)
+      .eq("id", submissionId);
+
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+      return;
+    }
+
+    // Update user's XP if approved
+    if (approved && selectedSubmission?.applicant) {
+      const currentXp = selectedSubmission.applicant.total_xp || 0;
+      await supabase
+        .from("scholarship_applications")
+        .update({ total_xp: currentXp + xpValue })
+        .eq("user_id", selectedSubmission.user_id);
+    }
+
+    // Create notification
+    if (selectedSubmission) {
+      await supabase.from("scholarship_notifications").insert({
+        user_id: selectedSubmission.user_id,
+        title: approved ? "Task Approved! 🎉" : "Task Rejected",
+        message: approved
+          ? `Your submission for "${selectedSubmission.task?.title}" was approved. You earned ${xpValue} XP!`
+          : `Your submission for "${selectedSubmission.task?.title}" was rejected. ${rejectionReason || "Please try again."}`,
+        type: approved ? "task_approved" : "task_rejected",
+        metadata: { submission_id: submissionId },
+      });
+    }
+
+    toast({ title: approved ? "Submission approved" : "Submission rejected" });
+    setSelectedSubmission(null);
+    setRejectionReason("");
+    fetchData();
+  };
+
+  // Module functions
+  const handleCreateModule = async () => {
+    if (!newModule.title || !newModule.program_id) {
+      toast({ title: "Error", description: "Please fill required fields", variant: "destructive" });
+      return;
+    }
+    setIsCreatingModule(true);
+
+    const { error } = await supabase.from("scholarship_modules").insert({
+      program_id: newModule.program_id,
+      title: newModule.title,
+      description: newModule.description || null,
+      unlock_type: newModule.unlock_type,
+      unlock_day: newModule.unlock_day ? parseInt(newModule.unlock_day) : null,
+      order_index: parseInt(newModule.order_index) || 0,
+      is_published: false,
+    });
+
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Module created" });
+      setNewModule({ program_id: "", title: "", description: "", unlock_type: "day", unlock_day: "", order_index: "0" });
+      fetchData();
+    }
+    setIsCreatingModule(false);
+  };
+
+  const toggleModulePublished = async (moduleId: string, currentStatus: boolean) => {
+    const { error } = await supabase
+      .from("scholarship_modules")
+      .update({ is_published: !currentStatus })
+      .eq("id", moduleId);
+
+    if (!error) fetchData();
   };
 
   const filteredApplications = statusFilter === "all"
     ? applications
     : applications.filter((a) => a.status === statusFilter);
+
+  const filteredSubmissions = submissionFilter === "all"
+    ? submissions
+    : submissions.filter((s) => s.status === submissionFilter);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -211,16 +406,28 @@ const AdminScholarships = () => {
             Scholarship Management
           </h1>
           <p className="text-muted-foreground mt-1">
-            Manage programs and review applications
+            Manage programs, applications, tasks, and modules
           </p>
         </div>
       </div>
 
       <Tabs defaultValue="applications" className="space-y-6">
-        <TabsList>
+        <TabsList className="flex-wrap">
           <TabsTrigger value="applications" className="gap-2">
             <Users className="w-4 h-4" />
             Applications ({applications.length})
+          </TabsTrigger>
+          <TabsTrigger value="tasks" className="gap-2">
+            <ListTodo className="w-4 h-4" />
+            Tasks ({tasks.length})
+          </TabsTrigger>
+          <TabsTrigger value="submissions" className="gap-2">
+            <Send className="w-4 h-4" />
+            Submissions ({submissions.filter((s) => s.status === "pending").length} pending)
+          </TabsTrigger>
+          <TabsTrigger value="modules" className="gap-2">
+            <BookOpen className="w-4 h-4" />
+            Modules ({modules.length})
           </TabsTrigger>
           <TabsTrigger value="programs" className="gap-2">
             <GraduationCap className="w-4 h-4" />
@@ -244,7 +451,7 @@ const AdminScholarships = () => {
               </SelectContent>
             </Select>
             <span className="text-sm text-muted-foreground">
-              Showing {filteredApplications.length} applications
+              {filteredApplications.length} applications
             </span>
           </div>
 
@@ -267,14 +474,16 @@ const AdminScholarships = () => {
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
+                      {app.status === "approved" && (
+                        <Badge variant="outline" className="gap-1">
+                          <Zap className="w-3 h-3" />
+                          {app.total_xp} XP
+                        </Badge>
+                      )}
                       {getStatusBadge(app.status)}
                       <Dialog>
                         <DialogTrigger asChild>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setSelectedApplication(app)}
-                          >
+                          <Button variant="outline" size="sm" onClick={() => setSelectedApplication(app)}>
                             <Eye className="w-4 h-4 mr-1" />
                             Review
                           </Button>
@@ -282,9 +491,7 @@ const AdminScholarships = () => {
                         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
                           <DialogHeader>
                             <DialogTitle>Application Review</DialogTitle>
-                            <DialogDescription>
-                              Review and update application status
-                            </DialogDescription>
+                            <DialogDescription>Review and update application status</DialogDescription>
                           </DialogHeader>
                           {selectedApplication && (
                             <div className="space-y-4 py-4">
@@ -306,14 +513,6 @@ const AdminScholarships = () => {
                                   <p className="font-medium">{selectedApplication.twitter_handle}</p>
                                 </div>
                                 <div>
-                                  <Label className="text-muted-foreground">Country</Label>
-                                  <p className="font-medium">{selectedApplication.country}</p>
-                                </div>
-                                <div>
-                                  <Label className="text-muted-foreground">Age Range</Label>
-                                  <p className="font-medium">{selectedApplication.age_range}</p>
-                                </div>
-                                <div>
                                   <Label className="text-muted-foreground">Track</Label>
                                   <p className="font-medium">{selectedApplication.preferred_track}</p>
                                 </div>
@@ -323,19 +522,42 @@ const AdminScholarships = () => {
                                 </div>
                               </div>
                               <div>
-                                <Label className="text-muted-foreground">Main Goal</Label>
-                                <p className="font-medium">{selectedApplication.main_goal}</p>
+                                <Label className="text-muted-foreground">Why Scholarship</Label>
+                                <p className="text-sm bg-secondary p-3 rounded-lg">{selectedApplication.why_scholarship}</p>
                               </div>
-                              <div>
-                                <Label className="text-muted-foreground">Why they want this scholarship</Label>
-                                <p className="text-sm bg-secondary p-3 rounded-lg">
-                                  {selectedApplication.why_scholarship}
-                                </p>
-                              </div>
+
+                              {selectedApplication.status === "pending" && (
+                                <div className="space-y-4 pt-4 border-t">
+                                  <div className="space-y-2">
+                                    <Label>Start Date (for approval)</Label>
+                                    <Input
+                                      type="date"
+                                      id="startDate"
+                                      defaultValue={new Date().toISOString().split("T")[0]}
+                                    />
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label>Rejection Reason (if rejecting)</Label>
+                                    <Textarea
+                                      value={rejectionReason}
+                                      onChange={(e) => setRejectionReason(e.target.value)}
+                                      placeholder="Reason for rejection..."
+                                    />
+                                  </div>
+                                </div>
+                              )}
+
                               <div className="flex gap-2 pt-4 border-t">
                                 <Button
                                   size="sm"
-                                  onClick={() => updateApplicationStatus(selectedApplication.id, "approved")}
+                                  onClick={() => {
+                                    const startInput = document.getElementById("startDate") as HTMLInputElement;
+                                    updateApplicationStatus(
+                                      selectedApplication.id,
+                                      "approved",
+                                      startInput?.value
+                                    );
+                                  }}
                                   className="bg-green-600 hover:bg-green-700"
                                 >
                                   <CheckCircle className="w-4 h-4 mr-1" />
@@ -377,9 +599,399 @@ const AdminScholarships = () => {
           </div>
         </TabsContent>
 
+        {/* Tasks Tab */}
+        <TabsContent value="tasks" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Plus className="w-5 h-5" />
+                Create New Task
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Task Title *</Label>
+                  <Input
+                    value={newTask.title}
+                    onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+                    placeholder="e.g., Retweet our announcement"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Task Type</Label>
+                  <Select
+                    value={newTask.task_type}
+                    onValueChange={(v) => setNewTask({ ...newTask, task_type: v as TaskType })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(TASK_TYPE_LABELS).map(([value, label]) => (
+                        <SelectItem key={value} value={value}>{label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Description</Label>
+                <Textarea
+                  value={newTask.description}
+                  onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
+                  placeholder="Task instructions..."
+                />
+              </div>
+              <div className="grid md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label>XP Value</Label>
+                  <Input
+                    type="number"
+                    value={newTask.xp_value}
+                    onChange={(e) => setNewTask({ ...newTask, xp_value: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Due Date</Label>
+                  <Input
+                    type="datetime-local"
+                    value={newTask.due_date}
+                    onChange={(e) => setNewTask({ ...newTask, due_date: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Program</Label>
+                  <Select
+                    value={newTask.program_id}
+                    onValueChange={(v) => setNewTask({ ...newTask, program_id: v })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select program" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {programs.map((p) => (
+                        <SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Switch
+                  checked={newTask.is_global}
+                  onCheckedChange={(v) => setNewTask({ ...newTask, is_global: v })}
+                />
+                <Label>Global task (visible to all approved scholars)</Label>
+              </div>
+              <Button onClick={handleCreateTask} disabled={isCreatingTask}>
+                {isCreatingTask && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                Create Task
+              </Button>
+            </CardContent>
+          </Card>
+
+          <div className="space-y-3">
+            {tasks.map((task) => (
+              <Card key={task.id}>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-medium">{task.title}</h3>
+                        <Badge variant="secondary">{TASK_TYPE_LABELS[task.task_type]}</Badge>
+                        <Badge variant="outline">
+                          <Zap className="w-3 h-3 mr-1" />
+                          {task.xp_value} XP
+                        </Badge>
+                        {task.is_global && <Badge>Global</Badge>}
+                      </div>
+                      <p className="text-sm text-muted-foreground">{task.description}</p>
+                      {task.due_date && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Due: {format(new Date(task.due_date), "MMM d, yyyy")}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        checked={task.is_published}
+                        onCheckedChange={() => toggleTaskPublished(task.id, task.is_published)}
+                      />
+                      <span className="text-sm text-muted-foreground">
+                        {task.is_published ? "Published" : "Draft"}
+                      </span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        {/* Submissions Tab */}
+        <TabsContent value="submissions" className="space-y-4">
+          <div className="flex items-center gap-4 mb-4">
+            <Select value={submissionFilter} onValueChange={setSubmissionFilter}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Filter by status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Submissions</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="approved">Approved</SelectItem>
+                <SelectItem value="rejected">Rejected</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <Card>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>User</TableHead>
+                  <TableHead>Task</TableHead>
+                  <TableHead>Submission</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Action</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredSubmissions.map((sub) => (
+                  <TableRow key={sub.id}>
+                    <TableCell>
+                      <div>
+                        <p className="font-medium">{sub.applicant?.full_name || "Unknown"}</p>
+                        <p className="text-xs text-muted-foreground">{sub.applicant?.email}</p>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <p className="font-medium">{sub.task?.title || "Unknown Task"}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {sub.task?.xp_value} XP
+                      </p>
+                    </TableCell>
+                    <TableCell>
+                      {sub.submission_url && (
+                        <a
+                          href={sub.submission_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline flex items-center gap-1 text-sm"
+                        >
+                          View <ExternalLink className="w-3 h-3" />
+                        </a>
+                      )}
+                      {sub.submission_text && (
+                        <p className="text-sm text-muted-foreground truncate max-w-[200px]">
+                          {sub.submission_text}
+                        </p>
+                      )}
+                    </TableCell>
+                    <TableCell>{getStatusBadge(sub.status)}</TableCell>
+                    <TableCell>
+                      {sub.status === "pending" && (
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button size="sm" variant="outline" onClick={() => setSelectedSubmission(sub)}>
+                              Review
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Review Submission</DialogTitle>
+                              <DialogDescription>
+                                Review submission for "{sub.task?.title}"
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-4 py-4">
+                              <div>
+                                <Label className="text-muted-foreground">Submitted by</Label>
+                                <p className="font-medium">{sub.applicant?.full_name}</p>
+                              </div>
+                              {sub.submission_url && (
+                                <div>
+                                  <Label className="text-muted-foreground">Submission URL</Label>
+                                  <a
+                                    href={sub.submission_url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-primary hover:underline flex items-center gap-1"
+                                  >
+                                    {sub.submission_url} <ExternalLink className="w-4 h-4" />
+                                  </a>
+                                </div>
+                              )}
+                              {sub.submission_text && (
+                                <div>
+                                  <Label className="text-muted-foreground">Notes</Label>
+                                  <p className="text-sm bg-secondary p-3 rounded">{sub.submission_text}</p>
+                                </div>
+                              )}
+                              <div className="space-y-2">
+                                <Label>Rejection Reason (if rejecting)</Label>
+                                <Textarea
+                                  value={rejectionReason}
+                                  onChange={(e) => setRejectionReason(e.target.value)}
+                                  placeholder="Reason..."
+                                />
+                              </div>
+                            </div>
+                            <DialogFooter>
+                              <Button
+                                variant="destructive"
+                                onClick={() => reviewSubmission(sub.id, false, 0)}
+                              >
+                                <XCircle className="w-4 h-4 mr-1" />
+                                Reject
+                              </Button>
+                              <Button
+                                className="bg-green-600 hover:bg-green-700"
+                                onClick={() => reviewSubmission(sub.id, true, sub.task?.xp_value || 10)}
+                              >
+                                <CheckCircle className="w-4 h-4 mr-1" />
+                                Approve (+{sub.task?.xp_value} XP)
+                              </Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {filteredSubmissions.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                      No submissions found
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </Card>
+        </TabsContent>
+
+        {/* Modules Tab */}
+        <TabsContent value="modules" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Plus className="w-5 h-5" />
+                Create New Module
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Module Title *</Label>
+                  <Input
+                    value={newModule.title}
+                    onChange={(e) => setNewModule({ ...newModule, title: e.target.value })}
+                    placeholder="e.g., Week 1: Foundations"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Program *</Label>
+                  <Select
+                    value={newModule.program_id}
+                    onValueChange={(v) => setNewModule({ ...newModule, program_id: v })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select program" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {programs.map((p) => (
+                        <SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Description</Label>
+                <Textarea
+                  value={newModule.description}
+                  onChange={(e) => setNewModule({ ...newModule, description: e.target.value })}
+                  placeholder="Module description..."
+                />
+              </div>
+              <div className="grid md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label>Unlock Type</Label>
+                  <Select
+                    value={newModule.unlock_type}
+                    onValueChange={(v) => setNewModule({ ...newModule, unlock_type: v as "day" | "task" | "manual" })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="day">By Day</SelectItem>
+                      <SelectItem value="task">By Task Completion</SelectItem>
+                      <SelectItem value="manual">Manual</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                {newModule.unlock_type === "day" && (
+                  <div className="space-y-2">
+                    <Label>Unlock Day</Label>
+                    <Input
+                      type="number"
+                      value={newModule.unlock_day}
+                      onChange={(e) => setNewModule({ ...newModule, unlock_day: e.target.value })}
+                      placeholder="e.g., 7"
+                    />
+                  </div>
+                )}
+                <div className="space-y-2">
+                  <Label>Order Index</Label>
+                  <Input
+                    type="number"
+                    value={newModule.order_index}
+                    onChange={(e) => setNewModule({ ...newModule, order_index: e.target.value })}
+                  />
+                </div>
+              </div>
+              <Button onClick={handleCreateModule} disabled={isCreatingModule}>
+                {isCreatingModule && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                Create Module
+              </Button>
+            </CardContent>
+          </Card>
+
+          <div className="space-y-3">
+            {modules.map((mod) => (
+              <Card key={mod.id}>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-sm text-muted-foreground">#{mod.order_index}</span>
+                        <h3 className="font-medium">{mod.title}</h3>
+                        <Badge variant="secondary">
+                          {mod.unlock_type === "day" ? `Day ${mod.unlock_day}` : mod.unlock_type}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground">{mod.description}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        checked={mod.is_published}
+                        onCheckedChange={() => toggleModulePublished(mod.id, mod.is_published)}
+                      />
+                      <span className="text-sm text-muted-foreground">
+                        {mod.is_published ? "Published" : "Draft"}
+                      </span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
         {/* Programs Tab */}
         <TabsContent value="programs" className="space-y-4">
-          {/* Create New Program */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -433,41 +1045,35 @@ const AdminScholarships = () => {
                   />
                 </div>
               </div>
-              <Button onClick={handleCreateProgram} disabled={isCreating}>
-                {isCreating && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              <Button onClick={handleCreateProgram} disabled={isCreatingProgram}>
+                {isCreatingProgram && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                 Create Program
               </Button>
             </CardContent>
           </Card>
 
-          {/* Existing Programs */}
           <div className="space-y-3">
             {programs.map((program) => {
               const programApps = applications.filter((a) => a.program_id === program.id);
+              const approvedCount = programApps.filter((a) => a.status === "approved").length;
               return (
                 <Card key={program.id}>
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-semibold">{program.title}</h3>
-                          <Badge variant={program.is_active ? "default" : "secondary"}>
-                            {program.is_active ? "Active" : "Inactive"}
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {programApps.length} applications • Created {new Date(program.created_at).toLocaleDateString()}
+                        <h3 className="font-medium">{program.title}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          {programApps.length} applications • {approvedCount} approved
                         </p>
                       </div>
-                      <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-2">
-                          <Label htmlFor={`active-${program.id}`} className="text-sm">Active</Label>
-                          <Switch
-                            id={`active-${program.id}`}
-                            checked={program.is_active}
-                            onCheckedChange={() => toggleProgramActive(program.id, program.is_active)}
-                          />
-                        </div>
+                      <div className="flex items-center gap-2">
+                        <Switch
+                          checked={program.is_active}
+                          onCheckedChange={() => toggleProgramActive(program.id, program.is_active)}
+                        />
+                        <span className="text-sm text-muted-foreground">
+                          {program.is_active ? "Active" : "Inactive"}
+                        </span>
                       </div>
                     </div>
                   </CardContent>
