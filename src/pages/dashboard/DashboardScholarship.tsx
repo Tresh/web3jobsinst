@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { GraduationCap, Clock, CheckCircle, XCircle, Loader2, ExternalLink, AlertCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ScholarshipPortal } from "@/components/scholarship/ScholarshipPortal";
+import { CountdownTimer } from "@/components/scholarship/CountdownTimer";
 import type { ScholarshipApplication, ScholarshipProgram } from "@/types/scholarship";
 
 const DashboardScholarship = () => {
@@ -86,7 +87,10 @@ const DashboardScholarship = () => {
 
   return (
     <div className="p-6 lg:p-8 max-w-4xl">
-      <div className="mb-8">
+      {/* Countdown Timer - visible to everyone */}
+      <CountdownTimer />
+
+      <div className="mb-8 mt-6">
         <h1 className="text-2xl lg:text-3xl font-bold flex items-center gap-3">
           <GraduationCap className="w-8 h-8 text-primary" />
           Scholarship Programs
