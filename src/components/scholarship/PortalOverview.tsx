@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Trophy, Calendar, Star, Users, Target, Zap, Clock } from "lucide-react";
 import type { ScholarshipApplication, LeaderboardEntry } from "@/types/scholarship";
 
-const PROGRAM_START_DATE = new Date("2025-02-01T00:00:00");
+const PROGRAM_START_DATE = new Date("2026-02-01T00:00:00");
 
 function useCountdown(targetDate: Date) {
   const [timeLeft, setTimeLeft] = useState(() => calculateTimeLeft(targetDate));
