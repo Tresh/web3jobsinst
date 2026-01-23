@@ -1,0 +1,129 @@
+import { useState } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { GraduationCap, ListTodo, Trophy, BookOpen, Bell } from "lucide-react";
+import { useScholarshipPortal } from "@/hooks/useScholarshipData";
+import { PortalOverview } from "./PortalOverview";
+import { PortalTasks } from "./PortalTasks";
+import { PortalLeaderboard } from "./PortalLeaderboard";
+import { PortalModules } from "./PortalModules";
+import { PortalNotifications } from "./PortalNotifications";
+import { Loader2 } from "lucide-react";
+
+export function ScholarshipPortal() {
+  const {
+    isLoading,
+    application,
+    tasks,
+    submissions,
+    modules,
+    leaderboard,
+    notifications,
+    dayNumber,
+    totalScholars,
+    userRank,
+    submitTask,
+    markNotificationRead,
+    markAllNotificationsRead,
+    getSubmissionForTask,
+    getModuleStatus,
+    refetch,
+  } = useScholarshipPortal();
+
+  const unreadCount = notifications.filter((n) => !n.is_read).length;
+
+  if (isLoading) {
+    return (
+      <div className="p-6 lg:p-8 flex items-center justify-center min-h-[400px]">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!application) {
+    return null;
+  }
+
+  return (
+    <div className="p-6 lg:p-8">
+      <div className="mb-8">
+        <h1 className="text-2xl lg:text-3xl font-bold flex items-center gap-3">
+          <GraduationCap className="w-8 h-8 text-primary" />
+          Scholarship Portal
+        </h1>
+        <p className="text-muted-foreground mt-1">
+          Complete tasks, earn XP, and unlock courses
+        </p>
+      </div>
+
+      <Tabs defaultValue="overview" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-flex">
+          <TabsTrigger value="overview" className="gap-2">
+            <GraduationCap className="w-4 h-4 hidden sm:inline" />
+            <span>Overview</span>
+          </TabsTrigger>
+          <TabsTrigger value="tasks" className="gap-2">
+            <ListTodo className="w-4 h-4 hidden sm:inline" />
+            <span>Tasks</span>
+          </TabsTrigger>
+          <TabsTrigger value="leaderboard" className="gap-2">
+            <Trophy className="w-4 h-4 hidden sm:inline" />
+            <span>Ranking</span>
+          </TabsTrigger>
+          <TabsTrigger value="modules" className="gap-2">
+            <BookOpen className="w-4 h-4 hidden sm:inline" />
+            <span>Modules</span>
+          </TabsTrigger>
+          <TabsTrigger value="notifications" className="gap-2 relative">
+            <Bell className="w-4 h-4 hidden sm:inline" />
+            <span>Alerts</span>
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                {unreadCount > 9 ? "9+" : unreadCount}
+              </span>
+            )}
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="overview">
+          <PortalOverview
+            application={application}
+            dayNumber={dayNumber}
+            totalScholars={totalScholars}
+            userRank={userRank}
+            tasksCount={tasks.length}
+            completedTasksCount={submissions.filter((s) => s.status === "approved").length}
+          />
+        </TabsContent>
+
+        <TabsContent value="tasks">
+          <PortalTasks
+            tasks={tasks}
+            getSubmissionForTask={getSubmissionForTask}
+            submitTask={submitTask}
+            onRefetch={refetch}
+          />
+        </TabsContent>
+
+        <TabsContent value="leaderboard">
+          <PortalLeaderboard leaderboard={leaderboard} currentUserId={application.user_id} />
+        </TabsContent>
+
+        <TabsContent value="modules">
+          <PortalModules
+            modules={modules}
+            getModuleStatus={getModuleStatus}
+            dayNumber={dayNumber}
+          />
+        </TabsContent>
+
+        <TabsContent value="notifications">
+          <PortalNotifications
+            notifications={notifications}
+            markNotificationRead={markNotificationRead}
+            markAllNotificationsRead={markAllNotificationsRead}
+          />
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}
