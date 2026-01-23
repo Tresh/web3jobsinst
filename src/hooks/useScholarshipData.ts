@@ -53,11 +53,12 @@ export function useScholarshipPortal() {
 
         // Only fetch portal data if approved
         if (appData.status === "approved" && appData.program_id) {
-          // Fetch tasks
+          // Fetch tasks - filter by both is_published and active status
           const { data: tasksData } = await supabase
             .from("scholarship_tasks")
             .select("*")
             .eq("is_published", true)
+            .eq("status", "active")
             .order("created_at", { ascending: false });
 
           setTasks((tasksData || []) as unknown as ScholarshipTask[]);
