@@ -182,6 +182,11 @@ export function PortalTasks({ tasks, getSubmissionForTask, submitTask, onRefetch
           const isPending = submission?.status === "pending";
           const isRejected = submission?.status === "rejected";
           const hasExternalLink = !!task.external_link;
+          const externalLinkLabel = task.external_link
+            ? /(^|\/\/)(x\.com|twitter\.com)\//i.test(task.external_link)
+              ? "Go to X"
+              : "Open Task Link"
+            : "Open Task Link";
           const taskInstructions = getTaskInstructions(task.task_type);
 
           return (
@@ -238,7 +243,7 @@ export function PortalTasks({ tasks, getSubmissionForTask, submitTask, onRefetch
                             className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors text-sm font-medium"
                           >
                             <ExternalLink className="w-4 h-4" />
-                            Go to X
+                            {externalLinkLabel}
                           </a>
                         </div>
                       )}
@@ -280,7 +285,7 @@ export function PortalTasks({ tasks, getSubmissionForTask, submitTask, onRefetch
                                   className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors text-sm"
                                 >
                                   <ExternalLink className="w-3 h-3" />
-                                  Open X Post
+                                  {externalLinkLabel}
                                 </a>
                               </div>
                             )}
@@ -339,7 +344,7 @@ export function PortalTasks({ tasks, getSubmissionForTask, submitTask, onRefetch
                                   className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors text-sm"
                                 >
                                   <ExternalLink className="w-3 h-3" />
-                                  Open X Post
+                                  {externalLinkLabel}
                                 </a>
                               </div>
                             )}

@@ -68,7 +68,15 @@ import { TASK_TYPE_LABELS, TASK_STATUS_LABELS, TaskType, TaskStatus } from "@/ty
 const AdminScholarships = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(true);
+  // IMPORTANT: this page must always render a UI shell, even when data is empty or failed.
+  const [isLoading, setIsLoading] = useState(true); // initial bootstrap only
+  const [activeTab, setActiveTab] = useState<string>("overview");
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [isLoadingPrograms, setIsLoadingPrograms] = useState(true);
+  const [isLoadingTasks, setIsLoadingTasks] = useState(true);
+  const [isLoadingApplications, setIsLoadingApplications] = useState(true);
+  const [isLoadingSubmissions, setIsLoadingSubmissions] = useState(true);
+  const [isLoadingModules, setIsLoadingModules] = useState(true);
   const [programs, setPrograms] = useState<ScholarshipProgram[]>([]);
   const [applications, setApplications] = useState<ScholarshipApplication[]>([]);
   const [tasks, setTasks] = useState<ScholarshipTask[]>([]);
@@ -135,63 +143,125 @@ const AdminScholarships = () => {
     order_index: "0",
   });
 
-  const fetchData = async () => {
+  // Supabase query builders are PromiseLike (thenable) but not typed as Promise.
+  const withTimeout = async <T,>(promise: PromiseLike<T>, ms: number) => {
+    return await Promise.race([
+      Promise.resolve(promise),
+      new Promise<T>((_, reject) =>
+        setTimeout(() => reject(new Error("Request timed out")), ms)
+      ),
+    ]);
+  };
+
+  const fetchProgramsFirst = async () => {
+    setLoadError(null);
     setIsLoading(true);
-
+    setIsLoadingPrograms(true);
     try {
-      const [progsRes, appsRes, tasksRes, subsRes, modsRes] = await Promise.all([
+      const progsRes = await withTimeout(
         supabase.from("scholarship_programs").select("*").order("created_at", { ascending: false }),
-        supabase.from("scholarship_applications").select("*").order("created_at", { ascending: false }),
-        supabase.from("scholarship_tasks").select("*").order("created_at", { ascending: false }),
-        supabase.from("scholarship_task_submissions").select("*").order("created_at", { ascending: false }),
-        supabase.from("scholarship_modules").select("*").order("order_index", { ascending: true }),
-      ]);
-
-      // If any request failed, still render the page (no white screen) and show a toast.
-      const firstError =
-        progsRes.error || appsRes.error || tasksRes.error || subsRes.error || modsRes.error;
-      if (firstError) {
-        toast({
-          title: "Unable to load scholarship data",
-          description: firstError.message,
-          variant: "destructive",
-        });
-      }
-
-      const progs = ((progsRes.data || []) as unknown as ScholarshipProgram[]) ?? [];
-      const apps = ((appsRes.data || []) as unknown as ScholarshipApplication[]) ?? [];
-      const tks = ((tasksRes.data || []) as unknown as ScholarshipTask[]) ?? [];
-      const mods = ((modsRes.data || []) as unknown as ScholarshipModule[]) ?? [];
-      const subsRaw = ((subsRes.data || []) as unknown as ScholarshipTaskSubmission[]) ?? [];
-
+        8000
+      );
+      if ((progsRes as any).error) throw (progsRes as any).error;
+      const progs = ((((progsRes as any).data || []) as unknown) as ScholarshipProgram[]) ?? [];
       setPrograms(progs);
-      setApplications(apps);
-      setTasks(tks);
-      setModules(mods);
-
-      // Enrich submissions with task and applicant data
-      const enrichedSubmissions = subsRaw.map((sub) => {
-        const task = tks.find((t) => t.id === sub.task_id);
-        const applicant = apps.find((a) => a.user_id === sub.user_id);
-        return { ...sub, task, applicant };
-      });
-      setSubmissions(enrichedSubmissions as unknown as typeof submissions);
     } catch (err) {
-      console.error("AdminScholarships fetchData failed:", err);
-      toast({
-        title: "Unable to load scholarship data",
-        description: err instanceof Error ? err.message : "Unknown error",
-        variant: "destructive",
-      });
-      // Ensure we still render empty states.
+      const message = err instanceof Error ? err.message : "Unknown error";
+      setLoadError(message);
       setPrograms([]);
-      setApplications([]);
-      setTasks([]);
-      setSubmissions([]);
-      setModules([]);
     } finally {
+      setIsLoadingPrograms(false);
+      // Stop blocking render even if other datasets are still loading.
       setIsLoading(false);
     }
+  };
+
+  const fetchNonBlockingData = async () => {
+    // Each fetch is independent: failures should never prevent other sections from rendering.
+    setIsLoadingTasks(true);
+    setIsLoadingApplications(true);
+    setIsLoadingSubmissions(true);
+    setIsLoadingModules(true);
+
+    const tasksPromise = (async () => {
+      try {
+        const res = await withTimeout(
+          supabase.from("scholarship_tasks").select("*").order("created_at", { ascending: false }),
+          8000
+        );
+        if ((res as any).error) throw (res as any).error;
+        setTasks(((((res as any).data || []) as unknown) as ScholarshipTask[]) ?? []);
+      } catch {
+        setTasks([]);
+      } finally {
+        setIsLoadingTasks(false);
+      }
+    })();
+
+    const appsPromise = (async () => {
+      try {
+        const res = await withTimeout(
+          supabase.from("scholarship_applications").select("*").order("created_at", { ascending: false }),
+          8000
+        );
+        if ((res as any).error) throw (res as any).error;
+        setApplications(((((res as any).data || []) as unknown) as ScholarshipApplication[]) ?? []);
+      } catch {
+        setApplications([]);
+      } finally {
+        setIsLoadingApplications(false);
+      }
+    })();
+
+    const subsPromise = (async () => {
+      try {
+        const res = await withTimeout(
+          supabase.from("scholarship_task_submissions").select("*").order("created_at", { ascending: false }),
+          8000
+        );
+        if ((res as any).error) throw (res as any).error;
+        const subsRaw = ((((res as any).data || []) as unknown) as ScholarshipTaskSubmission[]) ?? [];
+        setSubmissions(
+          subsRaw.map((sub) => ({ ...sub })) as unknown as typeof submissions
+        );
+      } catch {
+        setSubmissions([]);
+      } finally {
+        setIsLoadingSubmissions(false);
+      }
+    })();
+
+    const modulesPromise = (async () => {
+      try {
+        const res = await withTimeout(
+          supabase.from("scholarship_modules").select("*").order("order_index", { ascending: true }),
+          8000
+        );
+        if ((res as any).error) throw (res as any).error;
+        setModules(((((res as any).data || []) as unknown) as ScholarshipModule[]) ?? []);
+      } catch {
+        setModules([]);
+      } finally {
+        setIsLoadingModules(false);
+      }
+    })();
+
+    // Once the core datasets are in, enrich submissions safely.
+    await Promise.allSettled([tasksPromise, appsPromise, subsPromise, modulesPromise]);
+
+    setSubmissions((prev) =>
+      (prev || []).map((sub) => {
+        const task = tasks.find((t) => t.id === (sub as any).task_id);
+        const applicant = applications.find((a) => a.user_id === (sub as any).user_id);
+        return { ...(sub as any), task, applicant };
+      }) as unknown as typeof submissions
+    );
+  };
+
+  const fetchData = async () => {
+    await fetchProgramsFirst();
+    // fire-and-forget: never block UI
+    void fetchNonBlockingData();
   };
 
   useEffect(() => {
@@ -608,13 +678,11 @@ const AdminScholarships = () => {
     return submissions.filter((s) => s.task_id === taskId).length;
   };
 
-  if (isLoading) {
-    return (
-      <div className="p-6 lg:p-8 flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
-  }
+  const activeTasks = tasks.filter((t) => t.status === "active");
+  const endedTasks = tasks.filter((t) => t.status === "ended");
+  const approvedApps = applications.filter((a) => a.status === "approved");
+  const pendingApps = applications.filter((a) => a.status === "pending");
+  const rejectedApps = applications.filter((a) => a.status === "rejected");
 
   return (
     <div className="p-6 lg:p-8">
@@ -630,8 +698,25 @@ const AdminScholarships = () => {
         </div>
       </div>
 
-      <Tabs defaultValue="tasks" className="space-y-6">
+      {loadError && (
+        <Card className="border-dashed mb-6">
+          <CardContent className="p-4 flex items-center justify-between gap-4">
+            <p className="text-sm text-muted-foreground">
+              Loading issue: {loadError}. Showing empty states.
+            </p>
+            <Button variant="outline" onClick={() => fetchData()}>
+              Retry
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="flex-wrap">
+          <TabsTrigger value="overview" className="gap-2">
+            <GraduationCap className="w-4 h-4" />
+            Overview
+          </TabsTrigger>
           <TabsTrigger value="tasks" className="gap-2">
             <ListTodo className="w-4 h-4" />
             Tasks ({tasks.length})
@@ -653,6 +738,204 @@ const AdminScholarships = () => {
             Programs ({programs.length})
           </TabsTrigger>
         </TabsList>
+
+        {/* Overview Tab (always renders all required sections, even if empty) */}
+        <TabsContent value="overview" className="space-y-6">
+          {/* Scholarship Programs */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between gap-4">
+                <span>Scholarship Programs</span>
+                {isLoadingPrograms ? (
+                  <Badge variant="secondary">Loading…</Badge>
+                ) : (
+                  <Badge variant="secondary">{programs.length}</Badge>
+                )}
+              </CardTitle>
+              <CardDescription>Programs must exist before tasks can be meaningfully assigned.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {isLoading && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Loading programs…
+                </div>
+              )}
+              {!isLoadingPrograms && programs.length === 0 && (
+                <div className="flex items-center justify-between gap-4">
+                  <p className="text-sm text-muted-foreground">No Scholarship Program Created Yet</p>
+                  <Button onClick={() => setActiveTab("programs")}>Create Scholarship Program</Button>
+                </div>
+              )}
+              {!isLoadingPrograms && programs.length > 0 && (
+                <div className="space-y-2">
+                  {programs.slice(0, 3).map((p) => (
+                    <div key={p.id} className="flex items-center justify-between text-sm">
+                      <span className="font-medium">{p.title}</span>
+                      <span className="text-muted-foreground">{p.is_active ? "Active" : "Inactive"}</span>
+                    </div>
+                  ))}
+                  {programs.length > 3 && (
+                    <Button variant="outline" size="sm" onClick={() => setActiveTab("programs")}>
+                      View all programs
+                    </Button>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Active Tasks */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between gap-4">
+                <span>Active Tasks</span>
+                {isLoadingTasks ? (
+                  <Badge variant="secondary">Loading…</Badge>
+                ) : (
+                  <Badge variant="secondary">{activeTasks.length}</Badge>
+                )}
+              </CardTitle>
+              <CardDescription>Tasks visible to approved scholars (status: Active).</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {isLoadingTasks ? (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Loading tasks…
+                </div>
+              ) : activeTasks.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No active tasks yet.</p>
+              ) : (
+                <div className="space-y-2">
+                  {activeTasks.slice(0, 5).map((t) => (
+                    <div key={t.id} className="flex items-center justify-between text-sm">
+                      <span className="font-medium">{t.title}</span>
+                      <span className="text-muted-foreground">{t.xp_value} XP</span>
+                    </div>
+                  ))}
+                  <Button variant="outline" size="sm" onClick={() => setActiveTab("tasks")}>
+                    Manage tasks
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Completed/Ended Tasks */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between gap-4">
+                <span>Completed Tasks (Ended)</span>
+                {isLoadingTasks ? (
+                  <Badge variant="secondary">Loading…</Badge>
+                ) : (
+                  <Badge variant="secondary">{endedTasks.length}</Badge>
+                )}
+              </CardTitle>
+              <CardDescription>Ended tasks are hidden from scholars but remain in history.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {isLoadingTasks ? (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Loading tasks…
+                </div>
+              ) : endedTasks.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No ended tasks yet.</p>
+              ) : (
+                <Button variant="outline" size="sm" onClick={() => { setActiveTab("tasks"); setTaskStatusFilter("ended"); }}>
+                  View ended tasks
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Approved Scholars */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between gap-4">
+                <span>Approved Scholars</span>
+                {isLoadingApplications ? (
+                  <Badge variant="secondary">Loading…</Badge>
+                ) : (
+                  <Badge variant="secondary">{approvedApps.length}</Badge>
+                )}
+              </CardTitle>
+              <CardDescription>Users approved into a scholarship program.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {isLoadingApplications ? (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Loading scholars…
+                </div>
+              ) : approvedApps.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No approved scholars yet.</p>
+              ) : (
+                <Button variant="outline" size="sm" onClick={() => { setActiveTab("applications"); setStatusFilter("approved"); }}>
+                  View approved scholars
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Pending Applications */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between gap-4">
+                <span>Pending Applications</span>
+                {isLoadingApplications ? (
+                  <Badge variant="secondary">Loading…</Badge>
+                ) : (
+                  <Badge variant="secondary">{pendingApps.length}</Badge>
+                )}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {isLoadingApplications ? (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Loading applications…
+                </div>
+              ) : pendingApps.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No pending applications.</p>
+              ) : (
+                <Button variant="outline" size="sm" onClick={() => { setActiveTab("applications"); setStatusFilter("pending"); }}>
+                  Review pending
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Rejected Applications */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between gap-4">
+                <span>Rejected Applications</span>
+                {isLoadingApplications ? (
+                  <Badge variant="secondary">Loading…</Badge>
+                ) : (
+                  <Badge variant="secondary">{rejectedApps.length}</Badge>
+                )}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {isLoadingApplications ? (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Loading applications…
+                </div>
+              ) : rejectedApps.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No rejected applications.</p>
+              ) : (
+                <Button variant="outline" size="sm" onClick={() => { setActiveTab("applications"); setStatusFilter("rejected"); }}>
+                  View rejected
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
 
         {/* Tasks Tab */}
         <TabsContent value="tasks" className="space-y-6">
@@ -1634,6 +1917,14 @@ const AdminScholarships = () => {
                 </CardContent>
               </Card>
             ))}
+
+            {!isLoadingPrograms && programs.length === 0 && (
+              <Card className="border-dashed">
+                <CardContent className="p-10 text-center">
+                  <p className="text-muted-foreground">No Scholarship Program Created Yet</p>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </TabsContent>
       </Tabs>

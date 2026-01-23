@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import type {
@@ -112,6 +112,56 @@ export function useScholarshipPortal() {
       setIsLoading(false);
     }
   };
+
+  // Realtime auto-sync: whenever tasks/submissions/notifications change, refetch.
+  // This keeps approved scholars dashboards up-to-date without manual refresh.
+  const refetchTimerRef = useRef<number | null>(null);
+  const scheduleRefetch = () => {
+    if (refetchTimerRef.current) window.clearTimeout(refetchTimerRef.current);
+    refetchTimerRef.current = window.setTimeout(() => {
+      fetchData();
+    }, 250);
+  };
+
+  useEffect(() => {
+    if (!user) return;
+    if (application?.status !== "approved" || !application.program_id) return;
+
+    const channel = supabase
+      .channel(`scholarship-portal-${user.id}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "scholarship_tasks" },
+        () => scheduleRefetch()
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "scholarship_task_submissions",
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => scheduleRefetch()
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "scholarship_notifications",
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => scheduleRefetch()
+      )
+      .subscribe();
+
+    return () => {
+      if (refetchTimerRef.current) window.clearTimeout(refetchTimerRef.current);
+      supabase.removeChannel(channel);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, application?.status, application?.program_id]);
 
   const submitTask = async (taskId: string, submissionUrl: string, submissionText?: string) => {
     if (!user) return { error: new Error("Not authenticated") };
