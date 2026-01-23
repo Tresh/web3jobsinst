@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -27,6 +27,10 @@ import {
   Send,
   Zap,
   Calendar,
+  ExternalLink,
+  Heart,
+  Twitter,
+  MessageCircle,
 } from "lucide-react";
 import type { ScholarshipTask, ScholarshipTaskSubmission } from "@/types/scholarship";
 import { TASK_TYPE_LABELS } from "@/types/scholarship";
@@ -43,6 +47,12 @@ const getTaskIcon = (type: string) => {
   switch (type) {
     case "retweet":
       return <Repeat className="w-5 h-5" />;
+    case "like_x_post":
+      return <Heart className="w-5 h-5" />;
+    case "comment_x_post":
+      return <MessageCircle className="w-5 h-5" />;
+    case "create_x_post":
+      return <Twitter className="w-5 h-5" />;
     case "x_post":
       return <MessageSquare className="w-5 h-5" />;
     case "video_upload":
@@ -56,12 +66,32 @@ const getTaskIcon = (type: string) => {
   }
 };
 
+const getTaskInstructions = (type: string) => {
+  switch (type) {
+    case "retweet":
+      return "Retweet this post on X (Twitter)";
+    case "like_x_post":
+      return "Like this post on X (Twitter)";
+    case "comment_x_post":
+      return "Leave a meaningful comment on this post";
+    case "create_x_post":
+      return "Create a new post on X about this topic";
+    case "x_post":
+      return "Make an X post about this topic";
+    default:
+      return null;
+  }
+};
+
 export function PortalTasks({ tasks, getSubmissionForTask, submitTask, onRefetch }: PortalTasksProps) {
   const { toast } = useToast();
   const [selectedTask, setSelectedTask] = useState<ScholarshipTask | null>(null);
   const [submissionUrl, setSubmissionUrl] = useState("");
   const [submissionText, setSubmissionText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Filter to only show active tasks
+  const activeTasks = tasks.filter((task) => task.status === "active");
 
   const handleSubmit = async () => {
     if (!selectedTask) return;
@@ -124,7 +154,7 @@ export function PortalTasks({ tasks, getSubmissionForTask, submitTask, onRefetch
     }
   };
 
-  if (tasks.length === 0) {
+  if (activeTasks.length === 0) {
     return (
       <Card className="border-dashed">
         <CardContent className="p-12 text-center">
@@ -142,15 +172,17 @@ export function PortalTasks({ tasks, getSubmissionForTask, submitTask, onRefetch
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">Your Tasks</h2>
-        <p className="text-sm text-muted-foreground">{tasks.length} tasks available</p>
+        <p className="text-sm text-muted-foreground">{activeTasks.length} tasks available</p>
       </div>
 
       <div className="space-y-3">
-        {tasks.map((task) => {
+        {activeTasks.map((task) => {
           const submission = getSubmissionForTask(task.id);
           const isCompleted = submission?.status === "approved";
           const isPending = submission?.status === "pending";
           const isRejected = submission?.status === "rejected";
+          const hasExternalLink = !!task.external_link;
+          const taskInstructions = getTaskInstructions(task.task_type);
 
           return (
             <Card
@@ -158,10 +190,10 @@ export function PortalTasks({ tasks, getSubmissionForTask, submitTask, onRefetch
               className={`transition-colors ${isCompleted ? "bg-green-500/5 border-green-500/20" : ""}`}
             >
               <CardContent className="p-4">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex items-start gap-4">
+                <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                  <div className="flex items-start gap-4 flex-1">
                     <div
-                      className={`h-10 w-10 rounded-lg flex items-center justify-center ${
+                      className={`h-10 w-10 rounded-lg flex items-center justify-center shrink-0 ${
                         isCompleted
                           ? "bg-green-500/10 text-green-500"
                           : "bg-primary/10 text-primary"
@@ -169,8 +201,8 @@ export function PortalTasks({ tasks, getSubmissionForTask, submitTask, onRefetch
                     >
                       {isCompleted ? <CheckCircle className="w-5 h-5" /> : getTaskIcon(task.task_type)}
                     </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
                         <h3 className="font-medium">{task.title}</h3>
                         <Badge variant="secondary" className="text-xs">
                           <Zap className="w-3 h-3 mr-1" />
@@ -180,7 +212,7 @@ export function PortalTasks({ tasks, getSubmissionForTask, submitTask, onRefetch
                       {task.description && (
                         <p className="text-sm text-muted-foreground mb-2">{task.description}</p>
                       )}
-                      <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                      <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <FileText className="w-3 h-3" />
                           {TASK_TYPE_LABELS[task.task_type]}
@@ -192,6 +224,25 @@ export function PortalTasks({ tasks, getSubmissionForTask, submitTask, onRefetch
                           </span>
                         )}
                       </div>
+                      
+                      {/* External Link Section */}
+                      {hasExternalLink && (
+                        <div className="mt-3 p-3 bg-secondary/50 rounded-lg">
+                          {taskInstructions && (
+                            <p className="text-sm font-medium mb-2">{taskInstructions}</p>
+                          )}
+                          <a
+                            href={task.external_link!}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors text-sm font-medium"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                            Go to X
+                          </a>
+                        </div>
+                      )}
+                      
                       {isRejected && submission?.rejection_reason && (
                         <div className="mt-2 p-2 bg-red-500/10 rounded text-sm text-red-500">
                           Rejection reason: {submission.rejection_reason}
@@ -199,7 +250,7 @@ export function PortalTasks({ tasks, getSubmissionForTask, submitTask, onRefetch
                       )}
                     </div>
                   </div>
-                  <div className="flex flex-col items-end gap-2">
+                  <div className="flex flex-col items-end gap-2 shrink-0">
                     {getStatusBadge(submission)}
                     {!submission && (
                       <Dialog>
@@ -217,10 +268,26 @@ export function PortalTasks({ tasks, getSubmissionForTask, submitTask, onRefetch
                             </DialogDescription>
                           </DialogHeader>
                           <div className="space-y-4 py-4">
+                            {hasExternalLink && (
+                              <div className="p-3 bg-secondary/50 rounded-lg">
+                                <p className="text-sm text-muted-foreground mb-2">
+                                  Complete this action first:
+                                </p>
+                                <a
+                                  href={task.external_link!}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors text-sm"
+                                >
+                                  <ExternalLink className="w-3 h-3" />
+                                  Open X Post
+                                </a>
+                              </div>
+                            )}
                             <div className="space-y-2">
                               <label className="text-sm font-medium">Submission URL *</label>
                               <Input
-                                placeholder="https://..."
+                                placeholder="https://x.com/..."
                                 value={submissionUrl}
                                 onChange={(e) => setSubmissionUrl(e.target.value)}
                               />
@@ -245,6 +312,9 @@ export function PortalTasks({ tasks, getSubmissionForTask, submitTask, onRefetch
                         </DialogContent>
                       </Dialog>
                     )}
+                    {isPending && (
+                      <span className="text-xs text-muted-foreground">Awaiting review</span>
+                    )}
                     {isRejected && (
                       <Dialog>
                         <DialogTrigger asChild>
@@ -260,10 +330,23 @@ export function PortalTasks({ tasks, getSubmissionForTask, submitTask, onRefetch
                             </DialogDescription>
                           </DialogHeader>
                           <div className="space-y-4 py-4">
+                            {hasExternalLink && (
+                              <div className="p-3 bg-secondary/50 rounded-lg">
+                                <a
+                                  href={task.external_link!}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors text-sm"
+                                >
+                                  <ExternalLink className="w-3 h-3" />
+                                  Open X Post
+                                </a>
+                              </div>
+                            )}
                             <div className="space-y-2">
                               <label className="text-sm font-medium">Submission URL *</label>
                               <Input
-                                placeholder="https://..."
+                                placeholder="https://x.com/..."
                                 value={submissionUrl}
                                 onChange={(e) => setSubmissionUrl(e.target.value)}
                               />
