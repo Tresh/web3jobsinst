@@ -460,10 +460,13 @@ export type Database = {
           created_by: string | null
           description: string | null
           due_date: string | null
+          external_link: string | null
           id: string
           is_global: boolean
           is_published: boolean
           program_id: string | null
+          start_date: string | null
+          status: string
           task_type: string
           title: string
           updated_at: string
@@ -474,10 +477,13 @@ export type Database = {
           created_by?: string | null
           description?: string | null
           due_date?: string | null
+          external_link?: string | null
           id?: string
           is_global?: boolean
           is_published?: boolean
           program_id?: string | null
+          start_date?: string | null
+          status?: string
           task_type: string
           title: string
           updated_at?: string
@@ -488,10 +494,13 @@ export type Database = {
           created_by?: string | null
           description?: string | null
           due_date?: string | null
+          external_link?: string | null
           id?: string
           is_global?: boolean
           is_published?: boolean
           program_id?: string | null
+          start_date?: string | null
+          status?: string
           task_type?: string
           title?: string
           updated_at?: string

@@ -39,9 +39,12 @@ export interface ScholarshipTask {
   program_id: string | null;
   title: string;
   description: string | null;
-  task_type: "retweet" | "x_post" | "video_upload" | "complete_lesson" | "submit_link" | "custom";
+  task_type: "retweet" | "x_post" | "video_upload" | "complete_lesson" | "submit_link" | "custom" | "like_x_post" | "comment_x_post" | "create_x_post";
   xp_value: number;
   due_date: string | null;
+  start_date: string | null;
+  external_link: string | null;
+  status: "draft" | "active" | "ended";
   is_global: boolean;
   is_published: boolean;
   created_by: string | null;
@@ -110,12 +113,22 @@ export interface LeaderboardEntry {
 }
 
 export type TaskType = ScholarshipTask["task_type"];
+export type TaskStatus = ScholarshipTask["status"];
 
 export const TASK_TYPE_LABELS: Record<TaskType, string> = {
   retweet: "Retweet a Post",
+  like_x_post: "Like an X Post",
+  comment_x_post: "Comment on X Post",
+  create_x_post: "Create an X Post",
   x_post: "Make an X Post",
   video_upload: "Upload a Video",
   complete_lesson: "Complete a Lesson",
   submit_link: "Submit a Link",
   custom: "Custom Task",
+};
+
+export const TASK_STATUS_LABELS: Record<TaskStatus, string> = {
+  draft: "Draft",
+  active: "Active",
+  ended: "Ended",
 };
