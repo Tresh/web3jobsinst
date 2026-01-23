@@ -46,14 +46,8 @@ import {
   ListTodo,
   BookOpen,
   Send,
-  Calendar,
   Zap,
   ExternalLink,
-  Edit,
-  Trash2,
-  StopCircle,
-  Play,
-  Link as LinkIcon,
 } from "lucide-react";
 import { format } from "date-fns";
 import type {
@@ -63,13 +57,12 @@ import type {
   ScholarshipTaskSubmission,
   ScholarshipModule,
 } from "@/types/scholarship";
-import { TASK_TYPE_LABELS, TASK_STATUS_LABELS, TaskType, TaskStatus } from "@/types/scholarship";
+import { TasksTab, OverviewTab } from "@/components/admin/scholarship";
 
 const AdminScholarships = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  // IMPORTANT: this page must always render a UI shell, even when data is empty or failed.
-  const [isLoading, setIsLoading] = useState(true); // initial bootstrap only
+  const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<string>("overview");
   const [loadError, setLoadError] = useState<string | null>(null);
   const [isLoadingPrograms, setIsLoadingPrograms] = useState(true);
@@ -85,7 +78,6 @@ const AdminScholarships = () => {
   
   const [selectedApplication, setSelectedApplication] = useState<ScholarshipApplication | null>(null);
   const [selectedSubmission, setSelectedSubmission] = useState<(ScholarshipTaskSubmission & { task?: ScholarshipTask; applicant?: ScholarshipApplication }) | null>(null);
-  const [selectedTask, setSelectedTask] = useState<ScholarshipTask | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [submissionFilter, setSubmissionFilter] = useState<string>("pending");
@@ -93,11 +85,7 @@ const AdminScholarships = () => {
 
   // Form states
   const [isCreatingProgram, setIsCreatingProgram] = useState(false);
-  const [isCreatingTask, setIsCreatingTask] = useState(false);
   const [isCreatingModule, setIsCreatingModule] = useState(false);
-  const [isEditingTask, setIsEditingTask] = useState(false);
-  const [showEditDialog, setShowEditDialog] = useState(false);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   
   const [newProgram, setNewProgram] = useState({
     title: "",
@@ -105,33 +93,6 @@ const AdminScholarships = () => {
     telegram_link: "",
     max_applications: "",
     application_deadline: "",
-  });
-
-  const [newTask, setNewTask] = useState({
-    program_id: "",
-    title: "",
-    description: "",
-    task_type: "custom" as TaskType,
-    xp_value: "10",
-    due_date: "",
-    start_date: "",
-    external_link: "",
-    is_global: true,
-    status: "draft" as TaskStatus,
-  });
-
-  const [editTask, setEditTask] = useState({
-    id: "",
-    program_id: "",
-    title: "",
-    description: "",
-    task_type: "custom" as TaskType,
-    xp_value: "10",
-    due_date: "",
-    start_date: "",
-    external_link: "",
-    is_global: true,
-    status: "draft" as TaskStatus,
   });
 
   const [newModule, setNewModule] = useState({
@@ -143,7 +104,6 @@ const AdminScholarships = () => {
     order_index: "0",
   });
 
-  // Supabase query builders are PromiseLike (thenable) but not typed as Promise.
   const withTimeout = async <T,>(promise: PromiseLike<T>, ms: number) => {
     return await Promise.race([
       Promise.resolve(promise),
@@ -171,13 +131,11 @@ const AdminScholarships = () => {
       setPrograms([]);
     } finally {
       setIsLoadingPrograms(false);
-      // Stop blocking render even if other datasets are still loading.
       setIsLoading(false);
     }
   };
 
   const fetchNonBlockingData = async () => {
-    // Each fetch is independent: failures should never prevent other sections from rendering.
     setIsLoadingTasks(true);
     setIsLoadingApplications(true);
     setIsLoadingSubmissions(true);
@@ -221,9 +179,7 @@ const AdminScholarships = () => {
         );
         if ((res as any).error) throw (res as any).error;
         const subsRaw = ((((res as any).data || []) as unknown) as ScholarshipTaskSubmission[]) ?? [];
-        setSubmissions(
-          subsRaw.map((sub) => ({ ...sub })) as unknown as typeof submissions
-        );
+        setSubmissions(subsRaw.map((sub) => ({ ...sub })) as unknown as typeof submissions);
       } catch {
         setSubmissions([]);
       } finally {
@@ -246,7 +202,6 @@ const AdminScholarships = () => {
       }
     })();
 
-    // Once the core datasets are in, enrich submissions safely.
     await Promise.allSettled([tasksPromise, appsPromise, subsPromise, modulesPromise]);
 
     setSubmissions((prev) =>
@@ -260,7 +215,6 @@ const AdminScholarships = () => {
 
   const fetchData = async () => {
     await fetchProgramsFirst();
-    // fire-and-forget: never block UI
     void fetchNonBlockingData();
   };
 
@@ -329,7 +283,6 @@ const AdminScholarships = () => {
     } else {
       toast({ title: "Status updated", description: `Application ${newStatus}` });
       
-      // Create notification for user
       const app = applications.find((a) => a.id === applicationId);
       if (app) {
         await supabase.from("scholarship_notifications").insert({
@@ -348,181 +301,6 @@ const AdminScholarships = () => {
       setRejectionReason("");
       fetchData();
     }
-  };
-
-  // Task functions
-  const handleCreateTask = async () => {
-    if (!newTask.title) {
-      toast({ title: "Error", description: "Please enter a task title", variant: "destructive" });
-      return;
-    }
-    setIsCreatingTask(true);
-
-    const { error } = await supabase.from("scholarship_tasks").insert({
-      program_id: newTask.program_id || null,
-      title: newTask.title,
-      description: newTask.description || null,
-      task_type: newTask.task_type,
-      xp_value: parseInt(newTask.xp_value) || 10,
-      due_date: newTask.due_date || null,
-      start_date: newTask.start_date || null,
-      external_link: newTask.external_link || null,
-      is_global: newTask.is_global,
-      is_published: newTask.status === "active",
-      status: newTask.status,
-      created_by: user?.id,
-    });
-
-    if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else {
-      toast({ title: "Task created successfully" });
-      // Notify approved scholars if task is active
-      if (newTask.status === "active") {
-        const approvedApps = applications.filter((a) => a.status === "approved");
-        const notifications = approvedApps.map((app) => ({
-          user_id: app.user_id,
-          title: "New Task Available",
-          message: `A new task "${newTask.title}" has been assigned. Complete it to earn ${newTask.xp_value} XP.`,
-          type: "new_task" as const,
-        }));
-        if (notifications.length > 0) {
-          await supabase.from("scholarship_notifications").insert(notifications);
-        }
-      }
-      setNewTask({ program_id: "", title: "", description: "", task_type: "custom", xp_value: "10", due_date: "", start_date: "", external_link: "", is_global: true, status: "draft" });
-      fetchData();
-    }
-    setIsCreatingTask(false);
-  };
-
-  const handleUpdateTask = async () => {
-    if (!editTask.id || !editTask.title) {
-      toast({ title: "Error", description: "Invalid task data", variant: "destructive" });
-      return;
-    }
-    setIsEditingTask(true);
-
-    const wasActive = selectedTask?.status === "active";
-    const isNowActive = editTask.status === "active";
-
-    const { error } = await supabase
-      .from("scholarship_tasks")
-      .update({
-        program_id: editTask.program_id || null,
-        title: editTask.title,
-        description: editTask.description || null,
-        task_type: editTask.task_type,
-        xp_value: parseInt(editTask.xp_value) || 10,
-        due_date: editTask.due_date || null,
-        start_date: editTask.start_date || null,
-        external_link: editTask.external_link || null,
-        is_global: editTask.is_global,
-        is_published: editTask.status === "active",
-        status: editTask.status,
-      })
-      .eq("id", editTask.id);
-
-    if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else {
-      toast({ title: "Task updated successfully" });
-      // Notify scholars if task just became active
-      if (!wasActive && isNowActive) {
-        const approvedApps = applications.filter((a) => a.status === "approved");
-        const notifications = approvedApps.map((app) => ({
-          user_id: app.user_id,
-          title: "New Task Available",
-          message: `A new task "${editTask.title}" has been assigned. Complete it to earn ${editTask.xp_value} XP.`,
-          type: "new_task" as const,
-        }));
-        if (notifications.length > 0) {
-          await supabase.from("scholarship_notifications").insert(notifications);
-        }
-      }
-      setShowEditDialog(false);
-      setSelectedTask(null);
-      fetchData();
-    }
-    setIsEditingTask(false);
-  };
-
-  const handleEndTask = async (taskId: string) => {
-    const { error } = await supabase
-      .from("scholarship_tasks")
-      .update({ status: "ended", is_published: false })
-      .eq("id", taskId);
-
-    if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else {
-      toast({ title: "Task ended", description: "The task is no longer active for scholars" });
-      fetchData();
-    }
-  };
-
-  const handleActivateTask = async (taskId: string) => {
-    const task = tasks.find((t) => t.id === taskId);
-    const { error } = await supabase
-      .from("scholarship_tasks")
-      .update({ status: "active", is_published: true })
-      .eq("id", taskId);
-
-    if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else {
-      toast({ title: "Task activated", description: "The task is now visible to approved scholars" });
-      // Notify scholars
-      if (task) {
-        const approvedApps = applications.filter((a) => a.status === "approved");
-        const notifications = approvedApps.map((app) => ({
-          user_id: app.user_id,
-          title: "New Task Available",
-          message: `A new task "${task.title}" has been assigned. Complete it to earn ${task.xp_value} XP.`,
-          type: "new_task" as const,
-        }));
-        if (notifications.length > 0) {
-          await supabase.from("scholarship_notifications").insert(notifications);
-        }
-      }
-      fetchData();
-    }
-  };
-
-  const handleDeleteTask = async () => {
-    if (!selectedTask) return;
-
-    const { error } = await supabase
-      .from("scholarship_tasks")
-      .delete()
-      .eq("id", selectedTask.id);
-
-    if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else {
-      toast({ title: "Task deleted" });
-      setShowDeleteDialog(false);
-      setSelectedTask(null);
-      fetchData();
-    }
-  };
-
-  const openEditDialog = (task: ScholarshipTask) => {
-    setSelectedTask(task);
-    setEditTask({
-      id: task.id,
-      program_id: task.program_id || "",
-      title: task.title,
-      description: task.description || "",
-      task_type: task.task_type,
-      xp_value: task.xp_value.toString(),
-      due_date: task.due_date ? new Date(task.due_date).toISOString().slice(0, 16) : "",
-      start_date: task.start_date ? new Date(task.start_date).toISOString().slice(0, 16) : "",
-      external_link: task.external_link || "",
-      is_global: task.is_global,
-      status: task.status,
-    });
-    setShowEditDialog(true);
   };
 
   // Submission review
@@ -549,7 +327,6 @@ const AdminScholarships = () => {
       return;
     }
 
-    // Update user's XP if approved
     if (approved && selectedSubmission?.applicant) {
       const currentXp = selectedSubmission.applicant.total_xp || 0;
       await supabase
@@ -558,7 +335,6 @@ const AdminScholarships = () => {
         .eq("user_id", selectedSubmission.user_id);
     }
 
-    // Create notification
     if (selectedSubmission) {
       await supabase.from("scholarship_notifications").insert({
         user_id: selectedSubmission.user_id,
@@ -622,10 +398,6 @@ const AdminScholarships = () => {
     ? submissions
     : submissions.filter((s) => s.status === submissionFilter);
 
-  const filteredTasks = taskStatusFilter === "all"
-    ? tasks
-    : tasks.filter((t) => t.status === taskStatusFilter);
-
   const safeFormatDate = (value: unknown, fmt: string) => {
     if (!value) return null;
     try {
@@ -637,52 +409,37 @@ const AdminScholarships = () => {
     }
   };
 
-  const safeTaskTypeLabel = (taskType: string) => {
-    return TASK_TYPE_LABELS[taskType as keyof typeof TASK_TYPE_LABELS] || taskType || "Unknown";
-  };
-
-  const getTaskAssignmentLabel = (task: ScholarshipTask) => {
-    if (task.is_global) return "All approved";
-    if (task.program_id) {
-      const p = programs.find((x) => x.id === task.program_id);
-      return p?.title || "Program";
-    }
-    return "Unassigned";
-  };
-
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "approved":
-        return <Badge className="bg-green-500/10 text-green-500">Approved</Badge>;
+        return <Badge variant="outline" className="border-primary/30 text-primary">Approved</Badge>;
       case "rejected":
-        return <Badge className="bg-red-500/10 text-red-500">Rejected</Badge>;
+        return <Badge variant="outline" className="border-destructive/30 text-destructive">Rejected</Badge>;
       case "waitlist":
-        return <Badge className="bg-yellow-500/10 text-yellow-500">Waitlist</Badge>;
+        return <Badge variant="outline" className="border-warning/30 text-warning">Waitlist</Badge>;
       default:
-        return <Badge className="bg-blue-500/10 text-blue-500">Pending</Badge>;
+        return <Badge variant="outline" className="border-muted-foreground/30 text-muted-foreground">Pending</Badge>;
     }
   };
 
-  const getTaskStatusBadge = (status: TaskStatus) => {
+  const getSubmissionStatusBadge = (status: string) => {
     switch (status) {
-      case "active":
-        return <Badge className="bg-green-500/10 text-green-500 border-green-500/20"><Play className="w-3 h-3 mr-1" />Active</Badge>;
-      case "ended":
-        return <Badge className="bg-red-500/10 text-red-500 border-red-500/20"><StopCircle className="w-3 h-3 mr-1" />Ended</Badge>;
+      case "approved":
+        return <Badge variant="outline" className="border-primary/30 text-primary">Approved</Badge>;
+      case "rejected":
+        return <Badge variant="outline" className="border-destructive/30 text-destructive">Rejected</Badge>;
       default:
-        return <Badge className="bg-gray-500/10 text-gray-500 border-gray-500/20"><Clock className="w-3 h-3 mr-1" />Draft</Badge>;
+        return <Badge variant="outline" className="border-muted-foreground/30 text-muted-foreground">Pending</Badge>;
     }
   };
 
-  const getSubmissionCountForTask = (taskId: string) => {
-    return submissions.filter((s) => s.task_id === taskId).length;
+  const handleNavigate = (tab: string, filter?: string) => {
+    setActiveTab(tab);
+    if (filter) {
+      if (tab === "applications") setStatusFilter(filter);
+      if (tab === "tasks") setTaskStatusFilter(filter);
+    }
   };
-
-  const activeTasks = tasks.filter((t) => t.status === "active");
-  const endedTasks = tasks.filter((t) => t.status === "ended");
-  const approvedApps = applications.filter((a) => a.status === "approved");
-  const pendingApps = applications.filter((a) => a.status === "pending");
-  const rejectedApps = applications.filter((a) => a.status === "rejected");
 
   return (
     <div className="p-6 lg:p-8">
@@ -739,812 +496,194 @@ const AdminScholarships = () => {
           </TabsTrigger>
         </TabsList>
 
-        {/* Overview Tab (always renders all required sections, even if empty) */}
-        <TabsContent value="overview" className="space-y-6">
-          {/* Scholarship Programs */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between gap-4">
-                <span>Scholarship Programs</span>
-                {isLoadingPrograms ? (
-                  <Badge variant="secondary">Loading…</Badge>
-                ) : (
-                  <Badge variant="secondary">{programs.length}</Badge>
-                )}
-              </CardTitle>
-              <CardDescription>Programs must exist before tasks can be meaningfully assigned.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {isLoading && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Loading programs…
-                </div>
-              )}
-              {!isLoadingPrograms && programs.length === 0 && (
-                <div className="flex items-center justify-between gap-4">
-                  <p className="text-sm text-muted-foreground">No Scholarship Program Created Yet</p>
-                  <Button onClick={() => setActiveTab("programs")}>Create Scholarship Program</Button>
-                </div>
-              )}
-              {!isLoadingPrograms && programs.length > 0 && (
-                <div className="space-y-2">
-                  {programs.slice(0, 3).map((p) => (
-                    <div key={p.id} className="flex items-center justify-between text-sm">
-                      <span className="font-medium">{p.title}</span>
-                      <span className="text-muted-foreground">{p.is_active ? "Active" : "Inactive"}</span>
-                    </div>
-                  ))}
-                  {programs.length > 3 && (
-                    <Button variant="outline" size="sm" onClick={() => setActiveTab("programs")}>
-                      View all programs
-                    </Button>
-                  )}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Active Tasks */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between gap-4">
-                <span>Active Tasks</span>
-                {isLoadingTasks ? (
-                  <Badge variant="secondary">Loading…</Badge>
-                ) : (
-                  <Badge variant="secondary">{activeTasks.length}</Badge>
-                )}
-              </CardTitle>
-              <CardDescription>Tasks visible to approved scholars (status: Active).</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {isLoadingTasks ? (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Loading tasks…
-                </div>
-              ) : activeTasks.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No active tasks yet.</p>
-              ) : (
-                <div className="space-y-2">
-                  {activeTasks.slice(0, 5).map((t) => (
-                    <div key={t.id} className="flex items-center justify-between text-sm">
-                      <span className="font-medium">{t.title}</span>
-                      <span className="text-muted-foreground">{t.xp_value} XP</span>
-                    </div>
-                  ))}
-                  <Button variant="outline" size="sm" onClick={() => setActiveTab("tasks")}>
-                    Manage tasks
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Completed/Ended Tasks */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between gap-4">
-                <span>Completed Tasks (Ended)</span>
-                {isLoadingTasks ? (
-                  <Badge variant="secondary">Loading…</Badge>
-                ) : (
-                  <Badge variant="secondary">{endedTasks.length}</Badge>
-                )}
-              </CardTitle>
-              <CardDescription>Ended tasks are hidden from scholars but remain in history.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {isLoadingTasks ? (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Loading tasks…
-                </div>
-              ) : endedTasks.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No ended tasks yet.</p>
-              ) : (
-                <Button variant="outline" size="sm" onClick={() => { setActiveTab("tasks"); setTaskStatusFilter("ended"); }}>
-                  View ended tasks
-                </Button>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Approved Scholars */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between gap-4">
-                <span>Approved Scholars</span>
-                {isLoadingApplications ? (
-                  <Badge variant="secondary">Loading…</Badge>
-                ) : (
-                  <Badge variant="secondary">{approvedApps.length}</Badge>
-                )}
-              </CardTitle>
-              <CardDescription>Users approved into a scholarship program.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {isLoadingApplications ? (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Loading scholars…
-                </div>
-              ) : approvedApps.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No approved scholars yet.</p>
-              ) : (
-                <Button variant="outline" size="sm" onClick={() => { setActiveTab("applications"); setStatusFilter("approved"); }}>
-                  View approved scholars
-                </Button>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Pending Applications */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between gap-4">
-                <span>Pending Applications</span>
-                {isLoadingApplications ? (
-                  <Badge variant="secondary">Loading…</Badge>
-                ) : (
-                  <Badge variant="secondary">{pendingApps.length}</Badge>
-                )}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {isLoadingApplications ? (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Loading applications…
-                </div>
-              ) : pendingApps.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No pending applications.</p>
-              ) : (
-                <Button variant="outline" size="sm" onClick={() => { setActiveTab("applications"); setStatusFilter("pending"); }}>
-                  Review pending
-                </Button>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Rejected Applications */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between gap-4">
-                <span>Rejected Applications</span>
-                {isLoadingApplications ? (
-                  <Badge variant="secondary">Loading…</Badge>
-                ) : (
-                  <Badge variant="secondary">{rejectedApps.length}</Badge>
-                )}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {isLoadingApplications ? (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Loading applications…
-                </div>
-              ) : rejectedApps.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No rejected applications.</p>
-              ) : (
-                <Button variant="outline" size="sm" onClick={() => { setActiveTab("applications"); setStatusFilter("rejected"); }}>
-                  View rejected
-                </Button>
-              )}
-            </CardContent>
-          </Card>
+        {/* Overview Tab */}
+        <TabsContent value="overview">
+          <OverviewTab
+            programs={programs}
+            applications={applications}
+            tasks={tasks}
+            isLoadingPrograms={isLoadingPrograms}
+            isLoadingApplications={isLoadingApplications}
+            isLoadingTasks={isLoadingTasks}
+            onNavigate={handleNavigate}
+          />
         </TabsContent>
 
         {/* Tasks Tab */}
-        <TabsContent value="tasks" className="space-y-6">
-          {/* Create New Task Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Plus className="w-5 h-5" />
-                Create New Task
-              </CardTitle>
-              <CardDescription>
-                Create tasks for approved scholarship students to complete
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Task Title *</Label>
-                  <Input
-                    value={newTask.title}
-                    onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
-                    placeholder="e.g., Retweet our announcement"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Task Type</Label>
-                  <Select
-                    value={newTask.task_type}
-                    onValueChange={(v) => setNewTask({ ...newTask, task_type: v as TaskType })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.entries(TASK_TYPE_LABELS).map(([value, label]) => (
-                        <SelectItem key={value} value={value}>{label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label>Description</Label>
-                <Textarea
-                  value={newTask.description}
-                  onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
-                  placeholder="Task instructions and what scholars need to do..."
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="flex items-center gap-2">
-                  <LinkIcon className="w-4 h-4" />
-                  External Link (X/Twitter URL)
-                </Label>
-                <Input
-                  value={newTask.external_link}
-                  onChange={(e) => setNewTask({ ...newTask, external_link: e.target.value })}
-                  placeholder="https://x.com/... (optional - will show as 'Go to X' button)"
-                />
-                <p className="text-xs text-muted-foreground">
-                  If provided, scholars will see a "Go to X" button to open this link
-                </p>
-              </div>
-              <div className="grid md:grid-cols-4 gap-4">
-                <div className="space-y-2">
-                  <Label>XP Value</Label>
-                  <Input
-                    type="number"
-                    value={newTask.xp_value}
-                    onChange={(e) => setNewTask({ ...newTask, xp_value: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Start Date</Label>
-                  <Input
-                    type="datetime-local"
-                    value={newTask.start_date}
-                    onChange={(e) => setNewTask({ ...newTask, start_date: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>End/Due Date</Label>
-                  <Input
-                    type="datetime-local"
-                    value={newTask.due_date}
-                    onChange={(e) => setNewTask({ ...newTask, due_date: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Status</Label>
-                  <Select
-                    value={newTask.status}
-                    onValueChange={(v) => setNewTask({ ...newTask, status: v as TaskStatus })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="draft">Draft (hidden)</SelectItem>
-                      <SelectItem value="active">Active (visible to scholars)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Program (optional)</Label>
-                  <Select
-                    value={newTask.program_id}
-                    onValueChange={(v) => setNewTask({ ...newTask, program_id: v })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select program" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">All Programs</SelectItem>
-                      {programs.map((p) => (
-                        <SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="flex items-center gap-2 pt-6">
-                  <Switch
-                    checked={newTask.is_global}
-                    onCheckedChange={(v) => setNewTask({ ...newTask, is_global: v })}
-                  />
-                  <Label>Global task (visible to all approved scholars)</Label>
-                </div>
-              </div>
-              <Button onClick={handleCreateTask} disabled={isCreatingTask} className="w-full sm:w-auto">
-                {isCreatingTask && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                Create Task
-              </Button>
-            </CardContent>
-          </Card>
+        <TabsContent value="tasks">
+          <TasksTab
+            tasks={tasks}
+            programs={programs}
+            applications={applications}
+            submissions={submissions}
+            isLoading={isLoadingTasks}
+            userId={user?.id}
+            onRefetch={fetchData}
+          />
+        </TabsContent>
 
-          {/* Task List */}
+        {/* Submissions Tab */}
+        <TabsContent value="submissions" className="space-y-4">
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle>Existing Tasks</CardTitle>
-                  <CardDescription>
-                    View, edit, end, or delete tasks. Ended tasks are hidden from scholars but kept in history.
-                  </CardDescription>
+                  <CardTitle>Task Submissions</CardTitle>
+                  <CardDescription>Review and approve/reject scholar task submissions</CardDescription>
                 </div>
-                <Select value={taskStatusFilter} onValueChange={setTaskStatusFilter}>
+                <Select value={submissionFilter} onValueChange={setSubmissionFilter}>
                   <SelectTrigger className="w-[150px]">
                     <SelectValue placeholder="Filter" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Tasks</SelectItem>
-                    <SelectItem value="draft">Draft</SelectItem>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="ended">Ended</SelectItem>
+                    <SelectItem value="all">All</SelectItem>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="approved">Approved</SelectItem>
+                    <SelectItem value="rejected">Rejected</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Title</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>XP</TableHead>
-                    <TableHead>Assigned</TableHead>
-                    <TableHead>Submissions</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Created</TableHead>
-                    <TableHead>Dates</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredTasks.map((task) => (
-                    <TableRow key={task.id}>
-                      <TableCell>
-                        <div>
-                          <p className="font-medium">{task.title}</p>
-                          {task.external_link && (
-                            <a 
-                              href={task.external_link} 
-                              target="_blank" 
+              {isLoadingSubmissions ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Scholar</TableHead>
+                      <TableHead>Task</TableHead>
+                      <TableHead>Submission</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredSubmissions.map((sub) => (
+                      <TableRow key={sub.id}>
+                        <TableCell>
+                          <p className="font-medium">{sub.applicant?.full_name || "Unknown"}</p>
+                          <p className="text-xs text-muted-foreground">{sub.applicant?.email}</p>
+                        </TableCell>
+                        <TableCell>
+                          <p className="font-medium">{sub.task?.title || "Unknown Task"}</p>
+                          <Badge variant="secondary" className="text-xs">
+                            <Zap className="w-3 h-3 mr-1" />
+                            {sub.task?.xp_value || 0} XP
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          {sub.submission_url && (
+                            <a
+                              href={sub.submission_url}
+                              target="_blank"
                               rel="noopener noreferrer"
-                              className="text-xs text-primary hover:underline flex items-center gap-1"
+                              className="text-primary hover:underline flex items-center gap-1 text-sm"
                             >
                               <ExternalLink className="w-3 h-3" />
-                              Has external link
+                              View Submission
                             </a>
                           )}
-                          {task.is_global && <Badge variant="outline" className="mt-1 text-xs">Global</Badge>}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="secondary">{safeTaskTypeLabel(task.task_type)}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">
-                          <Zap className="w-3 h-3 mr-1" />
-                          {task.xp_value}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <span className="text-sm">{getTaskAssignmentLabel(task)}</span>
-                      </TableCell>
-                      <TableCell>
-                        <span className="text-sm">{getSubmissionCountForTask(task.id)} submitted</span>
-                      </TableCell>
-                      <TableCell>{getTaskStatusBadge(task.status)}</TableCell>
-                      <TableCell>
-                        <span className="text-sm text-muted-foreground">
-                          {safeFormatDate((task as any).created_at, "MMM d, yyyy") || "—"}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        <div className="text-xs text-muted-foreground">
-                          {task.start_date && (
-                            <p>
-                              Start: {safeFormatDate(task.start_date, "MMM d") || "—"}
-                            </p>
-                          )}
-                          {task.due_date && (
-                            <p>
-                              End: {safeFormatDate(task.due_date, "MMM d") || "—"}
-                            </p>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-1">
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button size="sm" variant="outline" onClick={() => setSelectedTask(task)}>
-                                <Eye className="w-4 h-4" />
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent className="max-w-2xl">
-                              <DialogHeader>
-                                <DialogTitle>Task Details</DialogTitle>
-                                <DialogDescription>Read-only view of this task.</DialogDescription>
-                              </DialogHeader>
-                              <div className="space-y-3 py-4">
-                                <div className="grid sm:grid-cols-2 gap-3">
-                                  <div>
-                                    <Label className="text-muted-foreground">Title</Label>
-                                    <p className="font-medium">{selectedTask?.title || "—"}</p>
-                                  </div>
-                                  <div>
-                                    <Label className="text-muted-foreground">Status</Label>
-                                    <div className="pt-1">{selectedTask ? getTaskStatusBadge(selectedTask.status) : "—"}</div>
-                                  </div>
-                                  <div>
-                                    <Label className="text-muted-foreground">Type</Label>
-                                    <p className="font-medium">{selectedTask ? safeTaskTypeLabel(selectedTask.task_type) : "—"}</p>
-                                  </div>
-                                  <div>
-                                    <Label className="text-muted-foreground">XP</Label>
-                                    <p className="font-medium">{selectedTask?.xp_value ?? "—"}</p>
-                                  </div>
-                                  <div>
-                                    <Label className="text-muted-foreground">Assigned</Label>
-                                    <p className="font-medium">{selectedTask ? getTaskAssignmentLabel(selectedTask) : "—"}</p>
-                                  </div>
-                                  <div>
-                                    <Label className="text-muted-foreground">Created</Label>
-                                    <p className="font-medium">
-                                      {selectedTask ? safeFormatDate((selectedTask as any).created_at, "MMM d, yyyy") || "—" : "—"}
-                                    </p>
-                                  </div>
-                                </div>
-                                {selectedTask?.description && (
-                                  <div>
-                                    <Label className="text-muted-foreground">Description</Label>
-                                    <p className="text-sm bg-secondary p-3 rounded-lg">{selectedTask.description}</p>
-                                  </div>
-                                )}
-                                {selectedTask?.external_link && (
-                                  <div>
-                                    <Label className="text-muted-foreground">External Link</Label>
-                                    <a
-                                      href={selectedTask.external_link}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="text-primary hover:underline inline-flex items-center gap-2"
-                                    >
-                                      {selectedTask.external_link}
-                                      <ExternalLink className="w-4 h-4" />
-                                    </a>
-                                  </div>
-                                )}
-                              </div>
-                            </DialogContent>
-                          </Dialog>
-                          {task.status === "draft" && (
-                            <Button size="sm" variant="outline" onClick={() => handleActivateTask(task.id)}>
-                              <Play className="w-4 h-4" />
-                            </Button>
-                          )}
-                          {task.status === "active" && (
-                            <Button size="sm" variant="outline" onClick={() => handleEndTask(task.id)}>
-                              <StopCircle className="w-4 h-4" />
-                            </Button>
-                          )}
-                          <Button size="sm" variant="outline" onClick={() => openEditDialog(task)}>
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="outline" 
-                            onClick={() => { setSelectedTask(task); setShowDeleteDialog(true); }}
-                          >
-                            <Trash2 className="w-4 h-4 text-destructive" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  {filteredTasks.length === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
-                        No scholarship tasks created yet.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Edit Task Dialog */}
-        <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Edit Task</DialogTitle>
-              <DialogDescription>Update task details</DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Task Title *</Label>
-                  <Input
-                    value={editTask.title}
-                    onChange={(e) => setEditTask({ ...editTask, title: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Task Type</Label>
-                  <Select
-                    value={editTask.task_type}
-                    onValueChange={(v) => setEditTask({ ...editTask, task_type: v as TaskType })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.entries(TASK_TYPE_LABELS).map(([value, label]) => (
-                        <SelectItem key={value} value={value}>{label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label>Description</Label>
-                <Textarea
-                  value={editTask.description}
-                  onChange={(e) => setEditTask({ ...editTask, description: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="flex items-center gap-2">
-                  <LinkIcon className="w-4 h-4" />
-                  External Link
-                </Label>
-                <Input
-                  value={editTask.external_link}
-                  onChange={(e) => setEditTask({ ...editTask, external_link: e.target.value })}
-                  placeholder="https://x.com/..."
-                />
-              </div>
-              <div className="grid md:grid-cols-4 gap-4">
-                <div className="space-y-2">
-                  <Label>XP Value</Label>
-                  <Input
-                    type="number"
-                    value={editTask.xp_value}
-                    onChange={(e) => setEditTask({ ...editTask, xp_value: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Start Date</Label>
-                  <Input
-                    type="datetime-local"
-                    value={editTask.start_date}
-                    onChange={(e) => setEditTask({ ...editTask, start_date: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>End Date</Label>
-                  <Input
-                    type="datetime-local"
-                    value={editTask.due_date}
-                    onChange={(e) => setEditTask({ ...editTask, due_date: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Status</Label>
-                  <Select
-                    value={editTask.status}
-                    onValueChange={(v) => setEditTask({ ...editTask, status: v as TaskStatus })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="draft">Draft</SelectItem>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="ended">Ended</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Switch
-                  checked={editTask.is_global}
-                  onCheckedChange={(v) => setEditTask({ ...editTask, is_global: v })}
-                />
-                <Label>Global task</Label>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setShowEditDialog(false)}>Cancel</Button>
-              <Button onClick={handleUpdateTask} disabled={isEditingTask}>
-                {isEditingTask && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                Save Changes
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
-        {/* Delete Task Dialog */}
-        <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Delete Task</DialogTitle>
-              <DialogDescription>
-                Are you sure you want to delete "{selectedTask?.title}"? This action cannot be undone.
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>Cancel</Button>
-              <Button variant="destructive" onClick={handleDeleteTask}>Delete Task</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
-        {/* Submissions Tab */}
-        <TabsContent value="submissions" className="space-y-4">
-          <div className="flex items-center gap-4 mb-4">
-            <Select value={submissionFilter} onValueChange={setSubmissionFilter}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Filter by status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Submissions</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="approved">Approved</SelectItem>
-                <SelectItem value="rejected">Rejected</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <Card>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>User</TableHead>
-                  <TableHead>Task</TableHead>
-                  <TableHead>Submission</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Action</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredSubmissions.map((sub) => (
-                  <TableRow key={sub.id}>
-                    <TableCell>
-                      <div>
-                        <p className="font-medium">{sub.applicant?.full_name || "Unknown"}</p>
-                        <p className="text-xs text-muted-foreground">{sub.applicant?.email}</p>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <p className="font-medium">{sub.task?.title || "Unknown Task"}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {sub.task?.xp_value} XP
-                      </p>
-                    </TableCell>
-                    <TableCell>
-                      {sub.submission_url && (
-                        <a
-                          href={sub.submission_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-primary hover:underline flex items-center gap-1 text-sm"
-                        >
-                          View <ExternalLink className="w-3 h-3" />
-                        </a>
-                      )}
-                      {sub.submission_text && (
-                        <p className="text-sm text-muted-foreground truncate max-w-[200px]">
-                          {sub.submission_text}
-                        </p>
-                      )}
-                    </TableCell>
-                    <TableCell>{getStatusBadge(sub.status)}</TableCell>
-                    <TableCell>
-                      {sub.status === "pending" && (
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button size="sm" variant="outline" onClick={() => setSelectedSubmission(sub)}>
-                              Review
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent>
-                            <DialogHeader>
-                              <DialogTitle>Review Submission</DialogTitle>
-                              <DialogDescription>
-                                Review and approve/reject this submission
-                              </DialogDescription>
-                            </DialogHeader>
-                            {selectedSubmission && (
-                              <div className="space-y-4 py-4">
-                                <div>
-                                  <Label className="text-muted-foreground">Task</Label>
-                                  <p className="font-medium">{selectedSubmission.task?.title}</p>
-                                </div>
-                                <div>
-                                  <Label className="text-muted-foreground">User</Label>
-                                  <p className="font-medium">{selectedSubmission.applicant?.full_name}</p>
-                                </div>
-                                {selectedSubmission.submission_url && (
-                                  <div>
-                                    <Label className="text-muted-foreground">Submission URL</Label>
-                                    <a
-                                      href={selectedSubmission.submission_url}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="text-primary hover:underline flex items-center gap-1"
-                                    >
-                                      {selectedSubmission.submission_url}
-                                      <ExternalLink className="w-3 h-3" />
-                                    </a>
-                                  </div>
-                                )}
-                                {selectedSubmission.submission_text && (
-                                  <div>
-                                    <Label className="text-muted-foreground">Notes</Label>
-                                    <p className="text-sm bg-secondary p-2 rounded">{selectedSubmission.submission_text}</p>
-                                  </div>
-                                )}
-                                <div className="space-y-2">
-                                  <Label>Rejection Reason (if rejecting)</Label>
-                                  <Textarea
-                                    value={rejectionReason}
-                                    onChange={(e) => setRejectionReason(e.target.value)}
-                                    placeholder="Reason for rejection..."
-                                  />
-                                </div>
-                                <div className="flex gap-2">
-                                  <Button
-                                    className="bg-green-600 hover:bg-green-700"
-                                    onClick={() => reviewSubmission(
-                                      selectedSubmission.id,
-                                      true,
-                                      selectedSubmission.task?.xp_value || 0
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {safeFormatDate(sub.created_at, "MMM d, yyyy HH:mm") || "—"}
+                          </p>
+                        </TableCell>
+                        <TableCell>{getSubmissionStatusBadge(sub.status)}</TableCell>
+                        <TableCell className="text-right">
+                          {sub.status === "pending" && (
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button size="sm" variant="outline" onClick={() => setSelectedSubmission(sub)}>
+                                  <Eye className="w-4 h-4 mr-1" />
+                                  Review
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent className="max-w-2xl">
+                                <DialogHeader>
+                                  <DialogTitle>Review Submission</DialogTitle>
+                                  <DialogDescription>Approve or reject this task submission</DialogDescription>
+                                </DialogHeader>
+                                {selectedSubmission && (
+                                  <div className="space-y-4 py-4">
+                                    <div className="grid grid-cols-2 gap-4 text-sm">
+                                      <div>
+                                        <Label className="text-muted-foreground">Scholar</Label>
+                                        <p className="font-medium">{selectedSubmission.applicant?.full_name}</p>
+                                      </div>
+                                      <div>
+                                        <Label className="text-muted-foreground">Task</Label>
+                                        <p className="font-medium">{selectedSubmission.task?.title}</p>
+                                      </div>
+                                    </div>
+                                    {selectedSubmission.submission_url && (
+                                      <div>
+                                        <Label className="text-muted-foreground">Submission Link</Label>
+                                        <a
+                                          href={selectedSubmission.submission_url}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="text-primary hover:underline flex items-center gap-2"
+                                        >
+                                          {selectedSubmission.submission_url}
+                                          <ExternalLink className="w-4 h-4" />
+                                        </a>
+                                      </div>
                                     )}
-                                  >
-                                    <CheckCircle className="w-4 h-4 mr-1" />
-                                    Approve (+{selectedSubmission.task?.xp_value} XP)
-                                  </Button>
-                                  <Button
-                                    variant="destructive"
-                                    onClick={() => reviewSubmission(selectedSubmission.id, false, 0)}
-                                  >
-                                    <XCircle className="w-4 h-4 mr-1" />
-                                    Reject
-                                  </Button>
-                                </div>
-                              </div>
-                            )}
-                          </DialogContent>
-                        </Dialog>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {filteredSubmissions.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                      No submissions found
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
+                                    {selectedSubmission.submission_text && (
+                                      <div>
+                                        <Label className="text-muted-foreground">Notes</Label>
+                                        <p className="text-sm bg-secondary p-2 rounded">{selectedSubmission.submission_text}</p>
+                                      </div>
+                                    )}
+                                    <div className="space-y-2">
+                                      <Label>Rejection Reason (if rejecting)</Label>
+                                      <Textarea
+                                        value={rejectionReason}
+                                        onChange={(e) => setRejectionReason(e.target.value)}
+                                        placeholder="Reason for rejection..."
+                                      />
+                                    </div>
+                                    <div className="flex gap-2">
+                                      <Button
+                                        className="bg-primary hover:bg-primary/90"
+                                        onClick={() => reviewSubmission(
+                                          selectedSubmission.id,
+                                          true,
+                                          selectedSubmission.task?.xp_value || 0
+                                        )}
+                                      >
+                                        <CheckCircle className="w-4 h-4 mr-1" />
+                                        Approve (+{selectedSubmission.task?.xp_value} XP)
+                                      </Button>
+                                      <Button
+                                        variant="destructive"
+                                        onClick={() => reviewSubmission(selectedSubmission.id, false, 0)}
+                                      >
+                                        <XCircle className="w-4 h-4 mr-1" />
+                                        Reject
+                                      </Button>
+                                    </div>
+                                  </div>
+                                )}
+                              </DialogContent>
+                            </Dialog>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    {filteredSubmissions.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                          No submissions found
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              )}
+            </CardContent>
           </Card>
         </TabsContent>
 
@@ -1568,148 +707,154 @@ const AdminScholarships = () => {
             </span>
           </div>
 
-          <div className="space-y-3">
-            {filteredApplications.map((app) => (
-              <Card key={app.id} className="hover:border-primary/50 transition-colors">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center">
-                        <span className="text-sm font-bold text-primary-foreground">
-                          {app.full_name.charAt(0).toUpperCase()}
-                        </span>
+          {isLoadingApplications ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {filteredApplications.map((app) => (
+                <Card key={app.id} className="hover:border-primary/50 transition-colors">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center">
+                          <span className="text-sm font-bold text-primary-foreground">
+                            {app.full_name.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                        <div>
+                          <p className="font-medium">{app.full_name}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {app.email} • {app.preferred_track}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-medium">{app.full_name}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {app.email} • {app.preferred_track}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      {app.status === "approved" && (
-                        <Badge variant="outline" className="gap-1">
-                          <Zap className="w-3 h-3" />
-                          {app.total_xp} XP
-                        </Badge>
-                      )}
-                      {getStatusBadge(app.status)}
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button variant="outline" size="sm" onClick={() => setSelectedApplication(app)}>
-                            <Eye className="w-4 h-4 mr-1" />
-                            Review
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-                          <DialogHeader>
-                            <DialogTitle>Application Review</DialogTitle>
-                            <DialogDescription>Review and update application status</DialogDescription>
-                          </DialogHeader>
-                          {selectedApplication && (
-                            <div className="space-y-4 py-4">
-                              <div className="grid grid-cols-2 gap-4 text-sm">
-                                <div>
-                                  <Label className="text-muted-foreground">Full Name</Label>
-                                  <p className="font-medium">{selectedApplication.full_name}</p>
-                                </div>
-                                <div>
-                                  <Label className="text-muted-foreground">Email</Label>
-                                  <p className="font-medium">{selectedApplication.email}</p>
-                                </div>
-                                <div>
-                                  <Label className="text-muted-foreground">Telegram</Label>
-                                  <p className="font-medium">{selectedApplication.telegram_username}</p>
-                                </div>
-                                <div>
-                                  <Label className="text-muted-foreground">Twitter</Label>
-                                  <p className="font-medium">{selectedApplication.twitter_handle}</p>
-                                </div>
-                                <div>
-                                  <Label className="text-muted-foreground">Track</Label>
-                                  <p className="font-medium">{selectedApplication.preferred_track}</p>
-                                </div>
-                                <div>
-                                  <Label className="text-muted-foreground">Hours/Week</Label>
-                                  <p className="font-medium">{selectedApplication.hours_per_week}</p>
-                                </div>
-                              </div>
-                              <div>
-                                <Label className="text-muted-foreground">Why Scholarship</Label>
-                                <p className="text-sm bg-secondary p-3 rounded-lg">{selectedApplication.why_scholarship}</p>
-                              </div>
-
-                              {selectedApplication.status === "pending" && (
-                                <div className="space-y-4 pt-4 border-t">
-                                  <div className="space-y-2">
-                                    <Label>Start Date (for approval)</Label>
-                                    <Input
-                                      type="date"
-                                      id="startDate"
-                                      defaultValue={new Date().toISOString().split("T")[0]}
-                                    />
+                      <div className="flex items-center gap-3">
+                        {app.status === "approved" && (
+                          <Badge variant="outline" className="gap-1">
+                            <Zap className="w-3 h-3" />
+                            {app.total_xp} XP
+                          </Badge>
+                        )}
+                        {getStatusBadge(app.status)}
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button variant="outline" size="sm" onClick={() => setSelectedApplication(app)}>
+                              <Eye className="w-4 h-4 mr-1" />
+                              Review
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                            <DialogHeader>
+                              <DialogTitle>Application Review</DialogTitle>
+                              <DialogDescription>Review and update application status</DialogDescription>
+                            </DialogHeader>
+                            {selectedApplication && (
+                              <div className="space-y-4 py-4">
+                                <div className="grid grid-cols-2 gap-4 text-sm">
+                                  <div>
+                                    <Label className="text-muted-foreground">Full Name</Label>
+                                    <p className="font-medium">{selectedApplication.full_name}</p>
                                   </div>
-                                  <div className="space-y-2">
-                                    <Label>Rejection Reason (if rejecting)</Label>
-                                    <Textarea
-                                      value={rejectionReason}
-                                      onChange={(e) => setRejectionReason(e.target.value)}
-                                      placeholder="Reason for rejection..."
-                                    />
+                                  <div>
+                                    <Label className="text-muted-foreground">Email</Label>
+                                    <p className="font-medium">{selectedApplication.email}</p>
+                                  </div>
+                                  <div>
+                                    <Label className="text-muted-foreground">Telegram</Label>
+                                    <p className="font-medium">{selectedApplication.telegram_username}</p>
+                                  </div>
+                                  <div>
+                                    <Label className="text-muted-foreground">Twitter</Label>
+                                    <p className="font-medium">{selectedApplication.twitter_handle}</p>
+                                  </div>
+                                  <div>
+                                    <Label className="text-muted-foreground">Track</Label>
+                                    <p className="font-medium">{selectedApplication.preferred_track}</p>
+                                  </div>
+                                  <div>
+                                    <Label className="text-muted-foreground">Hours/Week</Label>
+                                    <p className="font-medium">{selectedApplication.hours_per_week}</p>
                                   </div>
                                 </div>
-                              )}
+                                <div>
+                                  <Label className="text-muted-foreground">Why Scholarship</Label>
+                                  <p className="text-sm bg-secondary p-3 rounded-lg">{selectedApplication.why_scholarship}</p>
+                                </div>
 
-                              <div className="flex gap-2 pt-4 border-t">
-                                <Button
-                                  size="sm"
-                                  onClick={() => {
-                                    const startInput = document.getElementById("startDate") as HTMLInputElement;
-                                    updateApplicationStatus(
-                                      selectedApplication.id,
-                                      "approved",
-                                      startInput?.value
-                                    );
-                                  }}
-                                  className="bg-green-600 hover:bg-green-700"
-                                >
-                                  <CheckCircle className="w-4 h-4 mr-1" />
-                                  Approve
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => updateApplicationStatus(selectedApplication.id, "waitlist")}
-                                >
-                                  <Clock className="w-4 h-4 mr-1" />
-                                  Waitlist
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="destructive"
-                                  onClick={() => updateApplicationStatus(selectedApplication.id, "rejected")}
-                                >
-                                  <XCircle className="w-4 h-4 mr-1" />
-                                  Reject
-                                </Button>
+                                {selectedApplication.status === "pending" && (
+                                  <div className="space-y-4 pt-4 border-t">
+                                    <div className="space-y-2">
+                                      <Label>Start Date (for approval)</Label>
+                                      <Input
+                                        type="date"
+                                        id="startDate"
+                                        defaultValue={new Date().toISOString().split("T")[0]}
+                                      />
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label>Rejection Reason (if rejecting)</Label>
+                                      <Textarea
+                                        value={rejectionReason}
+                                        onChange={(e) => setRejectionReason(e.target.value)}
+                                        placeholder="Reason for rejection..."
+                                      />
+                                    </div>
+                                  </div>
+                                )}
+
+                                <div className="flex gap-2 pt-4 border-t">
+                                  <Button
+                                    size="sm"
+                                    onClick={() => {
+                                      const startInput = document.getElementById("startDate") as HTMLInputElement;
+                                      updateApplicationStatus(
+                                        selectedApplication.id,
+                                        "approved",
+                                        startInput?.value
+                                      );
+                                    }}
+                                    className="bg-primary hover:bg-primary/90"
+                                  >
+                                    <CheckCircle className="w-4 h-4 mr-1" />
+                                    Approve
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => updateApplicationStatus(selectedApplication.id, "waitlist")}
+                                  >
+                                    <Clock className="w-4 h-4 mr-1" />
+                                    Waitlist
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="destructive"
+                                    onClick={() => updateApplicationStatus(selectedApplication.id, "rejected")}
+                                  >
+                                    <XCircle className="w-4 h-4 mr-1" />
+                                    Reject
+                                  </Button>
+                                </div>
                               </div>
-                            </div>
-                          )}
-                        </DialogContent>
-                      </Dialog>
+                            )}
+                          </DialogContent>
+                        </Dialog>
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-            {filteredApplications.length === 0 && (
-              <Card className="border-dashed">
-                <CardContent className="p-12 text-center">
-                  <p className="text-muted-foreground">No applications found</p>
-                </CardContent>
-              </Card>
-            )}
-          </div>
+                  </CardContent>
+                </Card>
+              ))}
+              {filteredApplications.length === 0 && (
+                <Card className="border-dashed">
+                  <CardContent className="p-12 text-center">
+                    <p className="text-muted-foreground">No applications found</p>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          )}
         </TabsContent>
 
         {/* Modules Tab */}
@@ -1798,33 +943,45 @@ const AdminScholarships = () => {
             </CardContent>
           </Card>
 
-          <div className="space-y-3">
-            {modules.map((mod) => (
-              <Card key={mod.id}>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-medium">{mod.title}</h3>
-                        <Badge variant="secondary">Order: {mod.order_index}</Badge>
-                        <Badge variant="outline">{mod.unlock_type}</Badge>
+          {isLoadingModules ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : modules.length === 0 ? (
+            <Card className="border-dashed">
+              <CardContent className="p-12 text-center">
+                <p className="text-muted-foreground">No modules created yet</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-3">
+              {modules.map((mod) => (
+                <Card key={mod.id}>
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="font-medium">{mod.title}</h3>
+                          <Badge variant="secondary">Order: {mod.order_index}</Badge>
+                          <Badge variant="outline">{mod.unlock_type}</Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground">{mod.description}</p>
                       </div>
-                      <p className="text-sm text-muted-foreground">{mod.description}</p>
+                      <div className="flex items-center gap-2">
+                        <Switch
+                          checked={mod.is_published}
+                          onCheckedChange={() => toggleModulePublished(mod.id, mod.is_published)}
+                        />
+                        <span className="text-sm text-muted-foreground">
+                          {mod.is_published ? "Published" : "Draft"}
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Switch
-                        checked={mod.is_published}
-                        onCheckedChange={() => toggleModulePublished(mod.id, mod.is_published)}
-                      />
-                      <span className="text-sm text-muted-foreground">
-                        {mod.is_published ? "Published" : "Draft"}
-                      </span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </TabsContent>
 
         {/* Programs Tab */}
@@ -1889,43 +1046,51 @@ const AdminScholarships = () => {
             </CardContent>
           </Card>
 
-          <div className="space-y-3">
-            {programs.map((prog) => (
-              <Card key={prog.id}>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-medium">{prog.title}</h3>
-                      <p className="text-sm text-muted-foreground">{prog.description}</p>
-                      {prog.application_deadline && (
-                        <p className="text-xs text-muted-foreground mt-1">
-                          <Calendar className="w-3 h-3 inline mr-1" />
-                          Deadline: {format(new Date(prog.application_deadline), "MMM d, yyyy")}
-                        </p>
-                      )}
+          {isLoadingPrograms ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : programs.length === 0 ? (
+            <Card className="border-dashed">
+              <CardContent className="p-12 text-center">
+                <p className="text-muted-foreground">No programs created yet</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-3">
+              {programs.map((program) => (
+                <Card key={program.id}>
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="font-medium">{program.title}</h3>
+                          <Badge variant={program.is_active ? "default" : "secondary"}>
+                            {program.is_active ? "Active" : "Inactive"}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground">{program.description}</p>
+                        {program.application_deadline && (
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Deadline: {safeFormatDate(program.application_deadline, "MMM d, yyyy") || "—"}
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Switch
+                          checked={program.is_active}
+                          onCheckedChange={() => toggleProgramActive(program.id, program.is_active)}
+                        />
+                        <span className="text-sm text-muted-foreground">
+                          {program.is_active ? "Active" : "Inactive"}
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Switch
-                        checked={prog.is_active}
-                        onCheckedChange={() => toggleProgramActive(prog.id, prog.is_active)}
-                      />
-                      <span className="text-sm text-muted-foreground">
-                        {prog.is_active ? "Active" : "Inactive"}
-                      </span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-
-            {!isLoadingPrograms && programs.length === 0 && (
-              <Card className="border-dashed">
-                <CardContent className="p-10 text-center">
-                  <p className="text-muted-foreground">No Scholarship Program Created Yet</p>
-                </CardContent>
-              </Card>
-            )}
-          </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </TabsContent>
       </Tabs>
     </div>
