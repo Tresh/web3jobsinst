@@ -1,42 +1,9 @@
-import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Trophy, Calendar, Star, Users, Target, Zap, Clock } from "lucide-react";
+import { Trophy, Calendar, Star, Users, Target, Zap } from "lucide-react";
 import type { ScholarshipApplication, LeaderboardEntry } from "@/types/scholarship";
-
-const PROGRAM_START_DATE = new Date("2026-02-01T00:00:00");
-
-function useCountdown(targetDate: Date) {
-  const [timeLeft, setTimeLeft] = useState(() => calculateTimeLeft(targetDate));
-
-  function calculateTimeLeft(target: Date) {
-    const now = new Date();
-    const difference = target.getTime() - now.getTime();
-
-    if (difference <= 0) {
-      return { days: 0, hours: 0, minutes: 0, seconds: 0, isComplete: true };
-    }
-
-    return {
-      days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-      hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-      minutes: Math.floor((difference / (1000 * 60)) % 60),
-      seconds: Math.floor((difference / 1000) % 60),
-      isComplete: false,
-    };
-  }
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft(calculateTimeLeft(targetDate));
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [targetDate]);
-
-  return timeLeft;
-}
+import { CountdownTimer } from "./CountdownTimer";
 
 interface PortalOverviewProps {
   application: ScholarshipApplication;
@@ -55,47 +22,13 @@ export function PortalOverview({
   tasksCount,
   completedTasksCount,
 }: PortalOverviewProps) {
-  const countdown = useCountdown(PROGRAM_START_DATE);
   const progressPercentage = (dayNumber / 30) * 100;
   const taskCompletionRate = tasksCount > 0 ? (completedTasksCount / tasksCount) * 100 : 0;
-  const isProgramStarted = countdown.isComplete;
 
   return (
     <div className="space-y-6">
       {/* Countdown Section - Only show if program hasn't started */}
-      {!isProgramStarted && (
-        <Card className="bg-gradient-to-br from-primary/20 via-primary/10 to-transparent border-primary/30">
-          <CardContent className="p-6">
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-2 mb-3">
-                <Clock className="w-5 h-5 text-primary" />
-                <h2 className="text-lg font-semibold">Program Starts In</h2>
-              </div>
-              <div className="grid grid-cols-4 gap-2 sm:gap-4 max-w-md mx-auto">
-                <div className="bg-background/80 rounded-lg p-3 sm:p-4 border border-primary/20">
-                  <p className="text-2xl sm:text-4xl font-bold text-primary">{countdown.days}</p>
-                  <p className="text-xs sm:text-sm text-muted-foreground">Days</p>
-                </div>
-                <div className="bg-background/80 rounded-lg p-3 sm:p-4 border border-primary/20">
-                  <p className="text-2xl sm:text-4xl font-bold text-primary">{countdown.hours}</p>
-                  <p className="text-xs sm:text-sm text-muted-foreground">Hours</p>
-                </div>
-                <div className="bg-background/80 rounded-lg p-3 sm:p-4 border border-primary/20">
-                  <p className="text-2xl sm:text-4xl font-bold text-primary">{countdown.minutes}</p>
-                  <p className="text-xs sm:text-sm text-muted-foreground">Min</p>
-                </div>
-                <div className="bg-background/80 rounded-lg p-3 sm:p-4 border border-primary/20">
-                  <p className="text-2xl sm:text-4xl font-bold text-primary">{countdown.seconds}</p>
-                  <p className="text-xs sm:text-sm text-muted-foreground">Sec</p>
-                </div>
-              </div>
-              <p className="text-sm text-muted-foreground mt-4">
-                Day 1 begins February 1st, 2025
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      <CountdownTimer />
 
       {/* Welcome Section */}
       <Card className="bg-gradient-to-br from-primary/10 to-transparent border-primary/20">
