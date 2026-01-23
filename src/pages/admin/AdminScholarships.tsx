@@ -138,28 +138,60 @@ const AdminScholarships = () => {
   const fetchData = async () => {
     setIsLoading(true);
 
-    const [progsRes, appsRes, tasksRes, subsRes, modsRes] = await Promise.all([
-      supabase.from("scholarship_programs").select("*").order("created_at", { ascending: false }),
-      supabase.from("scholarship_applications").select("*").order("created_at", { ascending: false }),
-      supabase.from("scholarship_tasks").select("*").order("created_at", { ascending: false }),
-      supabase.from("scholarship_task_submissions").select("*").order("created_at", { ascending: false }),
-      supabase.from("scholarship_modules").select("*").order("order_index", { ascending: true }),
-    ]);
+    try {
+      const [progsRes, appsRes, tasksRes, subsRes, modsRes] = await Promise.all([
+        supabase.from("scholarship_programs").select("*").order("created_at", { ascending: false }),
+        supabase.from("scholarship_applications").select("*").order("created_at", { ascending: false }),
+        supabase.from("scholarship_tasks").select("*").order("created_at", { ascending: false }),
+        supabase.from("scholarship_task_submissions").select("*").order("created_at", { ascending: false }),
+        supabase.from("scholarship_modules").select("*").order("order_index", { ascending: true }),
+      ]);
 
-    setPrograms((progsRes.data || []) as unknown as ScholarshipProgram[]);
-    setApplications((appsRes.data || []) as unknown as ScholarshipApplication[]);
-    setTasks((tasksRes.data || []) as unknown as ScholarshipTask[]);
-    setModules((modsRes.data || []) as unknown as ScholarshipModule[]);
+      // If any request failed, still render the page (no white screen) and show a toast.
+      const firstError =
+        progsRes.error || appsRes.error || tasksRes.error || subsRes.error || modsRes.error;
+      if (firstError) {
+        toast({
+          title: "Unable to load scholarship data",
+          description: firstError.message,
+          variant: "destructive",
+        });
+      }
 
-    // Enrich submissions with task and applicant data
-    const enrichedSubmissions = (subsRes.data || []).map((sub) => {
-      const task = (tasksRes.data || []).find((t) => t.id === sub.task_id);
-      const applicant = (appsRes.data || []).find((a) => a.user_id === sub.user_id);
-      return { ...sub, task, applicant };
-    });
-    setSubmissions(enrichedSubmissions as unknown as typeof submissions);
+      const progs = ((progsRes.data || []) as unknown as ScholarshipProgram[]) ?? [];
+      const apps = ((appsRes.data || []) as unknown as ScholarshipApplication[]) ?? [];
+      const tks = ((tasksRes.data || []) as unknown as ScholarshipTask[]) ?? [];
+      const mods = ((modsRes.data || []) as unknown as ScholarshipModule[]) ?? [];
+      const subsRaw = ((subsRes.data || []) as unknown as ScholarshipTaskSubmission[]) ?? [];
 
-    setIsLoading(false);
+      setPrograms(progs);
+      setApplications(apps);
+      setTasks(tks);
+      setModules(mods);
+
+      // Enrich submissions with task and applicant data
+      const enrichedSubmissions = subsRaw.map((sub) => {
+        const task = tks.find((t) => t.id === sub.task_id);
+        const applicant = apps.find((a) => a.user_id === sub.user_id);
+        return { ...sub, task, applicant };
+      });
+      setSubmissions(enrichedSubmissions as unknown as typeof submissions);
+    } catch (err) {
+      console.error("AdminScholarships fetchData failed:", err);
+      toast({
+        title: "Unable to load scholarship data",
+        description: err instanceof Error ? err.message : "Unknown error",
+        variant: "destructive",
+      });
+      // Ensure we still render empty states.
+      setPrograms([]);
+      setApplications([]);
+      setTasks([]);
+      setSubmissions([]);
+      setModules([]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -524,6 +556,30 @@ const AdminScholarships = () => {
     ? tasks
     : tasks.filter((t) => t.status === taskStatusFilter);
 
+  const safeFormatDate = (value: unknown, fmt: string) => {
+    if (!value) return null;
+    try {
+      const d = new Date(value as string);
+      if (Number.isNaN(d.getTime())) return null;
+      return format(d, fmt);
+    } catch {
+      return null;
+    }
+  };
+
+  const safeTaskTypeLabel = (taskType: string) => {
+    return TASK_TYPE_LABELS[taskType as keyof typeof TASK_TYPE_LABELS] || taskType || "Unknown";
+  };
+
+  const getTaskAssignmentLabel = (task: ScholarshipTask) => {
+    if (task.is_global) return "All approved";
+    if (task.program_id) {
+      const p = programs.find((x) => x.id === task.program_id);
+      return p?.title || "Program";
+    }
+    return "Unassigned";
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "approved":
@@ -738,7 +794,12 @@ const AdminScholarships = () => {
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle>All Tasks</CardTitle>
+                <div>
+                  <CardTitle>Existing Tasks</CardTitle>
+                  <CardDescription>
+                    View, edit, end, or delete tasks. Ended tasks are hidden from scholars but kept in history.
+                  </CardDescription>
+                </div>
                 <Select value={taskStatusFilter} onValueChange={setTaskStatusFilter}>
                   <SelectTrigger className="w-[150px]">
                     <SelectValue placeholder="Filter" />
@@ -759,8 +820,10 @@ const AdminScholarships = () => {
                     <TableHead>Title</TableHead>
                     <TableHead>Type</TableHead>
                     <TableHead>XP</TableHead>
+                    <TableHead>Assigned</TableHead>
                     <TableHead>Submissions</TableHead>
                     <TableHead>Status</TableHead>
+                    <TableHead>Created</TableHead>
                     <TableHead>Dates</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
@@ -786,7 +849,7 @@ const AdminScholarships = () => {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="secondary">{TASK_TYPE_LABELS[task.task_type]}</Badge>
+                        <Badge variant="secondary">{safeTaskTypeLabel(task.task_type)}</Badge>
                       </TableCell>
                       <TableCell>
                         <Badge variant="outline">
@@ -795,17 +858,96 @@ const AdminScholarships = () => {
                         </Badge>
                       </TableCell>
                       <TableCell>
+                        <span className="text-sm">{getTaskAssignmentLabel(task)}</span>
+                      </TableCell>
+                      <TableCell>
                         <span className="text-sm">{getSubmissionCountForTask(task.id)} submitted</span>
                       </TableCell>
                       <TableCell>{getTaskStatusBadge(task.status)}</TableCell>
                       <TableCell>
+                        <span className="text-sm text-muted-foreground">
+                          {safeFormatDate((task as any).created_at, "MMM d, yyyy") || "—"}
+                        </span>
+                      </TableCell>
+                      <TableCell>
                         <div className="text-xs text-muted-foreground">
-                          {task.start_date && <p>Start: {format(new Date(task.start_date), "MMM d")}</p>}
-                          {task.due_date && <p>End: {format(new Date(task.due_date), "MMM d")}</p>}
+                          {task.start_date && (
+                            <p>
+                              Start: {safeFormatDate(task.start_date, "MMM d") || "—"}
+                            </p>
+                          )}
+                          {task.due_date && (
+                            <p>
+                              End: {safeFormatDate(task.due_date, "MMM d") || "—"}
+                            </p>
+                          )}
                         </div>
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-1">
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button size="sm" variant="outline" onClick={() => setSelectedTask(task)}>
+                                <Eye className="w-4 h-4" />
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-2xl">
+                              <DialogHeader>
+                                <DialogTitle>Task Details</DialogTitle>
+                                <DialogDescription>Read-only view of this task.</DialogDescription>
+                              </DialogHeader>
+                              <div className="space-y-3 py-4">
+                                <div className="grid sm:grid-cols-2 gap-3">
+                                  <div>
+                                    <Label className="text-muted-foreground">Title</Label>
+                                    <p className="font-medium">{selectedTask?.title || "—"}</p>
+                                  </div>
+                                  <div>
+                                    <Label className="text-muted-foreground">Status</Label>
+                                    <div className="pt-1">{selectedTask ? getTaskStatusBadge(selectedTask.status) : "—"}</div>
+                                  </div>
+                                  <div>
+                                    <Label className="text-muted-foreground">Type</Label>
+                                    <p className="font-medium">{selectedTask ? safeTaskTypeLabel(selectedTask.task_type) : "—"}</p>
+                                  </div>
+                                  <div>
+                                    <Label className="text-muted-foreground">XP</Label>
+                                    <p className="font-medium">{selectedTask?.xp_value ?? "—"}</p>
+                                  </div>
+                                  <div>
+                                    <Label className="text-muted-foreground">Assigned</Label>
+                                    <p className="font-medium">{selectedTask ? getTaskAssignmentLabel(selectedTask) : "—"}</p>
+                                  </div>
+                                  <div>
+                                    <Label className="text-muted-foreground">Created</Label>
+                                    <p className="font-medium">
+                                      {selectedTask ? safeFormatDate((selectedTask as any).created_at, "MMM d, yyyy") || "—" : "—"}
+                                    </p>
+                                  </div>
+                                </div>
+                                {selectedTask?.description && (
+                                  <div>
+                                    <Label className="text-muted-foreground">Description</Label>
+                                    <p className="text-sm bg-secondary p-3 rounded-lg">{selectedTask.description}</p>
+                                  </div>
+                                )}
+                                {selectedTask?.external_link && (
+                                  <div>
+                                    <Label className="text-muted-foreground">External Link</Label>
+                                    <a
+                                      href={selectedTask.external_link}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-primary hover:underline inline-flex items-center gap-2"
+                                    >
+                                      {selectedTask.external_link}
+                                      <ExternalLink className="w-4 h-4" />
+                                    </a>
+                                  </div>
+                                )}
+                              </div>
+                            </DialogContent>
+                          </Dialog>
                           {task.status === "draft" && (
                             <Button size="sm" variant="outline" onClick={() => handleActivateTask(task.id)}>
                               <Play className="w-4 h-4" />
@@ -832,8 +974,8 @@ const AdminScholarships = () => {
                   ))}
                   {filteredTasks.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                        No tasks found
+                      <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
+                        No scholarship tasks created yet.
                       </TableCell>
                     </TableRow>
                   )}
