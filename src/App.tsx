@@ -46,6 +46,7 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminRoles from "./pages/admin/AdminRoles";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminScholarships from "./pages/admin/AdminScholarships";
+import AdminScholarshipTasks from "./pages/admin/AdminScholarshipTasks";
 
 const queryClient = new QueryClient();
 
@@ -115,6 +116,14 @@ const App = () => (
                 element={
                   <ProtectedRoute requireAdmin>
                     <AdminScholarships />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="scholarships/tasks"
+                element={
+                  <ProtectedRoute requireAdmin>
+                    <AdminScholarshipTasks />
                   </ProtectedRoute>
                 }
               />
