@@ -55,20 +55,20 @@ export const ECardTemplate = React.forwardRef<HTMLDivElement, ECardTemplateProps
           </div>
 
           {/* Middle section - Photo and Name */}
-          <div className="flex flex-col items-center space-y-6">
+          <div className="flex flex-col items-center">
             {/* Congratulations text */}
-            <div className="text-center">
-              <span className="text-4xl">🎓</span>
-              <h1 className="text-3xl font-bold text-white mt-2 mb-1">
+            <div className="text-center mb-6">
+              <div className="text-4xl mb-2">🎓</div>
+              <h1 className="text-3xl font-bold text-white tracking-wide">
                 CONGRATULATIONS!
               </h1>
-              <p className="text-purple-300 text-sm">
+              <p className="text-purple-300 text-sm mt-3">
                 You've been accepted into
               </p>
             </div>
 
             {/* Photo frame */}
-            <div className="relative">
+            <div className="relative my-6">
               <div className="absolute -inset-2 bg-gradient-to-br from-purple-500 via-blue-500 to-purple-500 rounded-full blur-sm opacity-75" />
               <div className="relative w-40 h-40 rounded-full border-4 border-white/20 overflow-hidden bg-slate-800">
                 {photoUrl ? (
@@ -93,14 +93,14 @@ export const ECardTemplate = React.forwardRef<HTMLDivElement, ECardTemplateProps
             </div>
 
             {/* Scholar name */}
-            <div className="text-center">
-              <h2 className="text-2xl font-bold text-white mb-2">
+            <div className="text-center mt-6">
+              <h2 className="text-2xl font-bold text-white">
                 {scholarName || "Scholar Name"}
               </h2>
-              <p className="text-purple-300 text-base max-w-xs text-center">
+              <p className="text-purple-300 text-base mt-4">
                 has been officially accepted into the
               </p>
-              <p className="text-white font-semibold text-lg mt-1">
+              <p className="text-white font-semibold text-lg mt-2">
                 {programTitle || "Scholarship Program"}
               </p>
             </div>
