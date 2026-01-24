@@ -79,6 +79,7 @@ const AdminScholarships = () => {
   const [selectedApplication, setSelectedApplication] = useState<ScholarshipApplication | null>(null);
   const [selectedSubmission, setSelectedSubmission] = useState<(ScholarshipTaskSubmission & { task?: ScholarshipTask; applicant?: ScholarshipApplication }) | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
+  const [adminNotes, setAdminNotes] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [submissionFilter, setSubmissionFilter] = useState<string>("pending");
   const [taskStatusFilter, setTaskStatusFilter] = useState<string>("all");
@@ -272,6 +273,10 @@ const AdminScholarships = () => {
     if (newStatus === "approved" && startDate) {
       updateData.scholarship_start_date = startDate;
     }
+    // Always save admin notes if provided
+    if (adminNotes.trim()) {
+      updateData.admin_notes = adminNotes.trim();
+    }
 
     const { error } = await supabase
       .from("scholarship_applications")
@@ -299,6 +304,7 @@ const AdminScholarships = () => {
 
       setSelectedApplication(null);
       setRejectionReason("");
+      setAdminNotes("");
       fetchData();
     }
   };
@@ -783,26 +789,48 @@ const AdminScholarships = () => {
                                   <p className="text-sm bg-secondary p-3 rounded-lg">{selectedApplication.why_scholarship}</p>
                                 </div>
 
-                                {selectedApplication.status === "pending" && (
-                                  <div className="space-y-4 pt-4 border-t">
-                                    <div className="space-y-2">
-                                      <Label>Start Date (for approval)</Label>
-                                      <Input
-                                        type="date"
-                                        id="startDate"
-                                        defaultValue={new Date().toISOString().split("T")[0]}
-                                      />
-                                    </div>
-                                    <div className="space-y-2">
-                                      <Label>Rejection Reason (if rejecting)</Label>
-                                      <Textarea
-                                        value={rejectionReason}
-                                        onChange={(e) => setRejectionReason(e.target.value)}
-                                        placeholder="Reason for rejection..."
-                                      />
-                                    </div>
+                                {/* Show existing admin notes if any */}
+                                {selectedApplication.admin_notes && (
+                                  <div>
+                                    <Label className="text-muted-foreground">Previous Admin Notes</Label>
+                                    <p className="text-sm bg-muted p-3 rounded-lg italic">{selectedApplication.admin_notes}</p>
                                   </div>
                                 )}
+
+                                {/* Show rejection reason if rejected */}
+                                {selectedApplication.status === "rejected" && selectedApplication.rejection_reason && (
+                                  <div>
+                                    <Label className="text-muted-foreground">Rejection Reason</Label>
+                                    <p className="text-sm bg-destructive/10 text-destructive p-3 rounded-lg">{selectedApplication.rejection_reason}</p>
+                                  </div>
+                                )}
+
+                                <div className="space-y-4 pt-4 border-t">
+                                  <div className="space-y-2">
+                                    <Label>Start Date (for approval)</Label>
+                                    <Input
+                                      type="date"
+                                      id="startDate"
+                                      defaultValue={new Date().toISOString().split("T")[0]}
+                                    />
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label>Admin Notes (internal, not shown to applicant)</Label>
+                                    <Textarea
+                                      value={adminNotes}
+                                      onChange={(e) => setAdminNotes(e.target.value)}
+                                      placeholder="Internal notes about this application..."
+                                    />
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label>Rejection Reason (shown to applicant if rejected)</Label>
+                                    <Textarea
+                                      value={rejectionReason}
+                                      onChange={(e) => setRejectionReason(e.target.value)}
+                                      placeholder="Reason for rejection..."
+                                    />
+                                  </div>
+                                </div>
 
                                 <div className="flex gap-2 pt-4 border-t">
                                   <Button
