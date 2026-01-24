@@ -324,6 +324,27 @@ export function TasksTab({
     ? tasks
     : tasks.filter((t) => t.status === taskStatusFilter);
 
+  // Show empty state if no tasks AND no programs
+  const hasNoPrograms = programs.length === 0;
+  const hasNoTasks = tasks.length === 0;
+
+  // If no programs, show a message to create program first
+  if (hasNoPrograms) {
+    return (
+      <Card className="border-dashed">
+        <CardContent className="flex flex-col items-center justify-center py-16">
+          <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
+            <Plus className="w-8 h-8 text-muted-foreground" />
+          </div>
+          <h3 className="text-xl font-semibold mb-2">No Scholarship Programs</h3>
+          <p className="text-muted-foreground text-center max-w-md mb-4">
+            Create a Scholarship Program before adding tasks. Tasks are linked to programs to target specific scholars.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Create New Task Card */}
@@ -463,24 +484,31 @@ export function TasksTab({
       {/* Task List */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <CardTitle>Existing Tasks</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                Existing Tasks
+                {tasks.length > 0 && (
+                  <Badge variant="secondary">{tasks.length}</Badge>
+                )}
+              </CardTitle>
               <CardDescription>
                 View, edit, end, or delete tasks. Ended tasks are hidden from scholars but kept in history.
               </CardDescription>
             </div>
-            <Select value={taskStatusFilter} onValueChange={setTaskStatusFilter}>
-              <SelectTrigger className="w-[150px]">
-                <SelectValue placeholder="Filter" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Tasks</SelectItem>
-                <SelectItem value="draft">Draft</SelectItem>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="ended">Ended</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="flex items-center gap-2">
+              <Select value={taskStatusFilter} onValueChange={setTaskStatusFilter}>
+                <SelectTrigger className="w-[150px]">
+                  <SelectValue placeholder="Filter" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Tasks</SelectItem>
+                  <SelectItem value="draft">Draft</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="ended">Ended</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -645,8 +673,16 @@ export function TasksTab({
                 ))}
                 {filteredTasks.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
-                      No scholarship tasks created yet.
+                    <TableCell colSpan={9} className="text-center py-12">
+                      <div className="flex flex-col items-center justify-center">
+                        <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-3">
+                          <Plus className="w-6 h-6 text-muted-foreground" />
+                        </div>
+                        <p className="font-medium mb-1">No tasks created yet</p>
+                        <p className="text-sm text-muted-foreground mb-4">
+                          Create your first task using the form above
+                        </p>
+                      </div>
                     </TableCell>
                   </TableRow>
                 )}
