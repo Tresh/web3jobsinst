@@ -88,9 +88,9 @@ const UnifiedNavbar = ({
         <nav className="section-container h-full">
           <div className="flex items-center justify-between h-full gap-4">
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-2 shrink-0">
-              <img src={logo} alt="Web3 Jobs Institute" className="w-8 h-8 object-contain" />
-              <span className="font-bold text-sm sm:text-base md:text-lg text-foreground">
+            <Link to="/" className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+              <img src={logo} alt="Web3 Jobs Institute" className="w-7 h-7 sm:w-8 sm:h-8 object-contain shrink-0" />
+              <span className="font-bold text-xs sm:text-sm md:text-base lg:text-lg text-foreground truncate">
                 Web3 Jobs Institute
               </span>
             </Link>
