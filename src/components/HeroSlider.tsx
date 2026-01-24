@@ -20,14 +20,15 @@ import { useAuth } from "@/contexts/AuthContext";
 
 interface Slide {
   id: string;
+  sectionLabel: string;
   headline: string;
   description: string;
+  whyItMatters: string;
   primaryCta: string;
   primaryCtaAction: () => void;
   secondaryCta?: string;
   secondaryCtaAction?: () => void;
   icon: React.ReactNode;
-  badge?: string;
 }
 
 const HeroSlider = () => {
@@ -51,90 +52,101 @@ const HeroSlider = () => {
   const slides: Slide[] = [
     {
       id: "scholarship",
+      sectionLabel: "NOW LIVE",
       headline: "Scholarship Program Now Live",
       description: "Join our structured scholarship program designed to help you build real proof of work and unlock paid opportunities.",
+      whyItMatters: "Get mentorship, complete tasks, and earn your way into the Web3 workforce.",
       primaryCta: "Apply for Scholarship",
       primaryCtaAction: handleScholarshipClick,
       secondaryCta: "Learn More",
       secondaryCtaAction: () => {
         document.getElementById("scholarship-section")?.scrollIntoView({ behavior: "smooth" });
       },
-      icon: <GraduationCap className="w-16 h-16 text-primary" strokeWidth={1.5} />,
+      icon: <GraduationCap className="w-10 h-10 text-primary" strokeWidth={1.5} />,
     },
     {
       id: "tutor",
+      sectionLabel: "OPEN",
       headline: "Teach Once. Earn Continuously.",
       description: "Share your skills, publish courses, and earn royalties by teaching Web3, AI, trading, and digital skills.",
+      whyItMatters: "Turn your expertise into passive income while helping others grow.",
       primaryCta: "Become a Tutor",
       primaryCtaAction: () => navigate("/tutors"),
-      icon: <Users className="w-16 h-16 text-primary" strokeWidth={1.5} />,
+      icon: <Users className="w-10 h-10 text-primary" strokeWidth={1.5} />,
     },
     {
       id: "institutions",
+      sectionLabel: "EARLY PARTNERS",
       headline: "Learn From Leading Ecosystems",
       description: "Protocols, DAOs, and companies launch verified education hubs to train and hire talent directly.",
+      whyItMatters: "Access exclusive training programs from top Web3 organizations.",
       primaryCta: "Explore Verified Institutions",
       primaryCtaAction: () => navigate("/institutions"),
-      icon: <Building2 className="w-16 h-16 text-primary" strokeWidth={1.5} />,
-      badge: "Early Partners",
+      icon: <Building2 className="w-10 h-10 text-primary" strokeWidth={1.5} />,
     },
     {
       id: "talent",
+      sectionLabel: "COMING SOON",
       headline: "Verified Talent. Trusted Payments.",
       description: "Showcase proof of work, discover talent, and transact securely with escrow-backed payments.",
+      whyItMatters: "Get hired or hire others with confidence and built-in payment protection.",
       primaryCta: "Explore Talent Marketplace",
       primaryCtaAction: () => navigate("/talent"),
-      icon: <UserCheck className="w-16 h-16 text-primary" strokeWidth={1.5} />,
-      badge: "Coming Soon",
+      icon: <UserCheck className="w-10 h-10 text-primary" strokeWidth={1.5} />,
     },
     {
       id: "products",
+      sectionLabel: "COMING SOON",
       headline: "Digital Products Marketplace",
       description: "Buy and sell ebooks, tools, bots, templates, playbooks, and AI resources—all in one place.",
+      whyItMatters: "Monetize your digital assets or find tools to accelerate your growth.",
       primaryCta: "Explore Digital Products",
       primaryCtaAction: () => navigate("/products"),
-      icon: <Package className="w-16 h-16 text-primary" strokeWidth={1.5} />,
-      badge: "Coming Soon",
+      icon: <Package className="w-10 h-10 text-primary" strokeWidth={1.5} />,
     },
     {
       id: "courses",
+      sectionLabel: "LAUNCHING SOON",
       headline: "Learn High-Income Digital Skills",
       description: "Practical courses across Web3, AI, Forex, trading, content creation, development, and Web3 jobs.",
+      whyItMatters: "Build job-ready skills with real-world projects, not theory.",
       primaryCta: "Browse Courses",
       primaryCtaAction: () => navigate("/courses"),
-      icon: <BookOpen className="w-16 h-16 text-primary" strokeWidth={1.5} />,
-      badge: "Launching Soon",
+      icon: <BookOpen className="w-10 h-10 text-primary" strokeWidth={1.5} />,
     },
     {
       id: "affiliates",
+      sectionLabel: "COMING SOON",
       headline: "Earn With Our Affiliate Program",
       description: "Promote courses and products and earn commissions for every successful referral.",
+      whyItMatters: "Create an additional income stream by sharing what you love.",
       primaryCta: "Join Affiliates",
       primaryCtaAction: () => navigate("/affiliates"),
-      icon: <Share2 className="w-16 h-16 text-primary" strokeWidth={1.5} />,
-      badge: "Coming Soon",
+      icon: <Share2 className="w-10 h-10 text-primary" strokeWidth={1.5} />,
     },
     {
       id: "jobs",
+      sectionLabel: "COMING SOON",
       headline: "Jobs Marketplace",
       description: "Access curated Web3, tech, and digital job opportunities from verified companies and institutions.",
+      whyItMatters: "Find your next role in the most exciting industry in tech.",
       primaryCta: "View Jobs Marketplace",
       primaryCtaAction: () => {
         document.getElementById("jobs-section")?.scrollIntoView({ behavior: "smooth" });
       },
-      icon: <Briefcase className="w-16 h-16 text-primary" strokeWidth={1.5} />,
-      badge: "Coming Soon",
+      icon: <Briefcase className="w-10 h-10 text-primary" strokeWidth={1.5} />,
     },
     {
       id: "collab",
+      sectionLabel: "COMING SOON",
       headline: "Find Partners. Build Together.",
       description: "Collaborate with creators, builders, and operators to launch projects, startups, and campaigns.",
+      whyItMatters: "Connect with like-minded builders and bring your ideas to life.",
       primaryCta: "Explore Collab Market",
       primaryCtaAction: () => {
         document.getElementById("collab-section")?.scrollIntoView({ behavior: "smooth" });
       },
-      icon: <Handshake className="w-16 h-16 text-primary" strokeWidth={1.5} />,
-      badge: "Coming Soon",
+      icon: <Handshake className="w-10 h-10 text-primary" strokeWidth={1.5} />,
     },
   ];
 
@@ -194,22 +206,17 @@ const HeroSlider = () => {
                   className="flex-[0_0_100%] min-w-0 px-4"
                 >
                   <div className="text-center py-8 md:py-12">
-                    {/* Icon */}
+                    {/* Section Label */}
+                    <span className="inline-block text-[10px] font-semibold tracking-widest text-primary uppercase mb-4">
+                      {slide.sectionLabel}
+                    </span>
+
+                    {/* Icon Container */}
                     <div className="flex justify-center mb-6">
-                      <div className="w-24 h-24 rounded-2xl bg-primary/10 flex items-center justify-center">
+                      <div className="w-20 h-20 rounded-2xl bg-primary/10 border border-primary/10 shadow-sm flex items-center justify-center">
                         {slide.icon}
                       </div>
                     </div>
-
-                    {/* Badge */}
-                    {slide.badge && (
-                      <Badge 
-                        variant="secondary" 
-                        className="mb-4 bg-primary/10 text-primary border-primary/20 hover:bg-primary/15"
-                      >
-                        {slide.badge}
-                      </Badge>
-                    )}
 
                     {/* Headline */}
                     <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4 tracking-tight">
@@ -217,30 +224,39 @@ const HeroSlider = () => {
                     </h1>
 
                     {/* Description */}
-                    <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto mb-8">
+                    <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto mb-2">
                       {slide.description}
                     </p>
 
+                    {/* Why It Matters */}
+                    <p className="text-sm text-muted-foreground/80 max-w-md mx-auto mb-8">
+                      {slide.whyItMatters}
+                    </p>
+
                     {/* CTAs */}
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
                       <Button 
                         size="lg" 
                         onClick={slide.primaryCtaAction}
-                        className="w-full sm:w-auto"
+                        className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground"
                       >
                         {slide.primaryCta}
                       </Button>
                       {slide.secondaryCta && (
-                        <Button 
-                          variant="outline" 
-                          size="lg"
+                        <button 
                           onClick={slide.secondaryCtaAction}
-                          className="w-full sm:w-auto"
+                          className="inline-flex items-center gap-1 text-sm font-medium text-foreground hover:text-primary transition-colors"
                         >
                           {slide.secondaryCta}
-                        </Button>
+                          <ChevronRight className="w-4 h-4" />
+                        </button>
                       )}
                     </div>
+
+                    {/* Trust Line */}
+                    <p className="text-xs text-muted-foreground">
+                      500+ learners across 20+ countries
+                    </p>
                   </div>
                 </div>
               ))}
@@ -264,42 +280,24 @@ const HeroSlider = () => {
           </div>
         </div>
 
-        {/* Trust indicators */}
-        <div className="mt-12 pt-8 border-t border-secondary max-w-2xl mx-auto">
-          <p className="text-sm text-muted-foreground mb-6 text-center">Trusted by learners worldwide</p>
-          <div className="flex items-center justify-center gap-12">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-foreground">500+</div>
-              <div className="text-xs text-muted-foreground">Students</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-foreground">50+</div>
-              <div className="text-xs text-muted-foreground">Projects</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-foreground">20+</div>
-              <div className="text-xs text-muted-foreground">Countries</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Global CTA */}
+        {/* Global CTA for unauthenticated users */}
         {!user && (
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
             <Button 
               size="lg" 
               variant="default"
               onClick={() => navigate("/signup")}
+              className="bg-primary hover:bg-primary/90"
             >
               Create a Free Account
             </Button>
-            <Button 
-              size="lg" 
-              variant="ghost"
+            <button 
               onClick={() => navigate("/login")}
+              className="inline-flex items-center gap-1 text-sm font-medium text-foreground hover:text-primary transition-colors"
             >
               Log In
-            </Button>
+              <ChevronRight className="w-4 h-4" />
+            </button>
           </div>
         )}
       </div>
