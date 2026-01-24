@@ -178,7 +178,16 @@ const HeroSlider = () => {
         <div className="absolute bottom-20 left-10 w-96 h-96 bg-secondary/50 rounded-full blur-3xl" />
       </div>
 
-      <div className="section-container py-12 md:py-20 lg:py-24 relative z-10">
+      <div className="section-container py-12 md:py-16 lg:py-20 relative z-10">
+        {/* Persistent Hero Text Overlay */}
+        <div className="text-center mb-10 md:mb-12">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-foreground tracking-tight leading-tight">
+            Learn Web3, AI & High-Income Digital Skills.
+            <br />
+            <span className="text-primary">Get Hired. Build Digital Income.</span>
+          </h1>
+        </div>
+
         {/* Carousel */}
         <div className="relative max-w-4xl mx-auto">
           {/* Navigation Arrows */}
@@ -205,31 +214,31 @@ const HeroSlider = () => {
                   key={slide.id}
                   className="flex-[0_0_100%] min-w-0 px-4"
                 >
-                  <div className="text-center py-8 md:py-12">
+                  <div className="text-center py-6 md:py-8">
                     {/* Section Label */}
                     <span className="inline-block text-[10px] font-semibold tracking-widest text-primary uppercase mb-4">
                       {slide.sectionLabel}
                     </span>
 
                     {/* Icon Container */}
-                    <div className="flex justify-center mb-6">
-                      <div className="w-20 h-20 rounded-2xl bg-primary/10 border border-primary/10 shadow-sm flex items-center justify-center">
+                    <div className="flex justify-center mb-5">
+                      <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-primary/10 border border-primary/10 shadow-sm flex items-center justify-center">
                         {slide.icon}
                       </div>
                     </div>
 
-                    {/* Headline */}
-                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4 tracking-tight">
+                    {/* Slide Headline */}
+                    <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-3 tracking-tight">
                       {slide.headline}
-                    </h1>
+                    </h2>
 
                     {/* Description */}
-                    <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto mb-2">
+                    <p className="text-sm md:text-base text-muted-foreground max-w-lg mx-auto mb-2">
                       {slide.description}
                     </p>
 
                     {/* Why It Matters */}
-                    <p className="text-sm text-muted-foreground/80 max-w-md mx-auto mb-8">
+                    <p className="text-xs md:text-sm text-muted-foreground/80 max-w-md mx-auto mb-6">
                       {slide.whyItMatters}
                     </p>
 
