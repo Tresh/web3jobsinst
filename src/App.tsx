@@ -34,6 +34,7 @@ import DashboardTalent from "./pages/dashboard/DashboardTalent";
 import DashboardSettings from "./pages/dashboard/DashboardSettings";
 import DashboardScholarship from "./pages/dashboard/DashboardScholarship";
 import Scholarship from "./pages/Scholarship";
+import ScholarshipCelebration from "./pages/ScholarshipCelebration";
 
 // Admin pages
 import AdminLayout from "@/components/admin/AdminLayout";
@@ -74,6 +75,14 @@ const App = () => (
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/scholarship/:programId" element={<Scholarship />} />
+            <Route
+              path="/scholarship/celebration"
+              element={
+                <ProtectedRoute>
+                  <ScholarshipCelebration />
+                </ProtectedRoute>
+              }
+            />
             <Route path="/tutors" element={<Tutors />} />
             <Route path="/institutions" element={<Institutions />} />
             <Route path="/institutions/:slug" element={<InstitutionPortal />} />
