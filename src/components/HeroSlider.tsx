@@ -181,11 +181,12 @@ const HeroSlider = () => {
       <div className="section-container py-12 md:py-16 lg:py-20 relative z-10">
         {/* Persistent Hero Text Overlay */}
         <div className="text-center mb-10 md:mb-12">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-foreground tracking-tight leading-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-foreground tracking-tight leading-tight mb-2 md:mb-3">
             Learn Web3, AI & High-Income Digital Skills.
-            <br />
-            <span className="text-primary">Get Hired. Build Digital Income.</span>
           </h1>
+          <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-semibold text-primary tracking-tight">
+            Get Hired. Build Digital Income.
+          </p>
         </div>
 
         {/* Carousel */}

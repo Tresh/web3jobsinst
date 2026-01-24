@@ -90,7 +90,7 @@ const UnifiedNavbar = ({
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 shrink-0">
               <img src={logo} alt="Web3 Jobs Institute" className="w-8 h-8 object-contain" />
-              <span className="font-bold text-lg text-foreground hidden md:block">
+              <span className="font-bold text-sm sm:text-base md:text-lg text-foreground">
                 Web3 Jobs Institute
               </span>
             </Link>
