@@ -434,14 +434,14 @@ export function TasksTab({
             <div className="space-y-2">
               <Label>Program (optional)</Label>
               <Select
-                value={newTask.program_id}
-                onValueChange={(v) => setNewTask({ ...newTask, program_id: v })}
+                value={newTask.program_id || "_all"}
+                onValueChange={(v) => setNewTask({ ...newTask, program_id: v === "_all" ? "" : v })}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select program" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Programs</SelectItem>
+                  <SelectItem value="_all">All Programs</SelectItem>
                   {programs.map((p) => (
                     <SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>
                   ))}
