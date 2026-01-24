@@ -79,7 +79,7 @@ const AdminScholarshipTasks = () => {
     fetchData();
   }, []);
 
-  // Check if there are no programs - block task creation
+  // Note: Tasks can be created as global tasks even without programs
   const hasNoPrograms = !isLoading && programs.length === 0;
 
   return (
@@ -122,23 +122,20 @@ const AdminScholarshipTasks = () => {
         </Card>
       )}
 
-      {/* No Programs Warning */}
+      {/* No Programs Info Banner (non-blocking) */}
       {hasNoPrograms && (
         <Card className="border-dashed mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <AlertCircle className="w-5 h-5 text-warning" />
-              No Scholarship Programs Found
-            </CardTitle>
-            <CardDescription>
-              You must create a Scholarship Program before you can add tasks.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+          <CardContent className="p-4 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <AlertCircle className="w-5 h-5 text-muted-foreground" />
+              <p className="text-sm text-muted-foreground">
+                No programs yet. You can still create global tasks that apply to all approved scholars.
+              </p>
+            </div>
             <Link to="/admin/scholarships">
-              <Button>
+              <Button variant="outline" size="sm">
                 <Plus className="w-4 h-4 mr-2" />
-                Create a Program First
+                Create Program
               </Button>
             </Link>
           </CardContent>
@@ -157,8 +154,8 @@ const AdminScholarshipTasks = () => {
         </Card>
       )}
 
-      {/* Tasks Tab Content - Only show if not loading and has programs */}
-      {!isLoading && !hasNoPrograms && (
+      {/* Tasks Tab Content - Show even without programs (global tasks supported) */}
+      {!isLoading && (
         <TasksTab
           tasks={tasks}
           programs={programs}

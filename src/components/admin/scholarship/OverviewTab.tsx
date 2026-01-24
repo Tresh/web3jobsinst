@@ -28,9 +28,50 @@ export function OverviewTab({
   const approvedApps = applications.filter((a) => a.status === "approved");
   const pendingApps = applications.filter((a) => a.status === "pending");
   const rejectedApps = applications.filter((a) => a.status === "rejected");
+  const waitlistApps = applications.filter((a) => a.status === "waitlist");
 
   return (
     <div className="space-y-6">
+      {/* Total Applications Summary */}
+      <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between gap-4">
+            <span>Total Applications</span>
+            {isLoadingApplications ? (
+              <Badge variant="secondary">Loading…</Badge>
+            ) : (
+              <Badge className="text-lg px-3 py-1">{applications.length}</Badge>
+            )}
+          </CardTitle>
+          <CardDescription>All scholarship applications across all programs</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {!isLoadingApplications && (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="text-center p-3 bg-background/60 rounded-lg">
+                <p className="text-2xl font-bold text-muted-foreground">{pendingApps.length}</p>
+                <p className="text-xs text-muted-foreground">Pending</p>
+              </div>
+              <div className="text-center p-3 bg-background/60 rounded-lg">
+                <p className="text-2xl font-bold text-primary">{approvedApps.length}</p>
+                <p className="text-xs text-muted-foreground">Approved</p>
+              </div>
+              <div className="text-center p-3 bg-background/60 rounded-lg">
+                <p className="text-2xl font-bold text-destructive">{rejectedApps.length}</p>
+                <p className="text-xs text-muted-foreground">Rejected</p>
+              </div>
+              <div className="text-center p-3 bg-background/60 rounded-lg">
+                <p className="text-2xl font-bold text-warning">{waitlistApps.length}</p>
+                <p className="text-xs text-muted-foreground">Waitlist</p>
+              </div>
+            </div>
+          )}
+          <Button variant="outline" size="sm" className="mt-4" onClick={() => onNavigate("applications")}>
+            View All Applications
+          </Button>
+        </CardContent>
+      </Card>
+
       {/* Scholarship Programs */}
       <Card>
         <CardHeader>

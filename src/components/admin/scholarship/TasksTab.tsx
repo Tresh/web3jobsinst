@@ -324,26 +324,8 @@ export function TasksTab({
     ? tasks
     : tasks.filter((t) => t.status === taskStatusFilter);
 
-  // Show empty state if no tasks AND no programs
+  // Note: Tasks can be created even without programs (as global tasks)
   const hasNoPrograms = programs.length === 0;
-  const hasNoTasks = tasks.length === 0;
-
-  // If no programs, show a message to create program first
-  if (hasNoPrograms) {
-    return (
-      <Card className="border-dashed">
-        <CardContent className="flex flex-col items-center justify-center py-16">
-          <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
-            <Plus className="w-8 h-8 text-muted-foreground" />
-          </div>
-          <h3 className="text-xl font-semibold mb-2">No Scholarship Programs</h3>
-          <p className="text-muted-foreground text-center max-w-md mb-4">
-            Create a Scholarship Program before adding tasks. Tasks are linked to programs to target specific scholars.
-          </p>
-        </CardContent>
-      </Card>
-    );
-  }
 
   return (
     <div className="space-y-6">
