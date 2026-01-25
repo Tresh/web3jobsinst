@@ -174,13 +174,29 @@ const AdminScholarships = () => {
 
     const subsPromise = (async () => {
       try {
+        // Fetch submissions with task data joined to ensure xp_value is always available
         const res = await withTimeout(
-          supabase.from("scholarship_task_submissions").select("*").order("created_at", { ascending: false }),
+          supabase
+            .from("scholarship_task_submissions")
+            .select("*, scholarship_tasks!inner(id, title, xp_value, task_type, status, program_id)")
+            .order("created_at", { ascending: false }),
           8000
         );
         if ((res as any).error) throw (res as any).error;
-        const subsRaw = ((((res as any).data || []) as unknown) as ScholarshipTaskSubmission[]) ?? [];
-        setSubmissions(subsRaw.map((sub) => ({ ...sub })) as unknown as typeof submissions);
+        const subsRaw = (((res as any).data || []) as any[]) ?? [];
+        // Map the joined task data to the expected structure
+        const mappedSubs = subsRaw.map((sub) => ({
+          ...sub,
+          task: sub.scholarship_tasks ? {
+            id: sub.scholarship_tasks.id,
+            title: sub.scholarship_tasks.title,
+            xp_value: sub.scholarship_tasks.xp_value,
+            task_type: sub.scholarship_tasks.task_type,
+            status: sub.scholarship_tasks.status,
+            program_id: sub.scholarship_tasks.program_id,
+          } : undefined,
+        }));
+        setSubmissions(mappedSubs as unknown as typeof submissions);
       } catch {
         setSubmissions([]);
       } finally {
@@ -205,11 +221,11 @@ const AdminScholarships = () => {
 
     await Promise.allSettled([tasksPromise, appsPromise, subsPromise, modulesPromise]);
 
+    // Enrich submissions with applicant data (task data is already joined from DB)
     setSubmissions((prev) =>
       (prev || []).map((sub) => {
-        const task = tasks.find((t) => t.id === (sub as any).task_id);
         const applicant = applications.find((a) => a.user_id === (sub as any).user_id);
-        return { ...(sub as any), task, applicant };
+        return { ...(sub as any), applicant };
       }) as unknown as typeof submissions
     );
   };
