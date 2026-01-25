@@ -14,7 +14,7 @@ interface ECardTemplateProps {
  * It's designed to be captured by html2canvas for PNG download.
  */
 export const ECardTemplate = React.forwardRef<HTMLDivElement, ECardTemplateProps>(
-  ({ scholarName, photoUrl, programTitle, cohortYear = "2025" }, ref) => {
+  ({ scholarName, photoUrl, programTitle, cohortYear = "2026" }, ref) => {
     return (
       <div
         ref={ref}
