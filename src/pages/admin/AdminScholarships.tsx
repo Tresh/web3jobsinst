@@ -48,7 +48,11 @@ import {
   Send,
   Zap,
   ExternalLink,
+  Search,
+  ArrowUpAZ,
+  ArrowDownAZ,
 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { format } from "date-fns";
 import type {
   ScholarshipProgram,
@@ -83,6 +87,12 @@ const AdminScholarships = () => {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [submissionFilter, setSubmissionFilter] = useState<string>("pending");
   const [taskStatusFilter, setTaskStatusFilter] = useState<string>("all");
+  
+  // Batch selection and search/sort states
+  const [selectedApplicationIds, setSelectedApplicationIds] = useState<Set<string>>(new Set());
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc" | null>(null);
+  const [isBatchApproving, setIsBatchApproving] = useState(false);
 
   // Form states
   const [isCreatingProgram, setIsCreatingProgram] = useState(false);
@@ -306,6 +316,7 @@ const AdminScholarships = () => {
       
       const app = applications.find((a) => a.id === applicationId);
       if (app) {
+        // Create in-app notification
         await supabase.from("scholarship_notifications").insert({
           user_id: app.user_id,
           title: newStatus === "approved" ? "Scholarship Approved! 🎉" : `Application ${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}`,
@@ -316,6 +327,25 @@ const AdminScholarships = () => {
             : "Your application status has been updated.",
           type: "status_change",
         });
+
+        // Send email notification for approvals via edge function
+        if (newStatus === "approved") {
+          try {
+            await supabase.functions.invoke("scholarship-notify", {
+              body: {
+                user_id: app.user_id,
+                type: "status_change",
+                title: "Scholarship Approved! 🎉",
+                message: "Congratulations! Your scholarship application has been approved.",
+                send_email: true,
+                email: app.email,
+                full_name: app.full_name,
+              },
+            });
+          } catch (emailErr) {
+            console.error("Email notification failed:", emailErr);
+          }
+        }
       }
 
       setSelectedApplication(null);
@@ -412,13 +442,130 @@ const AdminScholarships = () => {
     if (!error) fetchData();
   };
 
-  const filteredApplications = statusFilter === "all"
-    ? applications
-    : applications.filter((a) => a.status === statusFilter);
+  // Filter, search, and sort applications
+  const filteredApplications = (() => {
+    let result = statusFilter === "all"
+      ? applications
+      : applications.filter((a) => a.status === statusFilter);
+    
+    // Search by name or email
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      result = result.filter(
+        (a) =>
+          a.full_name.toLowerCase().includes(query) ||
+          a.email.toLowerCase().includes(query)
+      );
+    }
+    
+    // Sort alphabetically
+    if (sortOrder) {
+      result = [...result].sort((a, b) => {
+        const comparison = a.full_name.localeCompare(b.full_name);
+        return sortOrder === "asc" ? comparison : -comparison;
+      });
+    }
+    
+    return result;
+  })();
 
   const filteredSubmissions = submissionFilter === "all"
     ? submissions
     : submissions.filter((s) => s.status === submissionFilter);
+  
+  // Batch selection helpers
+  const toggleApplicationSelection = (id: string) => {
+    setSelectedApplicationIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    const pendingApps = filteredApplications.filter((a) => a.status === "pending");
+    if (selectedApplicationIds.size === pendingApps.length && pendingApps.length > 0) {
+      setSelectedApplicationIds(new Set());
+    } else {
+      setSelectedApplicationIds(new Set(pendingApps.map((a) => a.id)));
+    }
+  };
+
+  // Batch approve function
+  const batchApproveApplications = async () => {
+    if (selectedApplicationIds.size === 0) {
+      toast({ title: "No applications selected", variant: "destructive" });
+      return;
+    }
+
+    setIsBatchApproving(true);
+    const startDate = new Date().toISOString().split("T")[0];
+    const idsToApprove = Array.from(selectedApplicationIds);
+    
+    try {
+      // Update all applications atomically
+      const { error: updateError } = await supabase
+        .from("scholarship_applications")
+        .update({
+          status: "approved",
+          scholarship_start_date: startDate,
+        })
+        .in("id", idsToApprove);
+
+      if (updateError) throw updateError;
+
+      // Get the applications for notifications
+      const approvedApps = applications.filter((a) => idsToApprove.includes(a.id));
+      
+      // Create notifications for all approved users
+      const notifications = approvedApps.map((app) => ({
+        user_id: app.user_id,
+        title: "Scholarship Approved! 🎉",
+        message: "Congratulations! Your scholarship application has been approved. Access your portal now.",
+        type: "status_change",
+      }));
+
+      if (notifications.length > 0) {
+        await supabase.from("scholarship_notifications").insert(notifications);
+      }
+
+      // Trigger email notifications via edge function
+      for (const app of approvedApps) {
+        try {
+          await supabase.functions.invoke("scholarship-notify", {
+            body: {
+              user_id: app.user_id,
+              type: "status_change",
+              title: "Scholarship Approved! 🎉",
+              message: "Congratulations! Your scholarship application has been approved.",
+              send_email: true,
+              email: app.email,
+              full_name: app.full_name,
+            },
+          });
+        } catch (emailErr) {
+          console.error("Email notification failed for:", app.email, emailErr);
+        }
+      }
+
+      toast({
+        title: "Batch approval complete",
+        description: `${idsToApprove.length} applications approved successfully`,
+      });
+      
+      setSelectedApplicationIds(new Set());
+      fetchData();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Unknown error";
+      toast({ title: "Batch approval failed", description: message, variant: "destructive" });
+    } finally {
+      setIsBatchApproving(false);
+    }
+  };
 
   const safeFormatDate = (value: unknown, fmt: string) => {
     if (!value) return null;
@@ -711,7 +858,17 @@ const AdminScholarships = () => {
 
         {/* Applications Tab */}
         <TabsContent value="applications" className="space-y-4">
-          <div className="flex items-center gap-4 mb-4">
+          {/* Search, Sort, Filter Controls */}
+          <div className="flex flex-wrap items-center gap-4 mb-4">
+            <div className="relative flex-1 min-w-[200px] max-w-sm">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Search by name or email..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9"
+              />
+            </div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Filter by status" />
@@ -724,10 +881,62 @@ const AdminScholarships = () => {
                 <SelectItem value="waitlist">Waitlist</SelectItem>
               </SelectContent>
             </Select>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : sortOrder === "desc" ? null : "asc")}
+              className="gap-2"
+            >
+              {sortOrder === "asc" ? (
+                <ArrowUpAZ className="w-4 h-4" />
+              ) : sortOrder === "desc" ? (
+                <ArrowDownAZ className="w-4 h-4" />
+              ) : (
+                <ArrowUpAZ className="w-4 h-4 text-muted-foreground" />
+              )}
+              {sortOrder === "asc" ? "A–Z" : sortOrder === "desc" ? "Z–A" : "Sort"}
+            </Button>
             <span className="text-sm text-muted-foreground">
               {filteredApplications.length} applications
             </span>
           </div>
+
+          {/* Batch Actions Bar */}
+          {statusFilter === "pending" && filteredApplications.filter((a) => a.status === "pending").length > 0 && (
+            <Card className="border-primary/20 bg-primary/5">
+              <CardContent className="p-3 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Checkbox
+                    checked={
+                      selectedApplicationIds.size > 0 &&
+                      selectedApplicationIds.size === filteredApplications.filter((a) => a.status === "pending").length
+                    }
+                    onCheckedChange={toggleSelectAll}
+                  />
+                  <span className="text-sm">
+                    {selectedApplicationIds.size > 0
+                      ? `${selectedApplicationIds.size} selected`
+                      : "Select all pending"}
+                  </span>
+                </div>
+                {selectedApplicationIds.size > 0 && (
+                  <Button
+                    size="sm"
+                    onClick={batchApproveApplications}
+                    disabled={isBatchApproving}
+                    className="gap-2"
+                  >
+                    {isBatchApproving ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <CheckCircle className="w-4 h-4" />
+                    )}
+                    Approve Selected ({selectedApplicationIds.size})
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+          )}
 
           {isLoadingApplications ? (
             <div className="flex items-center justify-center py-8">
@@ -740,6 +949,14 @@ const AdminScholarships = () => {
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
+                        {/* Checkbox for pending applications */}
+                        {app.status === "pending" && (
+                          <Checkbox
+                            checked={selectedApplicationIds.has(app.id)}
+                            onCheckedChange={() => toggleApplicationSelection(app.id)}
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        )}
                         <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center">
                           <span className="text-sm font-bold text-primary-foreground">
                             {app.full_name.charAt(0).toUpperCase()}
