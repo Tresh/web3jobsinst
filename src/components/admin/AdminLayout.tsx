@@ -14,7 +14,6 @@ import {
   SidebarTrigger,
   SidebarInset,
 } from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   LayoutDashboard,
@@ -28,8 +27,10 @@ import {
   Home,
   ShieldCheck,
   GraduationCap,
+  Menu,
 } from "lucide-react";
 import logo from "@/assets/logo.png";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const adminNavItems = [
   {
@@ -85,6 +86,7 @@ const settingsNavItems = [
 const AdminLayout = () => {
   const { profile, signOut } = useAuth();
   const location = useLocation();
+  const isMobile = useIsMobile();
 
   const isActive = (path: string) => {
     if (path === "/admin") {
@@ -103,9 +105,9 @@ const AdminLayout = () => {
     : "A";
 
   return (
-    <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-background">
-        <Sidebar className="border-r border-border">
+    <SidebarProvider defaultOpen={!isMobile}>
+      <div className="min-h-screen flex w-full bg-background overflow-x-hidden">
+        <Sidebar className="border-r border-border" collapsible="icon">
           <SidebarHeader className="p-4 border-b border-border">
             <Link to="/admin" className="flex items-center gap-3">
               <img src={logo} alt="Logo" className="w-8 h-8 object-contain" />
@@ -194,18 +196,20 @@ const AdminLayout = () => {
           </SidebarContent>
         </Sidebar>
 
-        <SidebarInset className="flex-1">
+        <SidebarInset className="flex-1 min-w-0">
           {/* Top Header */}
-          <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-border bg-background px-6">
-            <SidebarTrigger className="mr-4" />
-            <div className="flex items-center gap-4">
+          <header className="sticky top-0 z-10 flex h-14 sm:h-16 items-center justify-between border-b border-border bg-background px-3 sm:px-6">
+            <SidebarTrigger className="mr-2 sm:mr-4">
+              <Menu className="h-5 w-5" />
+            </SidebarTrigger>
+            <div className="flex items-center gap-2 sm:gap-4">
               <div className="text-right hidden sm:block">
                 <p className="text-sm font-medium">{profile?.full_name || "Admin"}</p>
                 <p className="text-xs text-muted-foreground">Administrator</p>
               </div>
-              <Avatar className="h-9 w-9">
+              <Avatar className="h-8 w-8 sm:h-9 sm:w-9">
                 <AvatarImage src={profile?.avatar_url || undefined} />
-                <AvatarFallback className="bg-primary text-primary-foreground text-sm">
+                <AvatarFallback className="bg-primary text-primary-foreground text-xs sm:text-sm">
                   {initials}
                 </AvatarFallback>
               </Avatar>
@@ -213,7 +217,7 @@ const AdminLayout = () => {
           </header>
 
           {/* Main Content */}
-          <main className="flex-1 p-6">
+          <main className="flex-1 p-3 sm:p-6 overflow-x-hidden">
             <Outlet />
           </main>
         </SidebarInset>
