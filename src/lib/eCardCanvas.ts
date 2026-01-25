@@ -206,7 +206,7 @@ function drawAwardIcon(ctx: CanvasRenderingContext2D, centerX: number, centerY: 
  * Generate the e-card as a canvas-based image
  */
 export async function generateECardCanvas(options: ECardCanvasOptions): Promise<Blob> {
-  const { scholarName, programTitle, cohortYear = '2025', photoUrl } = options;
+  const { scholarName, programTitle, cohortYear = '2026', photoUrl } = options;
   
   // Create canvas
   const canvas = document.createElement('canvas');

@@ -53,12 +53,14 @@ export function useScholarshipPortal() {
 
         // Only fetch portal data if approved
         if (appData.status === "approved" && appData.program_id) {
-          // Fetch tasks - filter by both is_published and active status
+          // Fetch tasks - include global tasks and program-specific tasks
+          // The RLS policy already handles visibility, but we filter for active/published
           const { data: tasksData } = await supabase
             .from("scholarship_tasks")
             .select("*")
             .eq("is_published", true)
             .eq("status", "active")
+            .or(`is_global.eq.true,program_id.eq.${appData.program_id}`)
             .order("created_at", { ascending: false });
 
           setTasks((tasksData || []) as unknown as ScholarshipTask[]);

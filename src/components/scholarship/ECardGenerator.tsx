@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { ECardTemplate } from "./ECardTemplate";
 import { useScholarPhotoUpload } from "@/hooks/useScholarPhotoUpload";
+import { useECardTaskTracking } from "@/hooks/useECardTaskTracking";
 import { generateQuoteTweetUrl, openTwitterShare } from "@/lib/twitterShare";
 import { downloadECard } from "@/lib/eCardCanvas";
 import { Download, Share2, Upload, Loader2, Camera } from "lucide-react";
@@ -24,6 +25,7 @@ export function ECardGenerator({
   const cardRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { uploadPhoto, isUploading, photoUrl, setPhotoUrl } = useScholarPhotoUpload();
+  const { trackECardGeneration } = useECardTaskTracking();
   const [isDownloading, setIsDownloading] = useState(false);
   const [localPreviewUrl, setLocalPreviewUrl] = useState<string | null>(null);
 
@@ -59,7 +61,14 @@ export function ECardGenerator({
         programTitle,
         photoUrl: displayPhotoUrl,
       });
-      toast.success("E-Card downloaded successfully!");
+      
+      // Track e-card generation as task completion
+      const trackResult = await trackECardGeneration();
+      if (trackResult.submitted) {
+        toast.success(`E-Card downloaded! Task submitted for ${trackResult.xpPending} XP review.`);
+      } else {
+        toast.success("E-Card downloaded successfully!");
+      }
     } catch (error) {
       console.error("Error generating e-card:", error);
       toast.error("Failed to generate e-card. Please try again.");
