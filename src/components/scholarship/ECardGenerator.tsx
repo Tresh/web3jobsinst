@@ -78,14 +78,17 @@ export function ECardGenerator({
   };
 
   const handleShareOnTwitter = () => {
-    const tweetText = `🎓 I just got accepted into the ${programTitle}! 
+    const tweetText = `I just got accepted into the Web3Jobs institute Scholarship Program @web3jobsinc 😍
 
-Excited to learn, build, and grow with this amazing community. Let's go! 🚀`;
+Excited to learn, build, and grow with this amazing community. Let's go!
+
+You can start your application now
+
+www.web3jobsinstitute.careers/dashboard/scholarship`;
 
     const shareUrl = generateQuoteTweetUrl({
       text: tweetText,
-      quoteTweetUrl: pinnedTweetUrl,
-      hashtags: ["Web3Scholarship", "BuildingTheFuture"],
+      quoteTweetUrl: "https://x.com/web3jobsinc/status/2014106725788352751",
     });
 
     openTwitterShare(shareUrl);
