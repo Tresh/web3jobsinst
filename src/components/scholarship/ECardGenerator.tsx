@@ -1,5 +1,4 @@
 import { useState, useRef } from "react";
-import html2canvas from "html2canvas";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ECardTemplate } from "./ECardTemplate";
 import { useScholarPhotoUpload } from "@/hooks/useScholarPhotoUpload";
 import { generateQuoteTweetUrl, openTwitterShare } from "@/lib/twitterShare";
+import { downloadECard } from "@/lib/eCardCanvas";
 import { Download, Share2, Upload, Loader2, Camera } from "lucide-react";
 import { toast } from "sonner";
 
@@ -51,39 +51,15 @@ export function ECardGenerator({
   };
 
   const handleDownload = async () => {
-    if (!cardRef.current) return;
-
     setIsDownloading(true);
     try {
-      // Wait a bit for images to load
-      await new Promise((resolve) => setTimeout(resolve, 100));
-
-      const canvas = await html2canvas(cardRef.current, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: null,
-        logging: false,
+      // Use canvas-based generation for pixel-perfect output
+      await downloadECard({
+        scholarName,
+        programTitle,
+        photoUrl: displayPhotoUrl,
       });
-
-      // Convert to blob and download
-      canvas.toBlob((blob) => {
-        if (!blob) {
-          toast.error("Failed to generate e-card image");
-          return;
-        }
-
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `scholarship-ecard-${Date.now()}.png`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-
-        toast.success("E-Card downloaded successfully!");
-      }, "image/png");
+      toast.success("E-Card downloaded successfully!");
     } catch (error) {
       console.error("Error generating e-card:", error);
       toast.error("Failed to generate e-card. Please try again.");
