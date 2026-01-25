@@ -6,6 +6,7 @@ import { Trophy, Calendar, Star, Users, Target, Zap, PartyPopper } from "lucide-
 import { Link } from "react-router-dom";
 import type { ScholarshipApplication, LeaderboardEntry } from "@/types/scholarship";
 import { CountdownTimer } from "./CountdownTimer";
+import { DailyCheckInCard } from "./DailyCheckInCard";
 
 interface PortalOverviewProps {
   application: ScholarshipApplication;
@@ -14,6 +15,7 @@ interface PortalOverviewProps {
   userRank: LeaderboardEntry | undefined | null;
   tasksCount: number;
   completedTasksCount: number;
+  onCheckInSuccess?: () => void;
 }
 
 export function PortalOverview({
@@ -23,8 +25,8 @@ export function PortalOverview({
   userRank,
   tasksCount,
   completedTasksCount,
+  onCheckInSuccess,
 }: PortalOverviewProps) {
-  const progressPercentage = (dayNumber / 30) * 100;
   const taskCompletionRate = tasksCount > 0 ? (completedTasksCount / tasksCount) * 100 : 0;
 
   return (
@@ -141,29 +143,11 @@ export function PortalOverview({
 
       {/* Progress Section */}
       <div className="grid md:grid-cols-2 gap-6">
-        {/* 30-Day Progress */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base flex items-center gap-2">
-              <Calendar className="w-4 h-4" />
-              30-Day Progress
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <Progress value={progressPercentage} className="h-3" />
-              <div className="flex justify-between text-sm text-muted-foreground">
-                <span>{dayNumber} days completed</span>
-                <span>{30 - dayNumber} days remaining</span>
-              </div>
-              {!application.scholarship_start_date && (
-                <p className="text-xs text-muted-foreground bg-secondary/50 p-2 rounded">
-                  Your 30-day journey will start once the admin sets your start date.
-                </p>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+        {/* Daily Check-In */}
+        <DailyCheckInCard 
+          application={application} 
+          onCheckInSuccess={onCheckInSuccess || (() => {})} 
+        />
 
         {/* Task Completion */}
         <Card>

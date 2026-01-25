@@ -92,6 +92,7 @@ export function ScholarshipPortal() {
             userRank={userRank}
             tasksCount={tasks.length}
             completedTasksCount={submissions.filter((s) => s.status === "approved").length}
+            onCheckInSuccess={refetch}
           />
         </TabsContent>
 

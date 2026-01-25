@@ -93,13 +93,16 @@ export type Database = {
           agrees_community_rules: boolean
           country: string
           created_at: string
+          current_streak: number
           email: string
           followed_accounts: Json
           full_name: string
+          highest_streak: number
           hours_per_week: string
           how_made_money: string | null
           id: string
           intro_video_url: string | null
+          last_check_in_date: string | null
           made_money_online: string
           main_goal: string
           preferred_track: string
@@ -128,13 +131,16 @@ export type Database = {
           agrees_community_rules?: boolean
           country: string
           created_at?: string
+          current_streak?: number
           email: string
           followed_accounts?: Json
           full_name: string
+          highest_streak?: number
           hours_per_week: string
           how_made_money?: string | null
           id?: string
           intro_video_url?: string | null
+          last_check_in_date?: string | null
           made_money_online: string
           main_goal: string
           preferred_track: string
@@ -163,13 +169,16 @@ export type Database = {
           agrees_community_rules?: boolean
           country?: string
           created_at?: string
+          current_streak?: number
           email?: string
           followed_accounts?: Json
           full_name?: string
+          highest_streak?: number
           hours_per_week?: string
           how_made_money?: string | null
           id?: string
           intro_video_url?: string | null
+          last_check_in_date?: string | null
           made_money_online?: string
           main_goal?: string
           preferred_track?: string
@@ -201,6 +210,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      scholarship_daily_checkins: {
+        Row: {
+          application_id: string
+          bonus_xp: number | null
+          check_in_date: string
+          created_at: string
+          id: string
+          streak_day: number
+          user_id: string
+          xp_awarded: number
+        }
+        Insert: {
+          application_id: string
+          bonus_xp?: number | null
+          check_in_date: string
+          created_at?: string
+          id?: string
+          streak_day?: number
+          user_id: string
+          xp_awarded?: number
+        }
+        Update: {
+          application_id?: string
+          bonus_xp?: number | null
+          check_in_date?: string
+          created_at?: string
+          id?: string
+          streak_day?: number
+          user_id?: string
+          xp_awarded?: number
+        }
+        Relationships: []
       }
       scholarship_module_progress: {
         Row: {

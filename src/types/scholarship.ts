@@ -30,6 +30,10 @@ export interface ScholarshipApplication {
   scholarship_start_date: string | null;
   total_xp: number;
   admin_notes: string | null;
+  // Daily check-in streak fields
+  current_streak: number;
+  highest_streak: number;
+  last_check_in_date: string | null;
   created_at: string;
   updated_at: string;
 }
