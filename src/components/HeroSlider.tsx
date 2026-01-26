@@ -179,120 +179,144 @@ const HeroSlider = () => {
       </div>
 
       <div className="section-container py-12 md:py-16 lg:py-20 relative z-10">
-        {/* Persistent Hero Text Overlay */}
-        <div className="text-center mb-10 md:mb-12">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-foreground tracking-tight leading-tight mb-2 md:mb-3">
-            Learn Web3, AI & High-Income Digital Skills.
-          </h1>
-          <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-semibold text-primary tracking-tight">
-            Get Hired. Build Digital Income.
-          </p>
-        </div>
-
-        {/* Carousel */}
-        <div className="relative max-w-4xl mx-auto">
-          {/* Navigation Arrows */}
-          <button
-            onClick={scrollPrev}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-12 z-20 w-10 h-10 rounded-full bg-background border border-border shadow-sm flex items-center justify-center hover:bg-secondary transition-colors"
-            aria-label="Previous slide"
-          >
-            <ChevronLeft className="w-5 h-5 text-foreground" />
-          </button>
-          <button
-            onClick={scrollNext}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-12 z-20 w-10 h-10 rounded-full bg-background border border-border shadow-sm flex items-center justify-center hover:bg-secondary transition-colors"
-            aria-label="Next slide"
-          >
-            <ChevronRight className="w-5 h-5 text-foreground" />
-          </button>
-
-          {/* Slides */}
-          <div ref={emblaRef} className="overflow-hidden">
-            <div className="flex">
-              {slides.map((slide) => (
-                <div
-                  key={slide.id}
-                  className="flex-[0_0_100%] min-w-0 px-4"
+        {/* Desktop: Grid layout with text left, carousel right */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+          {/* Hero Text - Left on desktop, top on mobile */}
+          <div className="text-center lg:text-left order-1">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl font-bold text-foreground tracking-tight leading-tight mb-2 md:mb-3">
+              Learn Web3, AI & High-Income Digital Skills.
+            </h1>
+            <p className="text-xl sm:text-2xl md:text-3xl lg:text-3xl xl:text-4xl font-semibold text-primary tracking-tight mb-6 lg:mb-8">
+              Get Hired. Build Digital Income.
+            </p>
+            
+            {/* Global CTA for unauthenticated users - moved here for desktop */}
+            {!user && (
+              <div className="hidden lg:flex flex-col sm:flex-row items-center lg:items-start gap-3">
+                <Button 
+                  size="lg" 
+                  variant="default"
+                  onClick={() => navigate("/signup")}
+                  className="bg-primary hover:bg-primary/90"
                 >
-                  <div className="text-center py-6 md:py-8">
-                    {/* Section Label */}
-                    <span className="inline-block text-[10px] font-semibold tracking-widest text-primary uppercase mb-4">
-                      {slide.sectionLabel}
-                    </span>
+                  Create a Free Account
+                </Button>
+                <button 
+                  onClick={() => navigate("/login")}
+                  className="inline-flex items-center gap-1 text-sm font-medium text-foreground hover:text-primary transition-colors"
+                >
+                  Log In
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+          </div>
 
-                    {/* Icon Container */}
-                    <div className="flex justify-center mb-5">
-                      <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-primary/10 border border-primary/10 shadow-sm flex items-center justify-center">
-                        {slide.icon}
+          {/* Carousel - Right on desktop, bottom on mobile */}
+          <div className="relative order-2 mt-8 lg:mt-0">
+            {/* Navigation Arrows */}
+            <button
+              onClick={scrollPrev}
+              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 lg:-translate-x-4 z-20 w-10 h-10 rounded-full bg-background border border-border shadow-sm flex items-center justify-center hover:bg-secondary transition-colors"
+              aria-label="Previous slide"
+            >
+              <ChevronLeft className="w-5 h-5 text-foreground" />
+            </button>
+            <button
+              onClick={scrollNext}
+              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 lg:translate-x-4 z-20 w-10 h-10 rounded-full bg-background border border-border shadow-sm flex items-center justify-center hover:bg-secondary transition-colors"
+              aria-label="Next slide"
+            >
+              <ChevronRight className="w-5 h-5 text-foreground" />
+            </button>
+
+            {/* Slides */}
+            <div ref={emblaRef} className="overflow-hidden">
+              <div className="flex">
+                {slides.map((slide) => (
+                  <div
+                    key={slide.id}
+                    className="flex-[0_0_100%] min-w-0 px-4"
+                  >
+                    <div className="text-center py-6 md:py-8">
+                      {/* Section Label */}
+                      <span className="inline-block text-[10px] font-semibold tracking-widest text-primary uppercase mb-4">
+                        {slide.sectionLabel}
+                      </span>
+
+                      {/* Icon Container */}
+                      <div className="flex justify-center mb-5">
+                        <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-primary/10 border border-primary/10 shadow-sm flex items-center justify-center">
+                          {slide.icon}
+                        </div>
                       </div>
-                    </div>
 
-                    {/* Slide Headline */}
-                    <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-3 tracking-tight">
-                      {slide.headline}
-                    </h2>
+                      {/* Slide Headline */}
+                      <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-3 tracking-tight">
+                        {slide.headline}
+                      </h2>
 
-                    {/* Description */}
-                    <p className="text-sm md:text-base text-muted-foreground max-w-lg mx-auto mb-2">
-                      {slide.description}
-                    </p>
+                      {/* Description */}
+                      <p className="text-sm md:text-base text-muted-foreground max-w-lg mx-auto mb-2">
+                        {slide.description}
+                      </p>
 
-                    {/* Why It Matters */}
-                    <p className="text-xs md:text-sm text-muted-foreground/80 max-w-md mx-auto mb-6">
-                      {slide.whyItMatters}
-                    </p>
+                      {/* Why It Matters */}
+                      <p className="text-xs md:text-sm text-muted-foreground/80 max-w-md mx-auto mb-6">
+                        {slide.whyItMatters}
+                      </p>
 
-                    {/* CTAs */}
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
-                      <Button 
-                        size="lg" 
-                        onClick={slide.primaryCtaAction}
-                        className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground"
-                      >
-                        {slide.primaryCta}
-                      </Button>
-                      {slide.secondaryCta && (
-                        <button 
-                          onClick={slide.secondaryCtaAction}
-                          className="inline-flex items-center gap-1 text-sm font-medium text-foreground hover:text-primary transition-colors"
+                      {/* CTAs */}
+                      <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
+                        <Button 
+                          size="lg" 
+                          onClick={slide.primaryCtaAction}
+                          className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground"
                         >
-                          {slide.secondaryCta}
-                          <ChevronRight className="w-4 h-4" />
-                        </button>
-                      )}
-                    </div>
+                          {slide.primaryCta}
+                        </Button>
+                        {slide.secondaryCta && (
+                          <button 
+                            onClick={slide.secondaryCtaAction}
+                            className="inline-flex items-center gap-1 text-sm font-medium text-foreground hover:text-primary transition-colors"
+                          >
+                            {slide.secondaryCta}
+                            <ChevronRight className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
 
-                    {/* Trust Line */}
-                    <p className="text-xs text-muted-foreground">
-                      500+ learners across 20+ countries
-                    </p>
+                      {/* Trust Line */}
+                      <p className="text-xs text-muted-foreground">
+                        500+ learners across 20+ countries
+                      </p>
+                    </div>
                   </div>
-                </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Pagination Dots */}
+            <div className="flex justify-center gap-2 mt-6">
+              {slides.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => scrollTo(index)}
+                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                    index === selectedIndex 
+                      ? "bg-primary w-6" 
+                      : "bg-border hover:bg-muted-foreground/50"
+                  }`}
+                  aria-label={`Go to slide ${index + 1}`}
+                />
               ))}
             </div>
           </div>
-
-          {/* Pagination Dots */}
-          <div className="flex justify-center gap-2 mt-6">
-            {slides.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => scrollTo(index)}
-                className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                  index === selectedIndex 
-                    ? "bg-primary w-6" 
-                    : "bg-border hover:bg-muted-foreground/50"
-                }`}
-                aria-label={`Go to slide ${index + 1}`}
-              />
-            ))}
-          </div>
         </div>
 
-        {/* Global CTA for unauthenticated users */}
+        {/* Global CTA for unauthenticated users - mobile only */}
         {!user && (
-          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
+          <div className="mt-10 flex lg:hidden flex-col sm:flex-row items-center justify-center gap-3">
             <Button 
               size="lg" 
               variant="default"
