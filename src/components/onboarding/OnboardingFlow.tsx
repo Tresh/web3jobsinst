@@ -48,19 +48,43 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [fullName, setFullName] = useState(profile?.full_name || "");
   const [showScholarshipPrompt, setShowScholarshipPrompt] = useState(false);
+  const [hasExistingApplication, setHasExistingApplication] = useState<boolean | null>(null);
+
+  // Check if user has already applied to any scholarship
+  useEffect(() => {
+    const checkExistingApplication = async () => {
+      if (!user?.id) {
+        setHasExistingApplication(false);
+        return;
+      }
+      
+      const { data } = await supabase
+        .from("scholarship_applications")
+        .select("id")
+        .eq("user_id", user.id)
+        .limit(1);
+      
+      setHasExistingApplication(data && data.length > 0);
+    };
+    
+    checkExistingApplication();
+  }, [user?.id]);
 
   useEffect(() => {
+    // Wait for application check to complete
+    if (hasExistingApplication === null) return;
+    
     // Determine starting step based on profile completeness
     if (!profile?.full_name) {
       setStep(1);
-    } else if (user?.id && shouldShowScholarshipPopup(user.id)) {
-      // Profile is complete, check if we should show scholarship prompt
+    } else if (user?.id && !hasExistingApplication && shouldShowScholarshipPopup(user.id)) {
+      // Profile is complete, no existing application, check if we should show scholarship prompt
       setShowScholarshipPrompt(true);
     } else {
-      // Popup was dismissed recently, complete onboarding silently
+      // Either already applied or popup was dismissed recently, complete onboarding silently
       onComplete();
     }
-  }, [profile, user?.id, onComplete]);
+  }, [profile, user?.id, onComplete, hasExistingApplication]);
 
   const handleSaveName = async () => {
     if (!fullName.trim()) {
@@ -106,8 +130,8 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
 
     setIsLoading(false);
     
-    // Only show scholarship prompt if it hasn't been dismissed recently
-    if (user?.id && shouldShowScholarshipPopup(user.id)) {
+    // Only show scholarship prompt if no existing application and not dismissed recently
+    if (user?.id && !hasExistingApplication && shouldShowScholarshipPopup(user.id)) {
       setShowScholarshipPrompt(true);
     } else {
       onComplete();
