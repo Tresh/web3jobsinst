@@ -93,6 +93,7 @@ const AdminScholarships = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc" | null>(null);
   const [isBatchApproving, setIsBatchApproving] = useState(false);
+  const [isBatchRejecting, setIsBatchRejecting] = useState(false);
 
   // Form states
   const [isCreatingProgram, setIsCreatingProgram] = useState(false);
@@ -567,6 +568,42 @@ const AdminScholarships = () => {
     }
   };
 
+  // Batch reject function
+  const batchRejectApplications = async () => {
+    if (selectedApplicationIds.size === 0) {
+      toast({ title: "No applications selected", variant: "destructive" });
+      return;
+    }
+
+    setIsBatchRejecting(true);
+    const idsToReject = Array.from(selectedApplicationIds);
+    
+    try {
+      // Update all applications atomically
+      const { error: updateError } = await supabase
+        .from("scholarship_applications")
+        .update({
+          status: "rejected",
+        })
+        .in("id", idsToReject);
+
+      if (updateError) throw updateError;
+
+      toast({
+        title: "Batch rejection complete",
+        description: `${idsToReject.length} applications rejected`,
+      });
+      
+      setSelectedApplicationIds(new Set());
+      fetchData();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Unknown error";
+      toast({ title: "Batch rejection failed", description: message, variant: "destructive" });
+    } finally {
+      setIsBatchRejecting(false);
+    }
+  };
+
   const safeFormatDate = (value: unknown, fmt: string) => {
     if (!value) return null;
     try {
@@ -920,19 +957,35 @@ const AdminScholarships = () => {
                   </span>
                 </div>
                 {selectedApplicationIds.size > 0 && (
-                  <Button
-                    size="sm"
-                    onClick={batchApproveApplications}
-                    disabled={isBatchApproving}
-                    className="gap-2"
-                  >
-                    {isBatchApproving ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <CheckCircle className="w-4 h-4" />
-                    )}
-                    Approve Selected ({selectedApplicationIds.size})
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      onClick={batchApproveApplications}
+                      disabled={isBatchApproving || isBatchRejecting}
+                      className="gap-2"
+                    >
+                      {isBatchApproving ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <CheckCircle className="w-4 h-4" />
+                      )}
+                      Approve Selected ({selectedApplicationIds.size})
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={batchRejectApplications}
+                      disabled={isBatchApproving || isBatchRejecting}
+                      className="gap-2"
+                    >
+                      {isBatchRejecting ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <XCircle className="w-4 h-4" />
+                      )}
+                      Reject Selected
+                    </Button>
+                  </div>
                 )}
               </CardContent>
             </Card>
