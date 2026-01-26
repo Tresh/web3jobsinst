@@ -171,49 +171,42 @@ const HeroSlider = () => {
   }, [emblaApi, onSelect]);
 
   return (
-    <section className="min-h-screen flex items-center bg-background pt-[72px] relative overflow-hidden">
+    <section className="min-h-[calc(100vh-72px)] flex items-center bg-background pt-[72px] relative overflow-hidden">
       {/* Abstract background decoration */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 right-10 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
         <div className="absolute bottom-20 left-10 w-96 h-96 bg-secondary/50 rounded-full blur-3xl" />
       </div>
 
-      <div className="section-container py-12 md:py-16 lg:py-20 relative z-10">
+      <div className="section-container py-8 md:py-12 lg:py-16 relative z-10">
         {/* Desktop: Grid layout with text left, carousel right */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10 items-center">
           {/* Hero Text - Left on desktop, top on mobile */}
           <div className="text-center lg:text-left order-1">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl font-bold text-foreground tracking-tight leading-tight mb-2 md:mb-3">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-4xl xl:text-5xl font-bold text-foreground tracking-tight leading-tight mb-2">
               Learn Web3, AI & High-Income Digital Skills.
             </h1>
-            <p className="text-xl sm:text-2xl md:text-3xl lg:text-3xl xl:text-4xl font-semibold text-primary tracking-tight mb-6 lg:mb-8">
+            <p className="text-lg sm:text-xl md:text-2xl lg:text-2xl xl:text-3xl font-semibold text-primary tracking-tight mb-4 lg:mb-6">
               Get Hired. Build Digital Income.
             </p>
             
-            {/* Global CTA for unauthenticated users - moved here for desktop */}
+            {/* Global CTA for unauthenticated users - desktop */}
             {!user && (
-              <div className="hidden lg:flex flex-col sm:flex-row items-center lg:items-start gap-3">
+              <div className="hidden lg:block">
                 <Button 
-                  size="lg" 
+                  size="default" 
                   variant="default"
                   onClick={() => navigate("/signup")}
                   className="bg-primary hover:bg-primary/90"
                 >
-                  Create a Free Account
+                  Get Started Free
                 </Button>
-                <button 
-                  onClick={() => navigate("/login")}
-                  className="inline-flex items-center gap-1 text-sm font-medium text-foreground hover:text-primary transition-colors"
-                >
-                  Log In
-                  <ChevronRight className="w-4 h-4" />
-                </button>
               </div>
             )}
           </div>
 
           {/* Carousel - Right on desktop, bottom on mobile */}
-          <div className="relative order-2 mt-8 lg:mt-0">
+          <div className="relative order-2 mt-4 lg:mt-0">
             {/* Navigation Arrows */}
             <button
               onClick={scrollPrev}
@@ -238,50 +231,50 @@ const HeroSlider = () => {
                     key={slide.id}
                     className="flex-[0_0_100%] min-w-0 px-4"
                   >
-                    <div className="text-center py-6 md:py-8">
+                    <div className="text-center py-4 md:py-6">
                       {/* Section Label */}
-                      <span className="inline-block text-[10px] font-semibold tracking-widest text-primary uppercase mb-4">
+                      <span className="inline-block text-[10px] font-semibold tracking-widest text-primary uppercase mb-3">
                         {slide.sectionLabel}
                       </span>
 
                       {/* Icon Container */}
-                      <div className="flex justify-center mb-5">
-                        <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-primary/10 border border-primary/10 shadow-sm flex items-center justify-center">
+                      <div className="flex justify-center mb-3">
+                        <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-primary/10 border border-primary/10 shadow-sm flex items-center justify-center">
                           {slide.icon}
                         </div>
                       </div>
 
                       {/* Slide Headline */}
-                      <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-3 tracking-tight">
+                      <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground mb-2 tracking-tight">
                         {slide.headline}
                       </h2>
 
                       {/* Description */}
-                      <p className="text-sm md:text-base text-muted-foreground max-w-lg mx-auto mb-2">
+                      <p className="text-xs md:text-sm text-muted-foreground max-w-md mx-auto mb-1">
                         {slide.description}
                       </p>
 
                       {/* Why It Matters */}
-                      <p className="text-xs md:text-sm text-muted-foreground/80 max-w-md mx-auto mb-6">
+                      <p className="text-xs text-muted-foreground/80 max-w-sm mx-auto mb-4">
                         {slide.whyItMatters}
                       </p>
 
                       {/* CTAs */}
-                      <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
+                      <div className="flex flex-col sm:flex-row items-center justify-center gap-2 mb-4">
                         <Button 
-                          size="lg" 
+                          size="default" 
                           onClick={slide.primaryCtaAction}
-                          className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground"
+                          className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground text-sm"
                         >
                           {slide.primaryCta}
                         </Button>
                         {slide.secondaryCta && (
                           <button 
                             onClick={slide.secondaryCtaAction}
-                            className="inline-flex items-center gap-1 text-sm font-medium text-foreground hover:text-primary transition-colors"
+                            className="inline-flex items-center gap-1 text-xs font-medium text-foreground hover:text-primary transition-colors"
                           >
                             {slide.secondaryCta}
-                            <ChevronRight className="w-4 h-4" />
+                            <ChevronRight className="w-3 h-3" />
                           </button>
                         )}
                       </div>
@@ -316,22 +309,15 @@ const HeroSlider = () => {
 
         {/* Global CTA for unauthenticated users - mobile only */}
         {!user && (
-          <div className="mt-10 flex lg:hidden flex-col sm:flex-row items-center justify-center gap-3">
+          <div className="mt-6 flex lg:hidden justify-center">
             <Button 
-              size="lg" 
+              size="default" 
               variant="default"
               onClick={() => navigate("/signup")}
               className="bg-primary hover:bg-primary/90"
             >
-              Create a Free Account
+              Get Started Free
             </Button>
-            <button 
-              onClick={() => navigate("/login")}
-              className="inline-flex items-center gap-1 text-sm font-medium text-foreground hover:text-primary transition-colors"
-            >
-              Log In
-              <ChevronRight className="w-4 h-4" />
-            </button>
           </div>
         )}
       </div>
