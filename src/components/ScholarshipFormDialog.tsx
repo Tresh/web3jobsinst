@@ -1,10 +1,13 @@
 import * as React from "react";
+import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowRight, GraduationCap, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ScholarshipFormDialogProps {
   open: boolean;
@@ -141,8 +144,43 @@ const ScholarshipForm = ({ onSuccess }: { onSuccess: () => void }) => {
 
 const ScholarshipFormDialog = ({ open, onOpenChange }: ScholarshipFormDialogProps) => {
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const [hasExistingApplication, setHasExistingApplication] = React.useState<boolean | null>(null);
+
+  // Check if user has already applied
+  React.useEffect(() => {
+    const checkExistingApplication = async () => {
+      if (!user?.id) {
+        setHasExistingApplication(false);
+        return;
+      }
+      
+      const { data } = await supabase
+        .from("scholarship_applications")
+        .select("id")
+        .eq("user_id", user.id)
+        .limit(1);
+      
+      if (data && data.length > 0) {
+        setHasExistingApplication(true);
+        // Redirect to dashboard scholarship page
+        onOpenChange(false);
+        navigate("/dashboard/scholarship");
+      } else {
+        setHasExistingApplication(false);
+      }
+    };
+
+    if (open) {
+      checkExistingApplication();
+    }
+  }, [open, user?.id, navigate, onOpenChange]);
 
   if (!open) return null;
+
+  // Don't render if checking or has existing application
+  if (hasExistingApplication === null || hasExistingApplication) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-background">

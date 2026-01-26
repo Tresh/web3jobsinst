@@ -190,9 +190,9 @@ const HeroSlider = () => {
               Get Hired. Build Digital Income.
             </p>
             
-            {/* Global CTA for unauthenticated users - desktop */}
+            {/* Global CTA for unauthenticated users */}
             {!user && (
-              <div className="hidden lg:block">
+              <div className="mt-4 lg:mt-0">
                 <Button 
                   size="default" 
                   variant="default"
@@ -307,19 +307,6 @@ const HeroSlider = () => {
           </div>
         </div>
 
-        {/* Global CTA for unauthenticated users - mobile only */}
-        {!user && (
-          <div className="mt-6 flex lg:hidden justify-center">
-            <Button 
-              size="default" 
-              variant="default"
-              onClick={() => navigate("/signup")}
-              className="bg-primary hover:bg-primary/90"
-            >
-              Get Started Free
-            </Button>
-          </div>
-        )}
       </div>
     </section>
   );

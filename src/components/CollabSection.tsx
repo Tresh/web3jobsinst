@@ -1,12 +1,22 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Handshake, Code, Palette, Megaphone, ArrowRight } from "lucide-react";
 import ComingSoonDialog from "./ComingSoonDialog";
-import ScholarshipFormDialog from "./ScholarshipFormDialog";
+import { useAuth } from "@/contexts/AuthContext";
 
 const CollabSection = () => {
   const [comingSoonOpen, setComingSoonOpen] = useState(false);
-  const [scholarshipOpen, setScholarshipOpen] = useState(false);
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
+  const handleScholarshipClick = () => {
+    if (!user) {
+      navigate("/login", { state: { from: { pathname: "/dashboard/scholarship" } } });
+      return;
+    }
+    navigate("/dashboard/scholarship");
+  };
 
   return (
     <>
@@ -69,9 +79,8 @@ const CollabSection = () => {
         open={comingSoonOpen} 
         onOpenChange={setComingSoonOpen}
         title="Collab Market Coming Soon"
-        onScholarshipClick={() => setScholarshipOpen(true)}
+        onScholarshipClick={handleScholarshipClick}
       />
-      <ScholarshipFormDialog open={scholarshipOpen} onOpenChange={setScholarshipOpen} />
     </>
   );
 };
