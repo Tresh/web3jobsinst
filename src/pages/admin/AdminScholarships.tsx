@@ -938,8 +938,8 @@ const AdminScholarships = () => {
             </span>
           </div>
 
-          {/* Batch Actions Bar */}
-          {statusFilter === "pending" && filteredApplications.filter((a) => a.status === "pending").length > 0 && (
+          {/* Batch Actions Bar - shows when there are pending applications in the current view */}
+          {filteredApplications.some((a) => a.status === "pending") && (
             <Card className="border-primary/20 bg-primary/5">
               <CardContent className="p-3 flex items-center justify-between">
                 <div className="flex items-center gap-3">
