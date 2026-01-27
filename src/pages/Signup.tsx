@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Mail, X, CheckCircle } from "lucide-react";
+import { Loader2, Mail, X, CheckCircle, RefreshCw } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -25,6 +25,10 @@ const Signup = () => {
   const [showEmailSentDialog, setShowEmailSentDialog] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState("");
   const [referralCode, setReferralCode] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [isResending, setIsResending] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
   
   const { signUpWithEmail, user } = useAuth();
   const { toast } = useToast();
@@ -55,15 +59,68 @@ const Signup = () => {
     return null;
   }
 
-  const handleEmailSignup = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Clear errors when user types
+  useEffect(() => {
+    if (passwordError && password === confirmPassword) {
+      setPasswordError("");
+    }
+  }, [password, confirmPassword, passwordError]);
+
+  useEffect(() => {
+    if (emailError) {
+      setEmailError("");
+    }
+  }, [email]);
+
+  // Resend cooldown timer
+  useEffect(() => {
+    if (resendCooldown > 0) {
+      const timer = setTimeout(() => setResendCooldown(resendCooldown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resendCooldown]);
+
+  const handleResendConfirmation = async () => {
+    if (resendCooldown > 0 || isResending) return;
     
-    if (password !== confirmPassword) {
+    setIsResending(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email: submittedEmail,
+      });
+      
+      if (error) {
+        toast({
+          title: "Failed to resend",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Email sent!",
+          description: "A new confirmation email has been sent.",
+        });
+        setResendCooldown(60); // 60 second cooldown
+      }
+    } catch {
       toast({
-        title: "Passwords don't match",
-        description: "Please make sure your passwords match.",
+        title: "Failed to resend",
+        description: "Please try again later.",
         variant: "destructive",
       });
+    }
+    setIsResending(false);
+  };
+
+  const handleEmailSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordError("");
+    setEmailError("");
+    
+    // Validate password match
+    if (password !== confirmPassword) {
+      setPasswordError("Passwords do not match.");
       return;
     }
 
@@ -81,11 +138,18 @@ const Signup = () => {
     const { error } = await signUpWithEmail(email, password, fullName);
     
     if (error) {
-      toast({
-        title: "Sign up failed",
-        description: error.message,
-        variant: "destructive",
-      });
+      // Check for existing user error
+      if (error.message.includes("already registered") || 
+          error.message.includes("already exists") ||
+          error.message.includes("User already registered")) {
+        setEmailError("An account with this email already exists. Please sign in instead.");
+      } else {
+        toast({
+          title: "Sign up failed",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
     } else {
       // If there's a referral code, we'll track it after the user confirms their email
       // The referral tracking happens when they first log in (handled in AuthContext)
@@ -145,8 +209,11 @@ const Signup = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="h-12"
+                className={`h-12 ${emailError ? "border-destructive" : ""}`}
               />
+              {emailError && (
+                <p className="text-sm text-destructive">{emailError}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="referralCode">Referral Code (Optional)</Label>
@@ -180,8 +247,11 @@ const Signup = () => {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
-                className="h-12"
+                className={`h-12 ${passwordError ? "border-destructive" : ""}`}
               />
+              {passwordError && (
+                <p className="text-sm text-destructive">{passwordError}</p>
+              )}
             </div>
             <Button
               type="submit"
@@ -232,9 +302,27 @@ const Signup = () => {
             >
               Go to Login
             </Button>
-            <p className="text-xs text-muted-foreground text-center">
-              Didn't receive the email? Check your spam folder or try signing up again.
-            </p>
+            <div className="text-center space-y-2">
+              <p className="text-xs text-muted-foreground">
+                Didn't receive the email? Check your spam folder.
+              </p>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleResendConfirmation}
+                disabled={isResending || resendCooldown > 0}
+                className="text-primary"
+              >
+                {isResending ? (
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                ) : (
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                )}
+                {resendCooldown > 0 
+                  ? `Resend in ${resendCooldown}s` 
+                  : "Resend confirmation email"}
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>

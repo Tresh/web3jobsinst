@@ -1,16 +1,20 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Mail, X } from "lucide-react";
+import { Loader2, Mail, X, RefreshCw } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showUnverifiedMessage, setShowUnverifiedMessage] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
   
   const { signInWithEmail, user } = useAuth();
   const { toast } = useToast();
@@ -19,24 +23,72 @@ const Login = () => {
 
   const from = (location.state as { from?: Location })?.from?.pathname || "/dashboard";
 
+  // Resend cooldown timer - must be before early return
+  useEffect(() => {
+    if (resendCooldown > 0) {
+      const timer = setTimeout(() => setResendCooldown(resendCooldown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resendCooldown]);
+
   // Redirect if already logged in
   if (user) {
     navigate(from, { replace: true });
     return null;
   }
 
+  const handleResendConfirmation = async () => {
+    if (resendCooldown > 0 || isResending || !email) return;
+    
+    setIsResending(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email: email,
+      });
+      
+      if (error) {
+        toast({
+          title: "Failed to resend",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Email sent!",
+          description: "A new confirmation email has been sent.",
+        });
+        setResendCooldown(60);
+      }
+    } catch {
+      toast({
+        title: "Failed to resend",
+        description: "Please try again later.",
+        variant: "destructive",
+      });
+    }
+    setIsResending(false);
+  };
+
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setShowUnverifiedMessage(false);
 
     const { error } = await signInWithEmail(email, password);
     
     if (error) {
-      toast({
-        title: "Login failed",
-        description: error.message,
-        variant: "destructive",
-      });
+      // Check for unverified email error
+      if (error.message.includes("Email not confirmed") || 
+          error.message.includes("email not confirmed")) {
+        setShowUnverifiedMessage(true);
+      } else {
+        toast({
+          title: "Login failed",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
     } else {
       toast({
         title: "Welcome back!",
@@ -114,6 +166,31 @@ const Login = () => {
               Sign in
             </Button>
           </form>
+
+          {/* Unverified email message */}
+          {showUnverifiedMessage && (
+            <div className="mt-4 p-4 bg-muted rounded-lg text-center space-y-2">
+              <p className="text-sm text-foreground">
+                Your email is not verified yet. Please check your inbox.
+              </p>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleResendConfirmation}
+                disabled={isResending || resendCooldown > 0}
+                className="text-primary"
+              >
+                {isResending ? (
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                ) : (
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                )}
+                {resendCooldown > 0 
+                  ? `Resend in ${resendCooldown}s` 
+                  : "Resend confirmation email"}
+              </Button>
+            </div>
+          )}
 
           {/* Forgot password & Sign up links */}
           <div className="text-center text-sm text-muted-foreground mt-6 space-y-2">
