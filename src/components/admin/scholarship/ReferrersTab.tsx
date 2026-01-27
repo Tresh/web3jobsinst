@@ -54,9 +54,6 @@ interface FraudFlag {
   created_at: string;
 }
 
-// Referral deadline for status display
-const REFERRAL_DEADLINE = new Date("2025-02-02T23:59:59Z");
-
 export function ReferrersTab() {
   const { toast } = useToast();
   const [referrers, setReferrers] = useState<ReferrerStats[]>([]);
@@ -67,8 +64,6 @@ export function ReferrersTab() {
   const [fraudFlags, setFraudFlags] = useState<FraudFlag[]>([]);
   const [showFraudDialog, setShowFraudDialog] = useState(false);
   const [selectedFraudReferrer, setSelectedFraudReferrer] = useState<ReferrerStats | null>(null);
-
-  const isReferralActive = new Date() <= REFERRAL_DEADLINE;
 
   useEffect(() => {
     fetchReferrers();
@@ -198,8 +193,8 @@ export function ReferrersTab() {
               </CardTitle>
               <CardDescription>View referral activity and manage referrers</CardDescription>
             </div>
-            <Badge variant="outline" className={isReferralActive ? "border-green-500/30 text-green-500" : "border-red-500/30 text-red-500"}>
-              {isReferralActive ? "Referral Program Active" : "Referral Program Expired"}
+            <Badge variant="outline" className="border-green-500/30 text-green-500">
+              Referral Program Active
             </Badge>
           </div>
         </CardHeader>
