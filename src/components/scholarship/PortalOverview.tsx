@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import type { ScholarshipApplication, LeaderboardEntry } from "@/types/scholarship";
 import { CountdownTimer } from "./CountdownTimer";
 import { DailyCheckInCard } from "./DailyCheckInCard";
+import { ReferralCard } from "./ReferralCard";
 
 interface PortalOverviewProps {
   application: ScholarshipApplication;
@@ -168,6 +169,9 @@ export function PortalOverview({
           </CardContent>
         </Card>
       </div>
+
+      {/* WJI Referral Card */}
+      <ReferralCard />
 
       {/* Track Info */}
       <Card>

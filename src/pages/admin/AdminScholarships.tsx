@@ -62,7 +62,8 @@ import type {
   ScholarshipTaskSubmission,
   ScholarshipModule,
 } from "@/types/scholarship";
-import { TasksTab, OverviewTab } from "@/components/admin/scholarship";
+import { TasksTab, OverviewTab, ReferrersTab } from "@/components/admin/scholarship";
+import { Link2 } from "lucide-react";
 
 const AdminScholarships = () => {
   const { user } = useAuth();
@@ -867,6 +868,10 @@ const AdminScholarships = () => {
             <GraduationCap className="w-4 h-4" />
             Programs ({programs.length})
           </TabsTrigger>
+          <TabsTrigger value="referrers" className="gap-2">
+            <Link2 className="w-4 h-4" />
+            Referrers
+          </TabsTrigger>
           <TabsTrigger value="email" className="gap-2">
             <Mail className="w-4 h-4" />
             Email
@@ -1634,6 +1639,11 @@ const AdminScholarships = () => {
               ))}
             </div>
           )}
+        </TabsContent>
+
+        {/* Referrers Tab */}
+        <TabsContent value="referrers">
+          <ReferrersTab />
         </TabsContent>
 
         {/* Email Broadcast Tab */}
