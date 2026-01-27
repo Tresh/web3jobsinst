@@ -6,10 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { Copy, Users, Coins, Clock, CheckCircle } from "lucide-react";
-
-// Referral program deadline
-const REFERRAL_DEADLINE = new Date("2025-02-02T23:59:59Z");
+import { Copy, Coins, CheckCircle } from "lucide-react";
 
 export function ReferralCard() {
   const { user } = useAuth();
@@ -19,10 +16,7 @@ export function ReferralCard() {
   const [referralCount, setReferralCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [isCopied, setIsCopied] = useState(false);
-
-  const isReferralActive = new Date() <= REFERRAL_DEADLINE;
-  const timeRemaining = REFERRAL_DEADLINE.getTime() - Date.now();
-  const daysRemaining = Math.max(0, Math.ceil(timeRemaining / (1000 * 60 * 60 * 24)));
+  const [isLinkCopied, setIsLinkCopied] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -79,13 +73,21 @@ export function ReferralCard() {
     }
   };
 
+  const copyReferralCode = async () => {
+    if (!referralCode) return;
+    await navigator.clipboard.writeText(referralCode);
+    setIsCopied(true);
+    toast({ title: "Copied!", description: "Referral code copied to clipboard" });
+    setTimeout(() => setIsCopied(false), 2000);
+  };
+
   const copyReferralLink = async () => {
     if (!referralCode) return;
     const link = `${window.location.origin}/signup?ref=${referralCode}`;
     await navigator.clipboard.writeText(link);
-    setIsCopied(true);
+    setIsLinkCopied(true);
     toast({ title: "Copied!", description: "Referral link copied to clipboard" });
-    setTimeout(() => setIsCopied(false), 2000);
+    setTimeout(() => setIsLinkCopied(false), 2000);
   };
 
   if (isLoading) {
@@ -110,21 +112,17 @@ export function ReferralCard() {
             <Coins className="w-5 h-5 text-amber-500" />
             WJI Referral Program
           </CardTitle>
-          {isReferralActive ? (
-            <Badge variant="outline" className="border-green-500/30 text-green-500">
-              <Clock className="w-3 h-3 mr-1" />
-              {daysRemaining}d left
-            </Badge>
-          ) : (
-            <Badge variant="outline" className="border-red-500/30 text-red-500">
-              Ended
-            </Badge>
-          )}
+          <Badge variant="outline" className="border-green-500/30 text-green-500">
+            Active
+          </Badge>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
         <p className="text-sm text-muted-foreground">
-          Invite friends to join the scholarship program. Earn 1 WJI for each approved referral!
+          When you refer your friends to the Web3 Jobs Institute Scholarship Program, you earn WJI — our upcoming in-app reward.
+        </p>
+        <p className="text-sm text-muted-foreground">
+          WJI will be used to unlock access to exclusive opportunities, tools, and benefits across the W3JI ecosystem.
         </p>
 
         {/* Stats Row */}
@@ -139,8 +137,34 @@ export function ReferralCard() {
           </div>
         </div>
 
+        {/* Referral Code */}
+        {referralCode && (
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Your Referral Code</label>
+            <div className="flex gap-2">
+              <Input
+                value={referralCode}
+                readOnly
+                className="text-center font-mono text-lg bg-background/50 tracking-wider"
+              />
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={copyReferralCode}
+                className="shrink-0"
+              >
+                {isCopied ? (
+                  <CheckCircle className="w-4 h-4 text-green-500" />
+                ) : (
+                  <Copy className="w-4 h-4" />
+                )}
+              </Button>
+            </div>
+          </div>
+        )}
+
         {/* Referral Link */}
-        {isReferralActive && referralCode && (
+        {referralCode && (
           <div className="space-y-2">
             <label className="text-sm font-medium">Your Referral Link</label>
             <div className="flex gap-2">
@@ -155,19 +179,13 @@ export function ReferralCard() {
                 onClick={copyReferralLink}
                 className="shrink-0"
               >
-                {isCopied ? (
+                {isLinkCopied ? (
                   <CheckCircle className="w-4 h-4 text-green-500" />
                 ) : (
                   <Copy className="w-4 h-4" />
                 )}
               </Button>
             </div>
-          </div>
-        )}
-
-        {!isReferralActive && (
-          <div className="text-center text-sm text-muted-foreground py-2">
-            The referral program has ended. Thank you for participating!
           </div>
         )}
       </CardContent>
