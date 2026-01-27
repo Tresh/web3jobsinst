@@ -24,13 +24,13 @@ const Signup = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showEmailSentDialog, setShowEmailSentDialog] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState("");
-  const [referralCode, setReferralCode] = useState<string | null>(null);
+  const [referralCode, setReferralCode] = useState("");
   
   const { signUpWithEmail, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  // Capture referral code from URL
+  // Capture referral code from URL and prefill input
   useEffect(() => {
     const ref = searchParams.get("ref");
     if (ref) {
@@ -39,6 +39,15 @@ const Signup = () => {
       sessionStorage.setItem("referral_code", ref);
     }
   }, [searchParams]);
+
+  // Update sessionStorage when user edits referral code
+  useEffect(() => {
+    if (referralCode.trim()) {
+      sessionStorage.setItem("referral_code", referralCode.trim());
+    } else {
+      sessionStorage.removeItem("referral_code");
+    }
+  }, [referralCode]);
 
   // Redirect if already logged in
   if (user) {
@@ -136,6 +145,17 @@ const Signup = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                className="h-12"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="referralCode">Referral Code (Optional)</Label>
+              <Input
+                id="referralCode"
+                type="text"
+                placeholder="Enter referral code"
+                value={referralCode}
+                onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
                 className="h-12"
               />
             </div>
