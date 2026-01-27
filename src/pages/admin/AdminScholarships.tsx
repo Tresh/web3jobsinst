@@ -51,6 +51,7 @@ import {
   Search,
   ArrowUpAZ,
   ArrowDownAZ,
+  Mail,
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { format } from "date-fns";
@@ -103,6 +104,12 @@ const AdminScholarships = () => {
   // Form states
   const [isCreatingProgram, setIsCreatingProgram] = useState(false);
   const [isCreatingModule, setIsCreatingModule] = useState(false);
+  
+  // Email broadcast states
+  const [emailAudience, setEmailAudience] = useState<"scholars" | "all_users">("scholars");
+  const [emailSubject, setEmailSubject] = useState("");
+  const [emailBody, setEmailBody] = useState("");
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
   
   const [newProgram, setNewProgram] = useState({
     title: "",
@@ -621,7 +628,42 @@ const AdminScholarships = () => {
     }
   };
 
-  // Batch approve function
+  // Send broadcast email handler
+  const handleSendBroadcastEmail = async () => {
+    if (!emailSubject.trim() || !emailBody.trim()) {
+      toast({ title: "Missing fields", description: "Subject and body are required", variant: "destructive" });
+      return;
+    }
+
+    setIsSendingEmail(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("admin-broadcast-email", {
+        body: {
+          audience: emailAudience,
+          subject: emailSubject,
+          body: emailBody,
+        },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Emails sent successfully",
+        description: `Sent to ${data.emailsSent} recipient(s)`,
+      });
+
+      // Clear form
+      setEmailSubject("");
+      setEmailBody("");
+    } catch (err) {
+      console.error("Failed to send broadcast email:", err);
+      toast({ title: "Error", description: "Failed to send broadcast email", variant: "destructive" });
+    } finally {
+      setIsSendingEmail(false);
+    }
+  };
+
+
   const batchApproveApplications = async () => {
     if (selectedApplicationIds.size === 0) {
       toast({ title: "No applications selected", variant: "destructive" });
@@ -824,6 +866,10 @@ const AdminScholarships = () => {
           <TabsTrigger value="programs" className="gap-2">
             <GraduationCap className="w-4 h-4" />
             Programs ({programs.length})
+          </TabsTrigger>
+          <TabsTrigger value="email" className="gap-2">
+            <Mail className="w-4 h-4" />
+            Email
           </TabsTrigger>
         </TabsList>
 
@@ -1588,6 +1634,68 @@ const AdminScholarships = () => {
               ))}
             </div>
           )}
+        </TabsContent>
+
+        {/* Email Broadcast Tab */}
+        <TabsContent value="email" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Mail className="w-5 h-5" />
+                Send Broadcast Email
+              </CardTitle>
+              <CardDescription>
+                Send a custom email to all scholars or all platform users
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label>Audience</Label>
+                <Select value={emailAudience} onValueChange={(v: "scholars" | "all_users") => setEmailAudience(v)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="scholars">All Scholars (approved applicants)</SelectItem>
+                    <SelectItem value="all_users">All Platform Users</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Subject</Label>
+                <Input
+                  value={emailSubject}
+                  onChange={(e) => setEmailSubject(e.target.value)}
+                  placeholder="Enter email subject..."
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Body</Label>
+                <Textarea
+                  value={emailBody}
+                  onChange={(e) => setEmailBody(e.target.value)}
+                  placeholder="Write your email message here..."
+                  rows={8}
+                />
+              </div>
+              <Button 
+                onClick={handleSendBroadcastEmail} 
+                disabled={isSendingEmail || !emailSubject.trim() || !emailBody.trim()}
+              >
+                {isSendingEmail ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4 mr-2" />
+                    Send Email
+                  </>
+                )}
+              </Button>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>
