@@ -423,6 +423,20 @@ const AdminScholarships = () => {
         type: approved ? "task_approved" : "task_rejected",
         metadata: { submission_id: submissionId },
       });
+
+      // Check for first task completion to award WJI referral bonus
+      if (approved) {
+        try {
+          await supabase.functions.invoke("wji-referral-handler", {
+            body: { 
+              action: "check_first_task_completion", 
+              user_id: selectedSubmission.user_id 
+            },
+          });
+        } catch (err) {
+          console.error("Error checking referral WJI award:", err);
+        }
+      }
     }
 
     toast({ title: approved ? "Submission approved" : "Submission rejected" });
