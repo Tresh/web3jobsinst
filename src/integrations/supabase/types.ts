@@ -86,6 +86,90 @@ export type Database = {
         }
         Relationships: []
       }
+      referral_fraud_flags: {
+        Row: {
+          created_at: string
+          details: Json | null
+          id: string
+          referred_user_id: string | null
+          referrer_user_id: string
+          rule_triggered: string
+        }
+        Insert: {
+          created_at?: string
+          details?: Json | null
+          id?: string
+          referred_user_id?: string | null
+          referrer_user_id: string
+          rule_triggered: string
+        }
+        Update: {
+          created_at?: string
+          details?: Json | null
+          id?: string
+          referred_user_id?: string | null
+          referrer_user_id?: string
+          rule_triggered?: string
+        }
+        Relationships: []
+      }
+      scholar_referral_codes: {
+        Row: {
+          created_at: string
+          id: string
+          is_enabled: boolean | null
+          referral_code: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_enabled?: boolean | null
+          referral_code: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_enabled?: boolean | null
+          referral_code?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      scholar_referrals: {
+        Row: {
+          created_at: string
+          id: string
+          referral_code: string
+          referred_user_id: string
+          referrer_user_id: string
+          signup_ip: string | null
+          wji_awarded: boolean | null
+          wji_awarded_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          referral_code: string
+          referred_user_id: string
+          referrer_user_id: string
+          signup_ip?: string | null
+          wji_awarded?: boolean | null
+          wji_awarded_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          referral_code?: string
+          referred_user_id?: string
+          referrer_user_id?: string
+          signup_ip?: string | null
+          wji_awarded?: boolean | null
+          wji_awarded_at?: string | null
+        }
+        Relationships: []
+      }
       scholarship_applications: {
         Row: {
           admin_notes: string | null
@@ -579,11 +663,92 @@ export type Database = {
         }
         Relationships: []
       }
+      wji_balances: {
+        Row: {
+          balance: number
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          balance?: number
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          balance?: number
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      wji_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string | null
+          id: string
+          reference_id: string | null
+          transaction_type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          reference_id?: string | null
+          transaction_type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          reference_id?: string | null
+          transaction_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      generate_referral_code: { Args: never; Returns: string }
+      get_referred_users: {
+        Args: { p_referrer_id: string }
+        Returns: {
+          approval_date: string
+          referred_email: string
+          referred_name: string
+          referred_user_id: string
+          scholarship_status: string
+          signup_date: string
+          wji_generated: number
+        }[]
+      }
+      get_referrer_stats: {
+        Args: never
+        Returns: {
+          approved_referrals: number
+          fraud_count: number
+          is_enabled: boolean
+          referral_code: string
+          referrer_email: string
+          referrer_name: string
+          referrer_user_id: string
+          total_referrals: number
+          total_wji_earned: number
+        }[]
+      }
       get_scholarship_leaderboard: {
         Args: { p_program_id: string }
         Returns: {

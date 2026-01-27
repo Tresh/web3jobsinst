@@ -1,1 +1,4 @@
 project_id = "chmddvsbvhmwhfbvzlwt"
+
+[functions.wji-referral-handler]
+verify_jwt = false

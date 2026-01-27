@@ -108,6 +108,41 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const userRole = await fetchRole(currentSession.user.id);
             setRole(userRole);
             setIsLoading(false);
+
+            // Track referral on first login (new user signup)
+            if (event === "SIGNED_IN") {
+              const storedRefCode = sessionStorage.getItem("referral_code");
+              if (storedRefCode) {
+                // Track this referral relationship
+                try {
+                  const { data: referrerCode } = await supabase
+                    .from("scholar_referral_codes")
+                    .select("user_id")
+                    .eq("referral_code", storedRefCode)
+                    .maybeSingle();
+
+                  if (referrerCode && referrerCode.user_id !== currentSession.user.id) {
+                    // Check if already tracked
+                    const { data: existing } = await supabase
+                      .from("scholar_referrals")
+                      .select("id")
+                      .eq("referred_user_id", currentSession.user.id)
+                      .maybeSingle();
+
+                    if (!existing) {
+                      await supabase.from("scholar_referrals").insert({
+                        referrer_user_id: referrerCode.user_id,
+                        referred_user_id: currentSession.user.id,
+                        referral_code: storedRefCode,
+                      });
+                    }
+                  }
+                } catch (err) {
+                  console.error("Error tracking referral:", err);
+                }
+                sessionStorage.removeItem("referral_code");
+              }
+            }
           }, 0);
         } else {
           setProfile(null);

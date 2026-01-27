@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,8 +13,10 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { supabase } from "@/integrations/supabase/client";
 
 const Signup = () => {
+  const [searchParams] = useSearchParams();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -22,10 +24,21 @@ const Signup = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showEmailSentDialog, setShowEmailSentDialog] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState("");
+  const [referralCode, setReferralCode] = useState<string | null>(null);
   
   const { signUpWithEmail, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Capture referral code from URL
+  useEffect(() => {
+    const ref = searchParams.get("ref");
+    if (ref) {
+      setReferralCode(ref);
+      // Store in sessionStorage for later use after signup
+      sessionStorage.setItem("referral_code", ref);
+    }
+  }, [searchParams]);
 
   // Redirect if already logged in
   if (user) {
@@ -65,6 +78,8 @@ const Signup = () => {
         variant: "destructive",
       });
     } else {
+      // If there's a referral code, we'll track it after the user confirms their email
+      // The referral tracking happens when they first log in (handled in AuthContext)
       setSubmittedEmail(email);
       setShowEmailSentDialog(true);
     }
