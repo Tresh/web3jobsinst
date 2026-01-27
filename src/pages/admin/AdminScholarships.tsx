@@ -62,7 +62,7 @@ import type {
   ScholarshipTaskSubmission,
   ScholarshipModule,
 } from "@/types/scholarship";
-import { TasksTab, OverviewTab, ReferrersTab } from "@/components/admin/scholarship";
+import { TasksTab, OverviewTab, ReferrersTab, EmailHistoryTab } from "@/components/admin/scholarship";
 import { Link2 } from "lucide-react";
 
 const AdminScholarships = () => {
@@ -1685,7 +1685,7 @@ const AdminScholarships = () => {
         </TabsContent>
 
         {/* Email Broadcast Tab */}
-        <TabsContent value="email" className="space-y-4">
+        <TabsContent value="email" className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -1744,6 +1744,9 @@ const AdminScholarships = () => {
               </Button>
             </CardContent>
           </Card>
+          
+          {/* Email History */}
+          <EmailHistoryTab />
         </TabsContent>
       </Tabs>
     </div>

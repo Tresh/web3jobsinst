@@ -14,6 +14,95 @@ export type Database = {
   }
   public: {
     Tables: {
+      email_campaigns: {
+        Row: {
+          audience: string
+          body_preview: string
+          completed_at: string | null
+          created_at: string
+          delivered_count: number
+          failed_count: number
+          id: string
+          queued_count: number
+          sending_count: number
+          sent_by: string
+          status: string
+          subject: string
+          total_recipients: number
+        }
+        Insert: {
+          audience: string
+          body_preview: string
+          completed_at?: string | null
+          created_at?: string
+          delivered_count?: number
+          failed_count?: number
+          id?: string
+          queued_count?: number
+          sending_count?: number
+          sent_by: string
+          status?: string
+          subject: string
+          total_recipients?: number
+        }
+        Update: {
+          audience?: string
+          body_preview?: string
+          completed_at?: string | null
+          created_at?: string
+          delivered_count?: number
+          failed_count?: number
+          id?: string
+          queued_count?: number
+          sending_count?: number
+          sent_by?: string
+          status?: string
+          subject?: string
+          total_recipients?: number
+        }
+        Relationships: []
+      }
+      email_deliveries: {
+        Row: {
+          campaign_id: string
+          created_at: string
+          failure_reason: string | null
+          id: string
+          recipient_email: string
+          recipient_name: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          campaign_id: string
+          created_at?: string
+          failure_reason?: string | null
+          id?: string
+          recipient_email: string
+          recipient_name?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          campaign_id?: string
+          created_at?: string
+          failure_reason?: string | null
+          id?: string
+          recipient_email?: string
+          recipient_name?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_deliveries_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "email_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       password_reset_attempts: {
         Row: {
           attempt_count: number

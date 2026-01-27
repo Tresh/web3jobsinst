@@ -33,6 +33,15 @@ const handler = async (req: Request): Promise<Response> => {
     const supabase = createClient(supabaseUrl, supabaseKey);
     const resend = new Resend(resendApiKey);
 
+    // Get user from authorization header
+    const authHeader = req.headers.get("Authorization");
+    let sentByUserId: string | null = null;
+    if (authHeader) {
+      const token = authHeader.replace("Bearer ", "");
+      const { data: { user } } = await supabase.auth.getUser(token);
+      sentByUserId = user?.id || null;
+    }
+
     const { audience, subject, body }: BroadcastRequest = await req.json();
 
     if (!subject || !body) {
@@ -45,7 +54,6 @@ const handler = async (req: Request): Promise<Response> => {
     let recipients: { email: string; full_name: string | null }[] = [];
 
     if (audience === "scholars") {
-      // Get all approved scholars
       const { data: scholars, error } = await supabase
         .from("scholarship_applications")
         .select("email, full_name")
@@ -54,7 +62,6 @@ const handler = async (req: Request): Promise<Response> => {
       if (error) throw error;
       recipients = scholars || [];
     } else if (audience === "all_users") {
-      // Get all users from profiles table
       const { data: users, error } = await supabase
         .from("profiles")
         .select("email, full_name")
@@ -76,11 +83,59 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
+    // Create campaign record
+    const bodyPreview = body.length > 500 ? body.substring(0, 500) + "..." : body;
+    const { data: campaign, error: campaignError } = await supabase
+      .from("email_campaigns")
+      .insert({
+        subject,
+        body_preview: bodyPreview,
+        audience,
+        total_recipients: recipients.length,
+        queued_count: recipients.length,
+        sending_count: 0,
+        delivered_count: 0,
+        failed_count: 0,
+        status: "sending",
+        sent_by: sentByUserId || "00000000-0000-0000-0000-000000000000",
+      })
+      .select()
+      .single();
+
+    if (campaignError) {
+      console.error("Failed to create campaign:", campaignError);
+      // Continue sending even if logging fails
+    }
+
+    const campaignId = campaign?.id;
+
+    // Create delivery records for all recipients
+    if (campaignId) {
+      const deliveryRecords = recipients.map((r) => ({
+        campaign_id: campaignId,
+        recipient_email: r.email,
+        recipient_name: r.full_name,
+        status: "queued",
+      }));
+
+      await supabase.from("email_deliveries").insert(deliveryRecords);
+    }
+
     let emailsSent = 0;
+    let emailsFailed = 0;
     const errors: string[] = [];
 
     for (const recipient of recipients) {
       if (!recipient.email) continue;
+
+      // Update delivery status to sending
+      if (campaignId) {
+        await supabase
+          .from("email_deliveries")
+          .update({ status: "sending", updated_at: new Date().toISOString() })
+          .eq("campaign_id", campaignId)
+          .eq("recipient_email", recipient.email);
+      }
 
       const emailHtml = `
 <!DOCTYPE html>
@@ -116,20 +171,68 @@ const handler = async (req: Request): Promise<Response> => {
           html: emailHtml,
         });
         emailsSent++;
+
+        // Update delivery status to delivered
+        if (campaignId) {
+          await supabase
+            .from("email_deliveries")
+            .update({ status: "delivered", updated_at: new Date().toISOString() })
+            .eq("campaign_id", campaignId)
+            .eq("recipient_email", recipient.email);
+        }
       } catch (emailError) {
         console.error(`Failed to send email to ${recipient.email}:`, emailError);
         errors.push(recipient.email);
+        emailsFailed++;
+
+        // Update delivery status to failed with reason
+        if (campaignId) {
+          const failureReason = emailError instanceof Error ? emailError.message : "Unknown error";
+          await supabase
+            .from("email_deliveries")
+            .update({ 
+              status: "failed", 
+              failure_reason: failureReason,
+              updated_at: new Date().toISOString() 
+            })
+            .eq("campaign_id", campaignId)
+            .eq("recipient_email", recipient.email);
+        }
       }
     }
 
-    console.log(`Broadcast email sent to ${emailsSent} recipients`);
+    // Update campaign with final counts and status
+    if (campaignId) {
+      let finalStatus = "completed";
+      if (emailsFailed > 0 && emailsSent > 0) {
+        finalStatus = "partially_failed";
+      } else if (emailsFailed > 0 && emailsSent === 0) {
+        finalStatus = "failed";
+      }
+
+      await supabase
+        .from("email_campaigns")
+        .update({
+          queued_count: 0,
+          sending_count: 0,
+          delivered_count: emailsSent,
+          failed_count: emailsFailed,
+          status: finalStatus,
+          completed_at: new Date().toISOString(),
+        })
+        .eq("id", campaignId);
+    }
+
+    console.log(`Broadcast email sent to ${emailsSent} recipients, ${emailsFailed} failed`);
 
     return new Response(
       JSON.stringify({ 
         success: true, 
         message: `Broadcast email sent to ${emailsSent} recipients`,
         emailsSent,
+        emailsFailed,
         totalRecipients: recipients.length,
+        campaignId,
         errors: errors.length > 0 ? errors : undefined
       }),
       { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
