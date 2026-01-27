@@ -359,6 +359,18 @@ const AdminScholarships = () => {
           } catch (emailErr) {
             console.error("Email notification failed:", emailErr);
           }
+
+          // Check and award WJI referral bonus to referrer
+          try {
+            await supabase.functions.invoke("wji-referral-handler", {
+              body: {
+                action: "check_referral_on_approval",
+                user_id: app.user_id,
+              },
+            });
+          } catch (wjiErr) {
+            console.error("WJI referral check failed:", wjiErr);
+          }
         }
       }
 
@@ -702,7 +714,7 @@ const AdminScholarships = () => {
         await supabase.from("scholarship_notifications").insert(notifications);
       }
 
-      // Trigger email notifications via edge function
+      // Trigger email notifications and WJI referral checks via edge functions
       for (const app of approvedApps) {
         try {
           await supabase.functions.invoke("scholarship-notify", {
@@ -718,6 +730,18 @@ const AdminScholarships = () => {
           });
         } catch (emailErr) {
           console.error("Email notification failed for:", app.email, emailErr);
+        }
+
+        // Check and award WJI referral bonus to referrer
+        try {
+          await supabase.functions.invoke("wji-referral-handler", {
+            body: {
+              action: "check_referral_on_approval",
+              user_id: app.user_id,
+            },
+          });
+        } catch (wjiErr) {
+          console.error("WJI referral check failed for:", app.user_id, wjiErr);
         }
       }
 
