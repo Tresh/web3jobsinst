@@ -6,14 +6,26 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { Copy, Coins, CheckCircle } from "lucide-react";
+import { Copy, Coins, CheckCircle, Users, UserCheck, UserX } from "lucide-react";
+
+interface ReferralStats {
+  totalReferrals: number;
+  approvedReferrals: number;
+  failedReferrals: number;
+  pendingReferrals: number;
+}
 
 export function ReferralCard() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [referralCode, setReferralCode] = useState<string | null>(null);
   const [wjiBalance, setWjiBalance] = useState(0);
-  const [referralCount, setReferralCount] = useState(0);
+  const [stats, setStats] = useState<ReferralStats>({
+    totalReferrals: 0,
+    approvedReferrals: 0,
+    failedReferrals: 0,
+    pendingReferrals: 0,
+  });
   const [isLoading, setIsLoading] = useState(true);
   const [isCopied, setIsCopied] = useState(false);
   const [isLinkCopied, setIsLinkCopied] = useState(false);
@@ -59,13 +71,45 @@ export function ReferralCard() {
         setWjiBalance(balanceData.balance);
       }
 
-      // Get referral count
-      const { count } = await supabase
+      // Get all referrals made by this user
+      const { data: referrals } = await supabase
         .from("scholar_referrals")
-        .select("*", { count: "exact", head: true })
+        .select("id, referred_user_id, wji_awarded")
         .eq("referrer_user_id", user.id);
 
-      setReferralCount(count || 0);
+      if (referrals && referrals.length > 0) {
+        const totalReferrals = referrals.length;
+        
+        // Get fraud flags for this user's referrals
+        const { data: fraudFlags } = await supabase
+          .from("referral_fraud_flags")
+          .select("referred_user_id")
+          .eq("referrer_user_id", user.id);
+
+        const fraudgedReferredIds = new Set(fraudFlags?.map(f => f.referred_user_id) || []);
+        
+        // Count by state
+        let approvedCount = 0;
+        let failedCount = 0;
+        let pendingCount = 0;
+
+        for (const ref of referrals) {
+          if (fraudgedReferredIds.has(ref.referred_user_id)) {
+            failedCount++;
+          } else if (ref.wji_awarded) {
+            approvedCount++;
+          } else {
+            pendingCount++;
+          }
+        }
+
+        setStats({
+          totalReferrals,
+          approvedReferrals: approvedCount,
+          failedReferrals: failedCount,
+          pendingReferrals: pendingCount,
+        });
+      }
     } catch (error) {
       console.error("Error fetching referral data:", error);
     } finally {
@@ -122,18 +166,38 @@ export function ReferralCard() {
           When you refer your friends to the Web3 Jobs Institute Scholarship Program, you earn WJI — our upcoming in-app reward.
         </p>
         <p className="text-sm text-muted-foreground">
-          WJI will be used to unlock access to exclusive opportunities, tools, and benefits across the W3JI ecosystem.
+          Referrals are only approved after your friend completes their first task. Once approved, you'll automatically earn WJI, our upcoming in-app reward used to unlock exclusive opportunities across the W3JI ecosystem.
         </p>
 
-        {/* Stats Row */}
-        <div className="grid grid-cols-2 gap-3">
+        {/* Stats Row - 4 counters */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <div className="bg-background/50 rounded-lg p-3 text-center">
-            <div className="text-2xl font-bold text-amber-500">{wjiBalance}</div>
-            <div className="text-xs text-muted-foreground">WJI Earned</div>
+            <div className="flex items-center justify-center gap-1 mb-1">
+              <Users className="w-4 h-4 text-muted-foreground" />
+            </div>
+            <div className="text-2xl font-bold text-primary">{stats.totalReferrals}</div>
+            <div className="text-xs text-muted-foreground">Total Referrals</div>
           </div>
           <div className="bg-background/50 rounded-lg p-3 text-center">
-            <div className="text-2xl font-bold text-primary">{referralCount}</div>
-            <div className="text-xs text-muted-foreground">Referrals</div>
+            <div className="flex items-center justify-center gap-1 mb-1">
+              <UserCheck className="w-4 h-4 text-green-500" />
+            </div>
+            <div className="text-2xl font-bold text-green-500">{stats.approvedReferrals}</div>
+            <div className="text-xs text-muted-foreground">Approved</div>
+          </div>
+          <div className="bg-background/50 rounded-lg p-3 text-center">
+            <div className="flex items-center justify-center gap-1 mb-1">
+              <UserX className="w-4 h-4 text-red-500" />
+            </div>
+            <div className="text-2xl font-bold text-red-500">{stats.failedReferrals}</div>
+            <div className="text-xs text-muted-foreground">Failed</div>
+          </div>
+          <div className="bg-background/50 rounded-lg p-3 text-center">
+            <div className="flex items-center justify-center gap-1 mb-1">
+              <Coins className="w-4 h-4 text-amber-500" />
+            </div>
+            <div className="text-2xl font-bold text-amber-500">{wjiBalance}</div>
+            <div className="text-xs text-muted-foreground">WJI Earned</div>
           </div>
         </div>
 

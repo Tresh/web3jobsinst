@@ -6,13 +6,10 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// WJI Referral Program deadline: Sunday 23:59 UTC
-// Set to Feb 2, 2025 23:59:59 UTC as example - adjust as needed
-const REFERRAL_DEADLINE = new Date("2025-02-02T23:59:59Z");
 const DAILY_REFERRAL_CAP = 100;
 
 interface WJIAwardRequest {
-  action: "check_referral_on_approval" | "award_daily_activity" | "generate_code";
+  action: "check_first_task_completion" | "award_daily_activity" | "generate_code";
   user_id: string;
   referrer_id?: string;
   activity_type?: "task" | "course" | "module";
@@ -31,11 +28,7 @@ serve(async (req: Request) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const body: WJIAwardRequest = await req.json();
-    const { action, user_id, referrer_id, activity_type, reference_id, signup_ip } = body;
-
-    // Check if referral period is still active
-    const now = new Date();
-    const isReferralActive = now <= REFERRAL_DEADLINE;
+    const { action, user_id, activity_type, reference_id } = body;
 
     if (action === "generate_code") {
       // Generate referral code for approved scholar
@@ -78,9 +71,11 @@ serve(async (req: Request) => {
       );
     }
 
-    if (action === "check_referral_on_approval") {
-      // Called when a scholarship application is approved
-      // Check if this user was referred
+    if (action === "check_first_task_completion") {
+      // Called when a task submission is approved
+      // Check if this user was referred AND this is their FIRST approved task
+      
+      // First, check if this user was referred
       const { data: referral } = await supabase
         .from("scholar_referrals")
         .select("*, scholar_referral_codes!inner(user_id, is_enabled)")
@@ -89,12 +84,12 @@ serve(async (req: Request) => {
 
       if (!referral) {
         return new Response(
-          JSON.stringify({ success: true, message: "No referral found for this user" }),
+          JSON.stringify({ success: true, message: "User was not referred" }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
 
-      // Check if already awarded
+      // Check if WJI already awarded for this referral
       if (referral.wji_awarded) {
         return new Response(
           JSON.stringify({ success: true, message: "WJI already awarded for this referral" }),
@@ -102,10 +97,17 @@ serve(async (req: Request) => {
         );
       }
 
-      // Check if referral period is still active
-      if (!isReferralActive) {
+      // Check if this is the FIRST approved task for this user
+      const { count: approvedTaskCount } = await supabase
+        .from("scholarship_task_submissions")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", user_id)
+        .eq("status", "approved");
+
+      // Only award if this is their first approved task (count should be 1 after approval)
+      if ((approvedTaskCount || 0) !== 1) {
         return new Response(
-          JSON.stringify({ success: true, message: "Referral period has ended" }),
+          JSON.stringify({ success: true, message: "Not the first task completion" }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
@@ -205,7 +207,7 @@ serve(async (req: Request) => {
         amount: 1,
         transaction_type: "referral",
         reference_id: user_id,
-        description: `Referral bonus for referring a new scholar`,
+        description: `Referral bonus for referring a new scholar who completed their first task`,
       });
 
       // 3. Mark referral as awarded
@@ -215,21 +217,14 @@ serve(async (req: Request) => {
         .eq("id", referral.id);
 
       return new Response(
-        JSON.stringify({ success: true, message: "WJI awarded to referrer", amount: 1 }),
+        JSON.stringify({ success: true, message: "WJI awarded to referrer on first task completion", amount: 1 }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
     if (action === "award_daily_activity") {
       // Award WJI for daily activity (task, course, module completion)
-      // Only for referred scholars during the referral period
-
-      if (!isReferralActive) {
-        return new Response(
-          JSON.stringify({ success: true, message: "Referral period has ended" }),
-          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
+      // Only for referred scholars
 
       // Check if user was referred
       const { data: referral } = await supabase
