@@ -94,6 +94,11 @@ const AdminScholarships = () => {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc" | null>(null);
   const [isBatchApproving, setIsBatchApproving] = useState(false);
   const [isBatchRejecting, setIsBatchRejecting] = useState(false);
+  
+  // Batch selection for submissions
+  const [selectedSubmissionIds, setSelectedSubmissionIds] = useState<Set<string>>(new Set());
+  const [isBatchApprovingSubs, setIsBatchApprovingSubs] = useState(false);
+  const [isBatchRejectingSubs, setIsBatchRejectingSubs] = useState(false);
 
   // Form states
   const [isCreatingProgram, setIsCreatingProgram] = useState(false);
@@ -474,7 +479,7 @@ const AdminScholarships = () => {
     ? submissions
     : submissions.filter((s) => s.status === submissionFilter);
   
-  // Batch selection helpers
+  // Batch selection helpers for applications
   const toggleApplicationSelection = (id: string) => {
     setSelectedApplicationIds((prev) => {
       const next = new Set(prev);
@@ -493,6 +498,126 @@ const AdminScholarships = () => {
       setSelectedApplicationIds(new Set());
     } else {
       setSelectedApplicationIds(new Set(pendingApps.map((a) => a.id)));
+    }
+  };
+
+  // Batch selection helpers for submissions
+  const toggleSubmissionSelection = (id: string) => {
+    setSelectedSubmissionIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const toggleSelectAllSubmissions = () => {
+    const pendingSubs = filteredSubmissions.filter((s) => s.status === "pending");
+    if (selectedSubmissionIds.size === pendingSubs.length && pendingSubs.length > 0) {
+      setSelectedSubmissionIds(new Set());
+    } else {
+      setSelectedSubmissionIds(new Set(pendingSubs.map((s) => s.id)));
+    }
+  };
+
+  // Batch approve submissions
+  const batchApproveSubmissions = async () => {
+    if (selectedSubmissionIds.size === 0) return;
+    setIsBatchApprovingSubs(true);
+
+    try {
+      const subsToApprove = filteredSubmissions.filter(
+        (s) => selectedSubmissionIds.has(s.id) && s.status === "pending"
+      );
+
+      for (const sub of subsToApprove) {
+        const xpValue = sub.task?.xp_value || 0;
+        const { error } = await supabase
+          .from("scholarship_task_submissions")
+          .update({
+            status: "approved",
+            xp_awarded: xpValue,
+            reviewed_by: user?.id,
+            reviewed_at: new Date().toISOString(),
+          })
+          .eq("id", sub.id)
+          .eq("status", "pending"); // Only update if still pending (idempotent)
+
+        if (!error && xpValue > 0) {
+          // Award XP - the trigger handles this but we also update directly for safety
+          const applicant = applications.find((a) => a.user_id === sub.user_id);
+          if (applicant) {
+            const currentXp = applicant.total_xp || 0;
+            await supabase
+              .from("scholarship_applications")
+              .update({ total_xp: currentXp + xpValue })
+              .eq("user_id", sub.user_id);
+          }
+
+          // Create notification
+          await supabase.from("scholarship_notifications").insert({
+            user_id: sub.user_id,
+            title: "Task Approved! 🎉",
+            message: `Your submission for "${sub.task?.title}" was approved. You earned ${xpValue} XP!`,
+            type: "task_approved",
+            metadata: { submission_id: sub.id },
+          });
+        }
+      }
+
+      toast({ title: "Batch approved", description: `${subsToApprove.length} submission(s) approved` });
+      setSelectedSubmissionIds(new Set());
+      fetchData();
+    } catch (err) {
+      toast({ title: "Error", description: "Failed to batch approve", variant: "destructive" });
+    } finally {
+      setIsBatchApprovingSubs(false);
+    }
+  };
+
+  // Batch reject submissions
+  const batchRejectSubmissions = async () => {
+    if (selectedSubmissionIds.size === 0) return;
+    setIsBatchRejectingSubs(true);
+
+    try {
+      const subsToReject = filteredSubmissions.filter(
+        (s) => selectedSubmissionIds.has(s.id) && s.status === "pending"
+      );
+
+      for (const sub of subsToReject) {
+        const { error } = await supabase
+          .from("scholarship_task_submissions")
+          .update({
+            status: "rejected",
+            reviewed_by: user?.id,
+            reviewed_at: new Date().toISOString(),
+            rejection_reason: "Rejected via batch action",
+          })
+          .eq("id", sub.id)
+          .eq("status", "pending");
+
+        if (!error) {
+          await supabase.from("scholarship_notifications").insert({
+            user_id: sub.user_id,
+            title: "Task Rejected",
+            message: `Your submission for "${sub.task?.title}" was rejected.`,
+            type: "task_rejected",
+            metadata: { submission_id: sub.id },
+          });
+        }
+      }
+
+      toast({ title: "Batch rejected", description: `${subsToReject.length} submission(s) rejected` });
+      setSelectedSubmissionIds(new Set());
+      fetchData();
+    } catch (err) {
+      toast({ title: "Error", description: "Failed to batch reject", variant: "destructive" });
+    } finally {
+      setIsBatchRejectingSubs(false);
     }
   };
 
@@ -732,22 +857,59 @@ const AdminScholarships = () => {
         <TabsContent value="submissions" className="space-y-4">
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between flex-wrap gap-4">
                 <div>
                   <CardTitle>Task Submissions</CardTitle>
                   <CardDescription>Review and approve/reject scholar task submissions</CardDescription>
                 </div>
-                <Select value={submissionFilter} onValueChange={setSubmissionFilter}>
-                  <SelectTrigger className="w-[150px]">
-                    <SelectValue placeholder="Filter" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="approved">Approved</SelectItem>
-                    <SelectItem value="rejected">Rejected</SelectItem>
-                  </SelectContent>
-                </Select>
+                <div className="flex items-center gap-2">
+                  {selectedSubmissionIds.size > 0 && (
+                    <>
+                      <span className="text-sm text-muted-foreground">
+                        {selectedSubmissionIds.size} selected
+                      </span>
+                      <Button
+                        size="sm"
+                        onClick={batchApproveSubmissions}
+                        disabled={isBatchApprovingSubs || isBatchRejectingSubs}
+                      >
+                        {isBatchApprovingSubs ? (
+                          <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                        ) : (
+                          <CheckCircle className="w-4 h-4 mr-1" />
+                        )}
+                        Approve Selected
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={batchRejectSubmissions}
+                        disabled={isBatchApprovingSubs || isBatchRejectingSubs}
+                      >
+                        {isBatchRejectingSubs ? (
+                          <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                        ) : (
+                          <XCircle className="w-4 h-4 mr-1" />
+                        )}
+                        Reject Selected
+                      </Button>
+                    </>
+                  )}
+                  <Select value={submissionFilter} onValueChange={(v) => {
+                    setSubmissionFilter(v);
+                    setSelectedSubmissionIds(new Set());
+                  }}>
+                    <SelectTrigger className="w-[150px]">
+                      <SelectValue placeholder="Filter" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All</SelectItem>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="approved">Approved</SelectItem>
+                      <SelectItem value="rejected">Rejected</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </CardHeader>
             <CardContent>
@@ -759,6 +921,16 @@ const AdminScholarships = () => {
                 <Table>
                   <TableHeader>
                     <TableRow>
+                      <TableHead className="w-[50px]">
+                        <Checkbox
+                          checked={
+                            filteredSubmissions.filter((s) => s.status === "pending").length > 0 &&
+                            selectedSubmissionIds.size === filteredSubmissions.filter((s) => s.status === "pending").length
+                          }
+                          onCheckedChange={toggleSelectAllSubmissions}
+                          aria-label="Select all pending submissions"
+                        />
+                      </TableHead>
                       <TableHead>Scholar</TableHead>
                       <TableHead>Task</TableHead>
                       <TableHead>Submission</TableHead>
@@ -769,6 +941,17 @@ const AdminScholarships = () => {
                   <TableBody>
                     {filteredSubmissions.map((sub) => (
                       <TableRow key={sub.id}>
+                        <TableCell>
+                          {sub.status === "pending" ? (
+                            <Checkbox
+                              checked={selectedSubmissionIds.has(sub.id)}
+                              onCheckedChange={() => toggleSubmissionSelection(sub.id)}
+                              aria-label={`Select submission from ${sub.applicant?.full_name}`}
+                            />
+                          ) : (
+                            <span className="w-4 h-4 block" />
+                          )}
+                        </TableCell>
                         <TableCell>
                           <p className="font-medium">{sub.applicant?.full_name || "Unknown"}</p>
                           <p className="text-xs text-muted-foreground">{sub.applicant?.email}</p>
@@ -881,7 +1064,7 @@ const AdminScholarships = () => {
                     ))}
                     {filteredSubmissions.length === 0 && (
                       <TableRow>
-                        <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                        <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                           No submissions found
                         </TableCell>
                       </TableRow>
