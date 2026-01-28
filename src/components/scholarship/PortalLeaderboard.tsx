@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Trophy, Medal, Zap } from "lucide-react";
+import { Trophy, Medal, Zap, Coins } from "lucide-react";
 import type { LeaderboardEntry } from "@/types/scholarship";
 
 interface PortalLeaderboardProps {
@@ -60,10 +60,16 @@ export function PortalLeaderboard({ leaderboard, currentUserId }: PortalLeaderbo
               </div>
               <div className="text-right">
                 <p className="text-3xl font-bold">#{currentUserEntry.rank}</p>
-                <p className="text-sm text-muted-foreground flex items-center gap-1 justify-end">
-                  <Zap className="w-4 h-4 text-yellow-500" />
-                  {currentUserEntry.total_xp} XP
-                </p>
+                <div className="flex items-center gap-3 justify-end">
+                  <p className="text-sm text-muted-foreground flex items-center gap-1">
+                    <Zap className="w-4 h-4 text-yellow-500" />
+                    {currentUserEntry.total_xp} XP
+                  </p>
+                  <p className="text-sm text-muted-foreground flex items-center gap-1">
+                    <Coins className="w-4 h-4 text-amber-500" />
+                    {currentUserEntry.wji_earned} WJI
+                  </p>
+                </div>
               </div>
             </div>
           </CardContent>
@@ -109,10 +115,17 @@ export function PortalLeaderboard({ leaderboard, currentUserId }: PortalLeaderbo
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Zap className="w-4 h-4 text-yellow-500" />
-                    <span className="font-semibold">{entry.total_xp}</span>
-                    <span className="text-muted-foreground text-sm">XP</span>
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2">
+                      <Zap className="w-4 h-4 text-yellow-500" />
+                      <span className="font-semibold">{entry.total_xp}</span>
+                      <span className="text-muted-foreground text-sm">XP</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Coins className="w-4 h-4 text-amber-500" />
+                      <span className="font-semibold">{entry.wji_earned}</span>
+                      <span className="text-muted-foreground text-sm">WJI</span>
+                    </div>
                   </div>
                 </div>
               );

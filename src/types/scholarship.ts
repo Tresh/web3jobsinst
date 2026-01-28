@@ -114,6 +114,7 @@ export interface LeaderboardEntry {
   full_name: string;
   total_xp: number;
   rank: number;
+  wji_earned: number;
 }
 
 export type TaskType = ScholarshipTask["task_type"];
