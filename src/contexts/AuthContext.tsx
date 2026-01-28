@@ -26,7 +26,7 @@ interface AuthContextType {
   signInWithGoogle: () => Promise<void>;
   signInWithTwitter: () => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<{ error: Error | null }>;
-  signUpWithEmail: (email: string, password: string, fullName?: string) => Promise<{ error: Error | null }>;
+  signUpWithEmail: (email: string, password: string, fullName?: string, referralCode?: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   refreshRole: () => Promise<void>;
 }
@@ -111,14 +111,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
             // Track referral on first login (new user signup)
             if (event === "SIGNED_IN") {
+              // Check sessionStorage first, then fall back to user metadata
               const storedRefCode = sessionStorage.getItem("referral_code");
-              if (storedRefCode) {
+              const metadataRefCode = currentSession.user.user_metadata?.referral_code;
+              const referralCode = storedRefCode || metadataRefCode;
+              
+              if (referralCode) {
                 // Track this referral relationship
                 try {
                   const { data: referrerCode } = await supabase
                     .from("scholar_referral_codes")
                     .select("user_id")
-                    .eq("referral_code", storedRefCode)
+                    .eq("referral_code", referralCode)
                     .maybeSingle();
 
                   if (referrerCode && referrerCode.user_id !== currentSession.user.id) {
@@ -133,8 +137,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                       await supabase.from("scholar_referrals").insert({
                         referrer_user_id: referrerCode.user_id,
                         referred_user_id: currentSession.user.id,
-                        referral_code: storedRefCode,
+                        referral_code: referralCode,
                       });
+                      console.log("Referral tracked successfully:", referralCode);
                     }
                   }
                 } catch (err) {
@@ -193,7 +198,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return { error: error as Error | null };
   };
 
-  const signUpWithEmail = async (email: string, password: string, fullName?: string) => {
+  const signUpWithEmail = async (email: string, password: string, fullName?: string, referralCode?: string) => {
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -201,6 +206,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         emailRedirectTo: window.location.origin,
         data: {
           full_name: fullName,
+          referral_code: referralCode || undefined,
         },
       },
     });

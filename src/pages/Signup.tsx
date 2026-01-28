@@ -53,12 +53,6 @@ const Signup = () => {
     }
   }, [referralCode]);
 
-  // Redirect if already logged in
-  if (user) {
-    navigate("/dashboard", { replace: true });
-    return null;
-  }
-
   // Clear errors when user types
   useEffect(() => {
     if (passwordError && password === confirmPassword) {
@@ -70,7 +64,7 @@ const Signup = () => {
     if (emailError) {
       setEmailError("");
     }
-  }, [email]);
+  }, [email, emailError]);
 
   // Resend cooldown timer
   useEffect(() => {
@@ -79,6 +73,12 @@ const Signup = () => {
       return () => clearTimeout(timer);
     }
   }, [resendCooldown]);
+
+  // Redirect if already logged in
+  if (user) {
+    navigate("/dashboard", { replace: true });
+    return null;
+  }
 
   const handleResendConfirmation = async () => {
     if (resendCooldown > 0 || isResending) return;
@@ -135,7 +135,7 @@ const Signup = () => {
 
     setIsLoading(true);
 
-    const { error } = await signUpWithEmail(email, password, fullName);
+    const { error } = await signUpWithEmail(email, password, fullName, referralCode.trim() || undefined);
     
     if (error) {
       // Check for existing user error
