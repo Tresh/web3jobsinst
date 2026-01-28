@@ -28,6 +28,7 @@ import {
   ShieldCheck,
   GraduationCap,
   Menu,
+  Bug,
 } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -75,6 +76,11 @@ const settingsNavItems = [
     title: "Roles & Permissions",
     icon: ShieldCheck,
     href: "/admin/roles",
+  },
+  {
+    title: "Bug Reports",
+    icon: Bug,
+    href: "/admin/bug-reports",
   },
   {
     title: "Settings",

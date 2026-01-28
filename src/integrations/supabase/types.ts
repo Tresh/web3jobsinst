@@ -14,6 +14,63 @@ export type Database = {
   }
   public: {
     Tables: {
+      bug_reports: {
+        Row: {
+          admin_notes: string | null
+          browser_info: string | null
+          created_at: string
+          description: string
+          device_info: string | null
+          id: string
+          page_url: string | null
+          reporter_email: string | null
+          reporter_name: string | null
+          reporter_user_id: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          screenshot_urls: string[] | null
+          status: Database["public"]["Enums"]["bug_report_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          browser_info?: string | null
+          created_at?: string
+          description: string
+          device_info?: string | null
+          id?: string
+          page_url?: string | null
+          reporter_email?: string | null
+          reporter_name?: string | null
+          reporter_user_id?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          screenshot_urls?: string[] | null
+          status?: Database["public"]["Enums"]["bug_report_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          browser_info?: string | null
+          created_at?: string
+          description?: string
+          device_info?: string | null
+          id?: string
+          page_url?: string | null
+          reporter_email?: string | null
+          reporter_name?: string | null
+          reporter_user_id?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          screenshot_urls?: string[] | null
+          status?: Database["public"]["Enums"]["bug_report_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       email_campaigns: {
         Row: {
           audience: string
@@ -861,6 +918,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
+      bug_report_status: "new" | "in_review" | "resolved" | "ignored"
       scholarship_status: "pending" | "approved" | "rejected" | "waitlist"
     }
     CompositeTypes: {
@@ -990,6 +1048,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user"],
+      bug_report_status: ["new", "in_review", "resolved", "ignored"],
       scholarship_status: ["pending", "approved", "rejected", "waitlist"],
     },
   },
