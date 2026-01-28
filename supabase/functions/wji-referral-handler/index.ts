@@ -73,27 +73,48 @@ serve(async (req: Request) => {
 
     if (action === "generate_codes_bulk") {
       // Generate referral codes for users who don't have one
-      const BATCH_LIMIT = 50;
+      const BATCH_LIMIT = 100;
 
-      // Use a proper LEFT JOIN to find users without codes
-      const { data: usersWithoutCodes, error: queryError } = await supabase
-        .rpc("generate_referral_code"); // Just to test RPC works
+      // Paginate to get ALL existing codes (Supabase has 1000 row limit)
+      const existingUserIds = new Set<string>();
+      let codesPage = 0;
+      const PAGE_SIZE = 1000;
+      
+      while (true) {
+        const { data: codesBatch } = await supabase
+          .from("scholar_referral_codes")
+          .select("user_id")
+          .range(codesPage * PAGE_SIZE, (codesPage + 1) * PAGE_SIZE - 1);
+        
+        if (!codesBatch || codesBatch.length === 0) break;
+        codesBatch.forEach(c => existingUserIds.add(c.user_id));
+        if (codesBatch.length < PAGE_SIZE) break;
+        codesPage++;
+      }
 
-      // Get profiles that don't have referral codes using raw approach
-      const { data: allProfiles } = await supabase
-        .from("profiles")
-        .select("user_id")
-        .order("created_at", { ascending: false })
-        .limit(1000);
+      // Paginate to get ALL profiles
+      const allProfileUserIds: string[] = [];
+      let profilesPage = 0;
+      
+      while (true) {
+        const { data: profilesBatch } = await supabase
+          .from("profiles")
+          .select("user_id")
+          .order("created_at", { ascending: true })
+          .range(profilesPage * PAGE_SIZE, (profilesPage + 1) * PAGE_SIZE - 1);
+        
+        if (!profilesBatch || profilesBatch.length === 0) break;
+        profilesBatch.forEach(p => allProfileUserIds.push(p.user_id));
+        if (profilesBatch.length < PAGE_SIZE) break;
+        profilesPage++;
+      }
 
-      const { data: allCodes } = await supabase
-        .from("scholar_referral_codes")
-        .select("user_id")
-        .limit(2000);
+      console.log(`Fetched ${existingUserIds.size} existing codes (paginated)`);
+      console.log(`Fetched ${allProfileUserIds.length} profiles (paginated)`);
 
-      const codesUserIds = new Set((allCodes || []).map(c => c.user_id));
-      const usersNeedingCodes = (allProfiles || [])
-        .filter(p => !codesUserIds.has(p.user_id))
+      // Filter to only those without codes
+      const usersNeedingCodes = allProfileUserIds
+        .filter(uid => !existingUserIds.has(uid))
         .slice(0, BATCH_LIMIT);
 
       console.log(`Found ${usersNeedingCodes.length} users needing codes`);
@@ -102,7 +123,7 @@ serve(async (req: Request) => {
       const errors: string[] = [];
       const createdCodes: string[] = [];
 
-      for (const { user_id: userId } of usersNeedingCodes) {
+      for (const userId of usersNeedingCodes) {
         try {
           // Generate unique code
           const { data: codeData } = await supabase.rpc("generate_referral_code");
@@ -126,14 +147,20 @@ serve(async (req: Request) => {
         }
       }
 
-      // Count actual remaining after this batch
-      const { data: newAllCodes } = await supabase
-        .from("scholar_referral_codes")
-        .select("user_id")
-        .limit(2000);
-
-      const newCodesUserIds = new Set((newAllCodes || []).map(c => c.user_id));
-      const stillRemaining = (allProfiles || []).filter(p => !newCodesUserIds.has(p.user_id)).length;
+      // Count actual remaining after this batch (re-query)
+      const newCodesUserIds = new Set<string>();
+      let newCodesPage = 0;
+      while (true) {
+        const { data: batch } = await supabase
+          .from("scholar_referral_codes")
+          .select("user_id")
+          .range(newCodesPage * PAGE_SIZE, (newCodesPage + 1) * PAGE_SIZE - 1);
+        if (!batch || batch.length === 0) break;
+        batch.forEach(c => newCodesUserIds.add(c.user_id));
+        if (batch.length < PAGE_SIZE) break;
+        newCodesPage++;
+      }
+      const stillRemaining = allProfileUserIds.filter(uid => !newCodesUserIds.has(uid)).length;
 
       return new Response(
         JSON.stringify({ 
