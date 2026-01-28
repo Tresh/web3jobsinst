@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { Copy, Coins, CheckCircle, Users, UserCheck, UserX } from "lucide-react";
+import { Copy, Coins, CheckCircle, Users, UserCheck, UserX, Clock } from "lucide-react";
 
 interface ReferralStats {
   totalReferrals: number;
@@ -203,13 +203,20 @@ export function ReferralCard() {
         </p>
 
         {/* Stats Row - 4 counters */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           <div className="bg-background/50 rounded-lg p-3 text-center">
             <div className="flex items-center justify-center gap-1 mb-1">
               <Users className="w-4 h-4 text-muted-foreground" />
             </div>
             <div className="text-2xl font-bold text-primary">{stats.totalReferrals}</div>
-            <div className="text-xs text-muted-foreground">Total Referrals</div>
+            <div className="text-xs text-muted-foreground">Total</div>
+          </div>
+          <div className="bg-background/50 rounded-lg p-3 text-center">
+            <div className="flex items-center justify-center gap-1 mb-1">
+              <Clock className="w-4 h-4 text-yellow-500" />
+            </div>
+            <div className="text-2xl font-bold text-yellow-500">{stats.pendingReferrals}</div>
+            <div className="text-xs text-muted-foreground">Pending</div>
           </div>
           <div className="bg-background/50 rounded-lg p-3 text-center">
             <div className="flex items-center justify-center gap-1 mb-1">
