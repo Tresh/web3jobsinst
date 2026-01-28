@@ -902,6 +902,7 @@ export type Database = {
           rank: number
           total_xp: number
           user_id: string
+          wji_earned: number
         }[]
       }
       get_user_role: {
