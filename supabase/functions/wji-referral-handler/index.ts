@@ -9,8 +9,8 @@ const corsHeaders = {
 const DAILY_REFERRAL_CAP = 100;
 
 interface WJIAwardRequest {
-  action: "check_first_task_completion" | "award_daily_activity" | "generate_code";
-  user_id: string;
+  action: "check_first_task_completion" | "award_daily_activity" | "generate_code" | "generate_codes_bulk";
+  user_id?: string;
   referrer_id?: string;
   activity_type?: "task" | "course" | "module";
   reference_id?: string;
@@ -67,6 +67,83 @@ serve(async (req: Request) => {
 
       return new Response(
         JSON.stringify({ success: true, referral_code: code }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (action === "generate_codes_bulk") {
+      // Generate referral codes for users who don't have one
+      const BATCH_LIMIT = 50;
+
+      // Use a proper LEFT JOIN to find users without codes
+      const { data: usersWithoutCodes, error: queryError } = await supabase
+        .rpc("generate_referral_code"); // Just to test RPC works
+
+      // Get profiles that don't have referral codes using raw approach
+      const { data: allProfiles } = await supabase
+        .from("profiles")
+        .select("user_id")
+        .order("created_at", { ascending: false })
+        .limit(1000);
+
+      const { data: allCodes } = await supabase
+        .from("scholar_referral_codes")
+        .select("user_id")
+        .limit(2000);
+
+      const codesUserIds = new Set((allCodes || []).map(c => c.user_id));
+      const usersNeedingCodes = (allProfiles || [])
+        .filter(p => !codesUserIds.has(p.user_id))
+        .slice(0, BATCH_LIMIT);
+
+      console.log(`Found ${usersNeedingCodes.length} users needing codes`);
+
+      let codesCreated = 0;
+      const errors: string[] = [];
+      const createdCodes: string[] = [];
+
+      for (const { user_id: userId } of usersNeedingCodes) {
+        try {
+          // Generate unique code
+          const { data: codeData } = await supabase.rpc("generate_referral_code");
+          const code = codeData as string;
+          
+          if (code) {
+            const { error: insertError } = await supabase
+              .from("scholar_referral_codes")
+              .insert({ user_id: userId, referral_code: code });
+
+            if (!insertError) {
+              codesCreated++;
+              createdCodes.push(code);
+            } else {
+              errors.push(`${userId.substring(0,8)}: ${insertError.message}`);
+            }
+          }
+        } catch (err) {
+          const errMsg = err instanceof Error ? err.message : String(err);
+          errors.push(`${userId.substring(0,8)}: ${errMsg}`);
+        }
+      }
+
+      // Count actual remaining after this batch
+      const { data: newAllCodes } = await supabase
+        .from("scholar_referral_codes")
+        .select("user_id")
+        .limit(2000);
+
+      const newCodesUserIds = new Set((newAllCodes || []).map(c => c.user_id));
+      const stillRemaining = (allProfiles || []).filter(p => !newCodesUserIds.has(p.user_id)).length;
+
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          codes_created: codesCreated,
+          users_processed: usersNeedingCodes.length,
+          remaining_users: stillRemaining,
+          sample_codes: createdCodes.slice(0, 5),
+          errors: errors.slice(0, 5)
+        }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
