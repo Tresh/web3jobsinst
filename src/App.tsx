@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import BugReportButton from "@/components/BugReportButton";
 
 import Index from "./pages/Index";
 import Courses from "./pages/Courses";
@@ -48,6 +49,7 @@ import AdminRoles from "./pages/admin/AdminRoles";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminScholarships from "./pages/admin/AdminScholarships";
 import AdminScholarshipTasks from "./pages/admin/AdminScholarshipTasks";
+import AdminBugReports from "./pages/admin/AdminBugReports";
 
 const queryClient = new QueryClient();
 
@@ -57,6 +59,7 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
+        <BugReportButton />
         <BrowserRouter>
           <Routes>
             {/* Public routes */}
@@ -136,6 +139,7 @@ const App = () => (
                   </ProtectedRoute>
                 }
               />
+              <Route path="bug-reports" element={<AdminBugReports />} />
               <Route path="settings" element={<AdminSettings />} />
             </Route>
 
