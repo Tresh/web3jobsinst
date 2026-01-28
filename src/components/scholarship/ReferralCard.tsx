@@ -36,6 +36,39 @@ export function ReferralCard() {
     }
   }, [user]);
 
+  // Realtime subscription for referral and WJI updates
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel(`referral-updates-${user.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "scholar_referrals",
+          filter: `referrer_user_id=eq.${user.id}`,
+        },
+        () => fetchReferralData()
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "wji_balances",
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => fetchReferralData()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id]);
+
   const fetchReferralData = async () => {
     if (!user) return;
     setIsLoading(true);
