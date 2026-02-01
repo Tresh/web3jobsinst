@@ -9,6 +9,8 @@ import BugReportButton from "@/components/BugReportButton";
 
 import Index from "./pages/Index";
 import Courses from "./pages/Courses";
+import CourseDetailPage from "./pages/courses/CourseDetailPage";
+import LessonPlayerPage from "./pages/courses/LessonPlayerPage";
 import Products from "./pages/Products";
 import Affiliates from "./pages/Affiliates";
 import TalentMarket from "./pages/TalentMarket";
@@ -66,6 +68,8 @@ const App = () => (
             {/* Public routes */}
             <Route path="/" element={<Index />} />
             <Route path="/courses" element={<Courses />} />
+            <Route path="/courses/:slug" element={<CourseDetailPage />} />
+            <Route path="/learn/:slug/:lessonId" element={<LessonPlayerPage />} />
             <Route path="/products" element={<Products />} />
             <Route path="/affiliates" element={<Affiliates />} />
             <Route path="/talent" element={<TalentMarket />} />
