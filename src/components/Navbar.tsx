@@ -37,7 +37,7 @@ const mainLinks: NavLink[] = [
 const opportunityLinks: NavLink[] = [
   { label: "Become a Tutor", href: "/tutors" },
   { label: "Verified Institutions", href: "/institutions" },
-  { label: "Bootcamp", comingSoon: "Bootcamp Coming Soon" },
+  { label: "Bootcamps", href: "/bootcamps" },
   { label: "Affiliates", comingSoon: "Affiliates Coming Soon" },
   { label: "Jobs", comingSoon: "Jobs Board Coming Soon" },
 ];
