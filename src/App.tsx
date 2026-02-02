@@ -28,6 +28,9 @@ import ResetPassword from "./pages/ResetPassword";
 import Tutors from "./pages/Tutors";
 import Institutions from "./pages/Institutions";
 import InstitutionPortal from "./pages/InstitutionPortal";
+import Bootcamps from "./pages/Bootcamps";
+import BootcampDetail from "./pages/BootcampDetail";
+import BootcampCreate from "./pages/BootcampCreate";
 
 // User Dashboard
 import Dashboard from "./pages/Dashboard";
@@ -53,7 +56,7 @@ import AdminSettings from "./pages/admin/AdminSettings";
 import AdminScholarships from "./pages/admin/AdminScholarships";
 import AdminScholarshipTasks from "./pages/admin/AdminScholarshipTasks";
 import AdminBugReports from "./pages/admin/AdminBugReports";
-
+import AdminBootcamps from "./pages/admin/AdminBootcamps";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -96,6 +99,17 @@ const App = () => (
             <Route path="/institutions" element={<Institutions />} />
             <Route path="/institutions/:slug" element={<InstitutionPortal />} />
 
+            {/* Bootcamp routes */}
+            <Route path="/bootcamps" element={<Bootcamps />} />
+            <Route path="/bootcamps/:id" element={<BootcampDetail />} />
+            <Route
+              path="/bootcamps/create"
+              element={
+                <ProtectedRoute>
+                  <BootcampCreate />
+                </ProtectedRoute>
+              }
+            />
             {/* User Dashboard routes */}
             <Route
               path="/dashboard"
@@ -146,6 +160,7 @@ const App = () => (
                 }
               />
               <Route path="bug-reports" element={<AdminBugReports />} />
+              <Route path="bootcamps" element={<AdminBootcamps />} />
               <Route path="settings" element={<AdminSettings />} />
             </Route>
 

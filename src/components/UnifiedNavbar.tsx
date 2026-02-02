@@ -30,6 +30,7 @@ interface NavLink {
 
 const mainLinks: NavLink[] = [
   { label: "Courses", href: "/courses" },
+  { label: "Bootcamps", href: "/bootcamps" },
   { label: "Digital Products", href: "/products" },
   { label: "Talent Market", href: "/talent" },
   { label: "Campaigns", href: "/campaigns" },
@@ -38,7 +39,6 @@ const mainLinks: NavLink[] = [
 const opportunityLinks: NavLink[] = [
   { label: "Become a Tutor", href: "/tutors" },
   { label: "Verified Institutions", href: "/institutions" },
-  { label: "Bootcamp", comingSoon: "Bootcamp Coming Soon" },
   { label: "Affiliates", comingSoon: "Affiliates Coming Soon" },
   { label: "Jobs", comingSoon: "Jobs Board Coming Soon" },
 ];
