@@ -2,53 +2,12 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { ArrowRight, TrendingUp, Users, Zap, Globe } from "lucide-react";
-import { useEffect, useState } from "react";
+import { usePlatformStats } from "@/hooks/usePlatformStats";
 
 const MarketplaceHero = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-
-  // Animated stats with incrementing effect
-  const [stats, setStats] = useState({
-    scholars: 0,
-    tasksCompleted: 0,
-    xpEarned: 0,
-    countries: 0,
-  });
-
-  useEffect(() => {
-    const targetStats = {
-      scholars: 523,
-      tasksCompleted: 2847,
-      xpEarned: 156420,
-      countries: 24,
-    };
-
-    const duration = 2000;
-    const steps = 60;
-    const stepTime = duration / steps;
-
-    let currentStep = 0;
-    const interval = setInterval(() => {
-      currentStep++;
-      const progress = currentStep / steps;
-      const easeOut = 1 - Math.pow(1 - progress, 3);
-
-      setStats({
-        scholars: Math.floor(targetStats.scholars * easeOut),
-        tasksCompleted: Math.floor(targetStats.tasksCompleted * easeOut),
-        xpEarned: Math.floor(targetStats.xpEarned * easeOut),
-        countries: Math.floor(targetStats.countries * easeOut),
-      });
-
-      if (currentStep >= steps) {
-        clearInterval(interval);
-        setStats(targetStats);
-      }
-    }, stepTime);
-
-    return () => clearInterval(interval);
-  }, []);
+  const { data: stats } = usePlatformStats();
 
   const handleScholarshipClick = () => {
     if (!user) {
@@ -104,7 +63,7 @@ const MarketplaceHero = () => {
               size="lg" 
               variant="outline"
               onClick={() => navigate("/products")}
-              className="w-full sm:w-auto"
+              className="w-full sm:w-auto border-background/30 text-background hover:bg-background/10"
             >
               Explore Products
             </Button>
@@ -139,22 +98,22 @@ const MarketplaceHero = () => {
         <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
           <StatCard 
             icon={<Users className="w-5 h-5 text-primary" />}
-            value={stats.scholars.toLocaleString()}
-            label="Active Scholars"
+            value={`${((stats?.totalSignups || 2109) / 1000).toFixed(1)}K+`}
+            label="Total Signups"
           />
           <StatCard 
             icon={<Zap className="w-5 h-5 text-primary" />}
-            value={stats.tasksCompleted.toLocaleString()}
-            label="Tasks Completed"
+            value={`${((stats?.activeScholars || 1193)).toLocaleString()}+`}
+            label="Active Scholars"
           />
           <StatCard 
             icon={<TrendingUp className="w-5 h-5 text-primary" />}
-            value={stats.xpEarned.toLocaleString()}
-            label="XP Earned"
+            value={`${((stats?.tasksCompleted || 2720)).toLocaleString()}+`}
+            label="Tasks Completed"
           />
           <StatCard 
             icon={<Globe className="w-5 h-5 text-primary" />}
-            value={`${stats.countries}+`}
+            value={`${stats?.countries || 37}+`}
             label="Countries"
           />
         </div>

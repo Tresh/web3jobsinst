@@ -5,80 +5,78 @@ import {
   Rocket, 
   Trophy, 
   BookOpen, 
-  Users,
-  ArrowRight,
-  Clock,
-  Zap,
-  TrendingUp
+  ArrowRight
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-
-const happeningItems = [
-  {
-    id: "scholarship",
-    type: "Scholarship",
-    title: "Web3 Jobs Institute Scholarship",
-    status: "Now Live",
-    statusColor: "bg-green-500",
-    description: "Join 500+ scholars building proof of work",
-    icon: GraduationCap,
-    href: "/dashboard/scholarship",
-    requiresAuth: true,
-    stats: [
-      { label: "Active Scholars", value: "523" },
-      { label: "XP Earned Today", value: "12.4K" },
-    ],
-  },
-  {
-    id: "bootcamps",
-    type: "Bootcamps",
-    title: "Cohort-Based Learning",
-    status: "3 Active",
-    statusColor: "bg-blue-500",
-    description: "Intensive programs with live mentorship",
-    icon: Rocket,
-    href: "/bootcamps",
-    stats: [
-      { label: "Running Now", value: "3" },
-      { label: "Participants", value: "156" },
-    ],
-  },
-  {
-    id: "leaderboard",
-    type: "Leaderboard",
-    title: "Top Performers This Week",
-    status: "Live",
-    statusColor: "bg-amber-500",
-    description: "Ranked by XP earned and tasks completed",
-    icon: Trophy,
-    href: "/dashboard/scholarship",
-    requiresAuth: true,
-    topPerformers: [
-      { rank: 1, name: "S***a", xp: "2,450 XP" },
-      { rank: 2, name: "M***n", xp: "2,120 XP" },
-      { rank: 3, name: "A***r", xp: "1,890 XP" },
-    ],
-  },
-  {
-    id: "modules",
-    type: "New Content",
-    title: "Latest Modules Added",
-    status: "Updated",
-    statusColor: "bg-purple-500",
-    description: "Fresh learning content available now",
-    icon: BookOpen,
-    href: "/courses",
-    modules: [
-      { title: "Web3 Fundamentals", xp: "100 XP" },
-      { title: "Smart Contract Basics", xp: "150 XP" },
-    ],
-  },
-];
+import { usePlatformStats } from "@/hooks/usePlatformStats";
 
 const WhatsHappening = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { data: stats } = usePlatformStats();
+
+  const happeningItems = [
+    {
+      id: "scholarship",
+      type: "Scholarship",
+      title: "Web3 Jobs Institute Scholarship",
+      status: "Now Live",
+      statusColor: "bg-green-500",
+      description: `Join ${(stats?.activeScholars || 1193).toLocaleString()}+ scholars building proof of work`,
+      icon: GraduationCap,
+      href: "/dashboard/scholarship",
+      requiresAuth: true,
+      stats: [
+        { label: "Active Scholars", value: (stats?.activeScholars || 1193).toLocaleString() },
+        { label: "Tasks Completed", value: (stats?.tasksCompleted || 2720).toLocaleString() },
+      ],
+    },
+    {
+      id: "bootcamps",
+      type: "Bootcamps",
+      title: "Cohort-Based Learning",
+      status: `${stats?.activeBootcamps || 3} Active`,
+      statusColor: "bg-blue-500",
+      description: "Intensive programs with live mentorship",
+      icon: Rocket,
+      href: "/bootcamps",
+      stats: [
+        { label: "Running Now", value: String(stats?.activeBootcamps || 3) },
+        { label: "Participants", value: String(stats?.bootcampParticipants || 156) },
+      ],
+    },
+    {
+      id: "leaderboard",
+      type: "Leaderboard",
+      title: "Top Performers This Week",
+      status: "Live",
+      statusColor: "bg-amber-500",
+      description: "Ranked by XP earned and tasks completed",
+      icon: Trophy,
+      href: "/dashboard/scholarship",
+      requiresAuth: true,
+      topPerformers: [
+        { rank: 1, name: "S***a", xp: "2,450 XP" },
+        { rank: 2, name: "M***n", xp: "2,120 XP" },
+        { rank: 3, name: "A***r", xp: "1,890 XP" },
+      ],
+    },
+    {
+      id: "modules",
+      type: "New Content",
+      title: "Latest Modules Added",
+      status: "Updated",
+      statusColor: "bg-purple-500",
+      description: "Fresh learning content available now",
+      icon: BookOpen,
+      href: "/courses",
+      modules: [
+        { title: "Web3 Fundamentals", xp: "100 XP" },
+        { title: "Smart Contract Basics", xp: "150 XP" },
+      ],
+    },
+  ];
 
   const handleClick = (item: typeof happeningItems[0]) => {
     if (item.requiresAuth && !user) {
