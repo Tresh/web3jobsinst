@@ -9,7 +9,7 @@ const corsHeaders = {
 const DAILY_REFERRAL_CAP = 100;
 
 interface WJIAwardRequest {
-  action: "check_first_task_completion" | "award_daily_activity" | "generate_code" | "generate_codes_bulk";
+  action: "check_first_task_completion" | "award_daily_activity" | "generate_code" | "generate_codes_bulk" | "check_referral_on_approval";
   user_id?: string;
   referrer_id?: string;
   activity_type?: "task" | "course" | "module";
@@ -409,6 +409,46 @@ serve(async (req: Request) => {
 
       return new Response(
         JSON.stringify({ success: true, message: "WJI awarded for activity", amount: wjiAmount }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (action === "check_referral_on_approval") {
+      // Called when a scholarship application is approved
+      // This is a preliminary check - WJI is awarded on FIRST TASK completion, not approval
+      // But we log that this user's referral is now "active" (approved scholar)
+      
+      // Check if this user was referred
+      const { data: referral } = await supabase
+        .from("scholar_referrals")
+        .select("id, referrer_user_id, wji_awarded")
+        .eq("referred_user_id", user_id)
+        .maybeSingle();
+
+      if (!referral) {
+        return new Response(
+          JSON.stringify({ success: true, message: "User was not referred" }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      if (referral.wji_awarded) {
+        return new Response(
+          JSON.stringify({ success: true, message: "WJI already awarded for this referral" }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Just acknowledge that the approval was processed
+      // WJI will be awarded when check_first_task_completion is called
+      console.log(`Scholarship approved for referred user ${user_id}. WJI pending first task completion.`);
+      
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          message: "Referral tracked. WJI will be awarded when user completes first task.",
+          referrer_id: referral.referrer_user_id
+        }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
