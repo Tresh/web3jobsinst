@@ -73,12 +73,13 @@ export function useScholarshipPortal() {
 
           setSubmissions((subsData || []) as unknown as ScholarshipTaskSubmission[]);
 
-          // Fetch modules with new video/cover fields
+          // Fetch modules with new video/cover fields (includes intro module with order_index = -1)
           const { data: modulesData } = await supabase
             .from("scholarship_modules")
             .select("id, program_id, title, description, order_index, unlock_type, unlock_day, unlock_task_id, is_published, cover_image_url, video_url, video_duration, xp_value, created_at, updated_at")
             .eq("program_id", appData.program_id)
             .eq("is_published", true)
+            .gte("order_index", 0)  // Exclude intro module (order_index = -1) from regular modules list
             .order("order_index", { ascending: true });
 
           setModules((modulesData || []) as unknown as ScholarshipModule[]);
