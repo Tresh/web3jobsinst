@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Lock, Play, Clock, Zap, Calendar } from "lucide-react";
+import { CheckCircle, Lock, Play, Zap } from "lucide-react";
+import { toast } from "sonner";
 import type { ScholarshipModule } from "@/types/scholarship";
 
 interface ModuleListItemProps {
@@ -22,11 +23,25 @@ export function ModuleListItem({
 }: ModuleListItemProps) {
   const isLocked = status === "locked";
 
+  const handleClick = () => {
+    if (isLocked) {
+      toast.info(
+        unlockInfo || "This module is currently locked",
+        { 
+          description: "Complete the required steps to unlock this module.",
+          duration: 4000 
+        }
+      );
+      return;
+    }
+    onClick();
+  };
+
   const getStatusBadge = () => {
     switch (status) {
       case "completed":
         return (
-          <Badge className="bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20 text-xs">
+          <Badge className="bg-secondary text-green-600 dark:text-green-400 border-border text-xs">
             <CheckCircle className="w-3 h-3 mr-1" />
             Completed
           </Badge>
@@ -48,7 +63,6 @@ export function ModuleListItem({
     }
   };
 
-  // Default placeholder if no cover image
   const coverImage = module.cover_image_url || "/placeholder.svg";
 
   return (
@@ -59,10 +73,10 @@ export function ModuleListItem({
           : status === "completed"
           ? "bg-green-500/5 border-green-500/20"
           : isLocked
-          ? "opacity-60"
+          ? "opacity-60 hover:opacity-75"
           : ""
       }`}
-      onClick={isLocked ? undefined : onClick}
+      onClick={handleClick}
     >
       <CardContent className="p-3">
         <div className="flex gap-3">
@@ -71,7 +85,7 @@ export function ModuleListItem({
             <img 
               src={coverImage} 
               alt={module.title}
-              className={`w-full h-full object-cover ${isLocked ? "blur-sm" : ""}`}
+              className={`w-full h-full object-cover ${isLocked ? "blur-sm grayscale" : ""}`}
             />
             {/* Duration overlay */}
             {module.video_duration && (
@@ -81,23 +95,23 @@ export function ModuleListItem({
             )}
             {/* Status icon overlay */}
             <div className="absolute inset-0 flex items-center justify-center">
-              {status === "completed" ? (
-                <div className="w-8 h-8 rounded-full bg-green-600/90 flex items-center justify-center">
-                  <CheckCircle className="w-5 h-5 text-white" />
+            {status === "completed" ? (
+                <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center">
+                  <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
                 </div>
               ) : status === "available" ? (
-                <div className="w-10 h-10 rounded-full bg-primary/90 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                   <Play className="w-5 h-5 text-primary-foreground" />
                 </div>
               ) : (
-                <div className="w-8 h-8 rounded-full bg-muted-foreground/60 flex items-center justify-center">
-                  <Lock className="w-4 h-4 text-white" />
+                <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+                  <Lock className="w-4 h-4 text-muted-foreground" />
                 </div>
               )}
             </div>
           </div>
 
-          {/* Content */}
+          {/* Content - Only essential info */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1 flex-wrap">
               <span className="text-xs text-muted-foreground">Module {index + 1}</span>
@@ -105,20 +119,15 @@ export function ModuleListItem({
             </div>
             <h4 className="font-medium text-sm line-clamp-2">{module.title}</h4>
             
-            <div className="flex items-center gap-3 mt-2">
-              {module.xp_value > 0 && (
-                <span className="text-xs text-muted-foreground flex items-center gap-1">
+            {/* XP reward only */}
+            {module.xp_value && module.xp_value > 0 && (
+              <div className="flex items-center gap-1 mt-2">
+                <Badge variant="outline" className="text-xs gap-1">
                   <Zap className="w-3 h-3" />
                   {module.xp_value} XP
-                </span>
-              )}
-              {isLocked && unlockInfo && (
-                <span className="text-xs text-muted-foreground flex items-center gap-1">
-                  <Calendar className="w-3 h-3" />
-                  {unlockInfo}
-                </span>
-              )}
-            </div>
+                </Badge>
+              </div>
+            )}
           </div>
         </div>
       </CardContent>
