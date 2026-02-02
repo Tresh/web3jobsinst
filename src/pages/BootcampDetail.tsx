@@ -8,7 +8,6 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useBootcamp } from "@/hooks/useBootcamps";
 import { useAuth } from "@/contexts/AuthContext";
-import { toast } from "sonner";
 import {
   ArrowLeft,
   Calendar,
@@ -21,7 +20,7 @@ import {
 } from "lucide-react";
 import BootcampOverview from "@/components/bootcamp/BootcampOverview";
 import BootcampTasks from "@/components/bootcamp/BootcampTasks";
-import BootcampCommunity from "@/components/bootcamp/BootcampCommunity";
+import BootcampCommunityAdvanced from "@/components/bootcamp/BootcampCommunityAdvanced";
 import BootcampLeaderboard from "@/components/bootcamp/BootcampLeaderboard";
 import BootcampParticipants from "@/components/bootcamp/BootcampParticipants";
 
@@ -38,28 +37,17 @@ const BootcampDetail = () => {
     participants,
     loading,
     error,
-    joinBootcamp,
     submitTask,
     refetch,
   } = useBootcamp(id);
-  const [joining, setJoining] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
 
-  const handleJoin = async () => {
+  const handleApply = () => {
     if (!user) {
       navigate("/login");
       return;
     }
-
-    setJoining(true);
-    const result = await joinBootcamp();
-    setJoining(false);
-
-    if (result.success) {
-      toast.success("Successfully joined the bootcamp!");
-    } else {
-      toast.error(result.error || "Failed to join bootcamp");
-    }
+    navigate(`/bootcamps/${id}/apply`);
   };
 
   if (loading) {
@@ -187,8 +175,8 @@ const BootcampDetail = () => {
 
                 {!isParticipant && canJoin && (
                   <div className="pt-4">
-                    <Button size="lg" onClick={handleJoin} disabled={joining}>
-                      {joining ? "Joining..." : "Join Bootcamp"}
+                    <Button size="lg" onClick={handleApply}>
+                      Apply to Join
                     </Button>
                   </div>
                 )}
@@ -262,7 +250,7 @@ const BootcampDetail = () => {
                 <BootcampOverview 
                   bootcamp={bootcamp} 
                   isParticipant={isParticipant}
-                  onJoin={handleJoin}
+                  onJoin={handleApply}
                   canJoin={canJoin}
                 />
               </TabsContent>
@@ -280,7 +268,7 @@ const BootcampDetail = () => {
                   </TabsContent>
 
                   <TabsContent value="community">
-                    <BootcampCommunity 
+                    <BootcampCommunityAdvanced 
                       bootcampId={bootcamp.id}
                       isCompleted={isCompleted}
                     />

@@ -82,6 +82,7 @@ export interface BootcampMessage {
   message: string;
   message_type: string;
   is_pinned: boolean;
+  topic_id: string | null;
   created_at: string;
 }
 
@@ -92,4 +93,37 @@ export interface BootcampLeaderboardEntry {
   total_xp: number;
   tasks_completed: number;
   rank: number;
+}
+
+export interface BootcampApplication {
+  id: string;
+  bootcamp_id: string;
+  user_id: string;
+  full_name: string;
+  email: string;
+  why_join: string;
+  goals: string;
+  skill_level: string;
+  availability_commitment: boolean;
+  agreed_to_rules: boolean;
+  status: string;
+  admin_notes: string | null;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BootcampCommunityTopic {
+  id: string;
+  bootcamp_id: string;
+  title: string;
+  description: string | null;
+  icon: string;
+  order_index: number;
+  is_locked: boolean;
+  is_default: boolean;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
 }

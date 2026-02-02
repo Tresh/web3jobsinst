@@ -14,6 +14,121 @@ export type Database = {
   }
   public: {
     Tables: {
+      bootcamp_applications: {
+        Row: {
+          admin_notes: string | null
+          agreed_to_rules: boolean
+          availability_commitment: boolean
+          bootcamp_id: string
+          created_at: string
+          email: string
+          full_name: string
+          goals: string
+          id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          skill_level: string
+          status: string
+          updated_at: string
+          user_id: string
+          why_join: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          agreed_to_rules?: boolean
+          availability_commitment?: boolean
+          bootcamp_id: string
+          created_at?: string
+          email: string
+          full_name: string
+          goals: string
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          skill_level?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+          why_join: string
+        }
+        Update: {
+          admin_notes?: string | null
+          agreed_to_rules?: boolean
+          availability_commitment?: boolean
+          bootcamp_id?: string
+          created_at?: string
+          email?: string
+          full_name?: string
+          goals?: string
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          skill_level?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+          why_join?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bootcamp_applications_bootcamp_id_fkey"
+            columns: ["bootcamp_id"]
+            isOneToOne: false
+            referencedRelation: "bootcamps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bootcamp_community_topics: {
+        Row: {
+          bootcamp_id: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          icon: string | null
+          id: string
+          is_default: boolean
+          is_locked: boolean
+          order_index: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          bootcamp_id: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_default?: boolean
+          is_locked?: boolean
+          order_index?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          bootcamp_id?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_default?: boolean
+          is_locked?: boolean
+          order_index?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bootcamp_community_topics_bootcamp_id_fkey"
+            columns: ["bootcamp_id"]
+            isOneToOne: false
+            referencedRelation: "bootcamps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bootcamp_messages: {
         Row: {
           bootcamp_id: string
@@ -22,6 +137,7 @@ export type Database = {
           is_pinned: boolean
           message: string
           message_type: string
+          topic_id: string | null
           user_avatar: string | null
           user_id: string
           user_name: string
@@ -33,6 +149,7 @@ export type Database = {
           is_pinned?: boolean
           message: string
           message_type?: string
+          topic_id?: string | null
           user_avatar?: string | null
           user_id: string
           user_name: string
@@ -44,6 +161,7 @@ export type Database = {
           is_pinned?: boolean
           message?: string
           message_type?: string
+          topic_id?: string | null
           user_avatar?: string | null
           user_id?: string
           user_name?: string
@@ -54,6 +172,13 @@ export type Database = {
             columns: ["bootcamp_id"]
             isOneToOne: false
             referencedRelation: "bootcamps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bootcamp_messages_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "bootcamp_community_topics"
             referencedColumns: ["id"]
           },
         ]

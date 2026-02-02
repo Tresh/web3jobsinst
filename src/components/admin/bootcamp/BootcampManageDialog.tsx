@@ -11,18 +11,10 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -37,11 +29,14 @@ import {
   Loader2,
   Users,
   Play,
-  Pause,
   Square,
   Trophy,
+  ClipboardList,
+  MessageCircle,
 } from "lucide-react";
-import type { Bootcamp, BootcampStatus, BootcampParticipant, BootcampLeaderboardEntry } from "@/types/bootcamp";
+import type { Bootcamp, BootcampStatus, BootcampLeaderboardEntry } from "@/types/bootcamp";
+import BootcampApplicationsTab from "./BootcampApplicationsTab";
+import BootcampCommunityManagement from "./BootcampCommunityManagement";
 
 interface BootcampManageDialogProps {
   bootcamp: Bootcamp | null;
@@ -166,10 +161,18 @@ const BootcampManageDialog = ({ bootcamp, open, onOpenChange, onSuccess }: Bootc
         </DialogHeader>
 
         <Tabs defaultValue="details" className="mt-4">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="details">Details</TabsTrigger>
+            <TabsTrigger value="applications">
+              <ClipboardList className="w-4 h-4 mr-1" />
+              Applications
+            </TabsTrigger>
             <TabsTrigger value="participants">
               Participants ({bootcamp.current_participants})
+            </TabsTrigger>
+            <TabsTrigger value="community">
+              <MessageCircle className="w-4 h-4 mr-1" />
+              Community
             </TabsTrigger>
             <TabsTrigger value="controls">Controls</TabsTrigger>
           </TabsList>
@@ -220,6 +223,10 @@ const BootcampManageDialog = ({ bootcamp, open, onOpenChange, onSuccess }: Bootc
             </div>
           </TabsContent>
 
+          <TabsContent value="applications" className="mt-4">
+            <BootcampApplicationsTab bootcampId={bootcamp.id} />
+          </TabsContent>
+
           <TabsContent value="participants" className="mt-4">
             {loadingParticipants ? (
               <div className="flex items-center justify-center py-8">
@@ -247,9 +254,9 @@ const BootcampManageDialog = ({ bootcamp, open, onOpenChange, onSuccess }: Bootc
                         <div className="flex items-center gap-2">
                           {p.rank <= 3 && (
                             <Trophy className={`w-4 h-4 ${
-                              p.rank === 1 ? "text-amber-500" :
-                              p.rank === 2 ? "text-gray-400" :
-                              "text-amber-700"
+                              p.rank === 1 ? "text-primary" :
+                              p.rank === 2 ? "text-muted-foreground" :
+                              "text-secondary-foreground"
                             }`} />
                           )}
                           #{p.rank}
@@ -263,6 +270,10 @@ const BootcampManageDialog = ({ bootcamp, open, onOpenChange, onSuccess }: Bootc
                 </TableBody>
               </Table>
             )}
+          </TabsContent>
+
+          <TabsContent value="community" className="mt-4">
+            <BootcampCommunityManagement bootcampId={bootcamp.id} />
           </TabsContent>
 
           <TabsContent value="controls" className="mt-4 space-y-6">
