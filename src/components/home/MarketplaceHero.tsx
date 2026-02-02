@@ -59,18 +59,18 @@ const MarketplaceHero = () => {
   };
 
   return (
-    <section className="relative min-h-[90vh] flex items-center bg-background pt-[72px] overflow-hidden">
+    <section className="relative min-h-[90vh] flex items-center bg-foreground pt-[72px] overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-20 right-10 w-72 h-72 bg-primary/5 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-20 left-10 w-96 h-96 bg-secondary/50 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/3 rounded-full blur-3xl" />
+        <div className="absolute top-20 right-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-20 left-10 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl" />
       </div>
 
       <div className="section-container py-12 md:py-16 lg:py-20 relative z-10">
         <div className="text-center max-w-4xl mx-auto">
           {/* Live Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 border border-primary/30 mb-6">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
@@ -79,13 +79,13 @@ const MarketplaceHero = () => {
           </div>
 
           {/* Main Headline */}
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-foreground tracking-tight leading-tight mb-4">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-background tracking-tight leading-tight mb-4">
             Learn. Build. Earn.{" "}
             <span className="text-primary">In Public.</span>
           </h1>
 
           {/* Supporting Description */}
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
+          <p className="text-lg md:text-xl text-background/70 max-w-2xl mx-auto mb-8">
             The marketplace for Web3 skills, talent, and digital products. 
             Build proof of work, get hired, and monetize your expertise.
           </p>
@@ -114,21 +114,21 @@ const MarketplaceHero = () => {
           <div className="flex flex-wrap items-center justify-center gap-4 text-sm">
             <button 
               onClick={() => navigate("/talent")}
-              className="text-muted-foreground hover:text-primary transition-colors"
+              className="text-background/70 hover:text-primary transition-colors"
             >
               Hire Talent →
             </button>
-            <span className="text-border">|</span>
+            <span className="text-background/30">|</span>
             <button 
               onClick={() => navigate("/talent")}
-              className="text-muted-foreground hover:text-primary transition-colors"
+              className="text-background/70 hover:text-primary transition-colors"
             >
               Join as Talent →
             </button>
-            <span className="text-border">|</span>
-            <button 
+            <span className="text-background/30">|</span>
+            <button
               onClick={handleScholarshipClick}
-              className="text-muted-foreground hover:text-primary transition-colors"
+              className="text-background/70 hover:text-primary transition-colors"
             >
               Free Scholarship →
             </button>
@@ -170,12 +170,12 @@ interface StatCardProps {
 }
 
 const StatCard = ({ icon, value, label }: StatCardProps) => (
-  <div className="bg-card border border-border rounded-xl p-4 text-center">
+  <div className="bg-background/10 border border-background/20 rounded-xl p-4 text-center">
     <div className="flex items-center justify-center mb-2">
       {icon}
     </div>
-    <div className="text-xl md:text-2xl font-bold text-foreground">{value}</div>
-    <div className="text-xs text-muted-foreground">{label}</div>
+    <div className="text-xl md:text-2xl font-bold text-background">{value}</div>
+    <div className="text-xs text-background/60">{label}</div>
   </div>
 );
 
