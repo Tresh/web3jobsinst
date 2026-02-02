@@ -56,16 +56,16 @@ const Footer = () => {
 
   return (
     <>
-      <footer className="border-t border-secondary bg-secondary/20">
+      <footer className="border-t border-background/10 bg-foreground">
         <div className="section-container py-12 md:py-16">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
             {/* Logo & Description */}
             <div className="col-span-2 md:col-span-1">
               <Link to="/" className="inline-flex items-center gap-2 mb-4">
                 <img src={faviconLogo} alt="Web3 Jobs Institute" className="w-8 h-8 object-contain" />
-                <span className="font-bold text-lg text-foreground">Web3 Jobs Institute</span>
+                <span className="font-bold text-lg text-background">Web3 Jobs Institute</span>
               </Link>
-              <p className="text-muted-foreground text-sm max-w-sm">
+              <p className="text-background/60 text-sm max-w-sm">
                 The home of Web3 jobs, skills, business models, and collaboration. 
                 Learn, build, and earn in the decentralized economy.
               </p>
@@ -73,13 +73,13 @@ const Footer = () => {
 
             {/* Navigate */}
             <div>
-              <h4 className="font-semibold text-foreground mb-4 text-sm">Navigate</h4>
+              <h4 className="font-semibold text-background mb-4 text-sm">Navigate</h4>
               <ul className="space-y-2">
                 {mainLinks.map((link) => (
                   <li key={link.label}>
                     <Link
                       to={link.href}
-                      className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-150"
+                      className="text-sm text-background/60 hover:text-primary transition-colors duration-150"
                     >
                       {link.label}
                     </Link>
@@ -90,21 +90,21 @@ const Footer = () => {
 
             {/* Opportunities */}
             <div>
-              <h4 className="font-semibold text-foreground mb-4 text-sm">Opportunities</h4>
+              <h4 className="font-semibold text-background mb-4 text-sm">Opportunities</h4>
               <ul className="space-y-2">
                 {opportunityLinks.map((link) => (
                   <li key={link.label}>
                     {link.href ? (
                       <Link
                         to={link.href}
-                        className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-150"
+                        className="text-sm text-background/60 hover:text-primary transition-colors duration-150"
                       >
                         {link.label}
                       </Link>
                     ) : link.comingSoon ? (
                       <button
                         onClick={() => handleComingSoon(link.comingSoon)}
-                        className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-150"
+                        className="text-sm text-background/60 hover:text-primary transition-colors duration-150"
                       >
                         {link.label}
                       </button>
@@ -120,7 +120,7 @@ const Footer = () => {
                             setComingSoonOpen(true);
                           }
                         }}
-                        className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-150"
+                        className="text-sm text-background/60 hover:text-primary transition-colors duration-150"
                       >
                         {link.label}
                       </button>
@@ -132,7 +132,7 @@ const Footer = () => {
 
             {/* Connect */}
             <div>
-              <h4 className="font-semibold text-foreground mb-4 text-sm">Connect</h4>
+              <h4 className="font-semibold text-background mb-4 text-sm">Connect</h4>
               <ul className="space-y-2">
                 {socialLinks.map((link) => (
                   <li key={link.label}>
@@ -140,7 +140,7 @@ const Footer = () => {
                       href={link.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-150"
+                      className="text-sm text-background/60 hover:text-primary transition-colors duration-150"
                     >
                       {link.label}
                     </a>
@@ -150,8 +150,8 @@ const Footer = () => {
             </div>
           </div>
 
-          <div className="border-t border-secondary mt-12 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-sm text-muted-foreground">
+          <div className="border-t border-background/10 mt-12 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-sm text-background/60">
               © {currentYear} Web3 Jobs Institute. All rights reserved.
             </p>
             <div className="flex items-center gap-6">
@@ -159,7 +159,7 @@ const Footer = () => {
                 <Link
                   key={link.label}
                   to={link.href}
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-150"
+                  className="text-sm text-background/60 hover:text-primary transition-colors duration-150"
                 >
                   {link.label}
                 </Link>
