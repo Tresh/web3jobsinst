@@ -189,8 +189,8 @@ export function ReferralCard() {
             <Coins className="w-5 h-5 text-amber-500" />
             WJI Referral Program
           </CardTitle>
-          <Badge variant="outline" className="border-green-500/30 text-green-500">
-            Active
+          <Badge variant="outline" className="border-muted-foreground/30 text-muted-foreground">
+            Ended
           </Badge>
         </div>
       </CardHeader>
