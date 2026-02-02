@@ -114,7 +114,6 @@ export function ScholarshipPortal() {
             modules={modules}
             getModuleStatus={getModuleStatus}
             dayNumber={dayNumber}
-            tasks={tasks}
             onRefetch={refetch}
           />
         </TabsContent>

@@ -1,74 +1,50 @@
-import { useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, CheckCircle } from "lucide-react";
-import type { ScholarshipModule, ScholarshipTask } from "@/types/scholarship";
-import { Module0Section } from "./Module0Section";
+import { BookOpen, CheckCircle, Zap } from "lucide-react";
+import type { ScholarshipModule } from "@/types/scholarship";
+import { Module0Card } from "./Module0Card";
 import { ModuleListItem } from "./ModuleListItem";
-import { ModuleVideoPlayer } from "./ModuleVideoPlayer";
-import { useModuleProgress } from "@/hooks/useModuleProgress";
 
 interface PortalModulesProps {
   modules: ScholarshipModule[];
   getModuleStatus: (moduleId: string) => "locked" | "available" | "completed";
   dayNumber: number;
-  tasks?: ScholarshipTask[];
   onRefetch?: () => void;
 }
 
-export function PortalModules({ modules, getModuleStatus, dayNumber, tasks = [], onRefetch }: PortalModulesProps) {
-  const [selectedModuleId, setSelectedModuleId] = useState<string | null>(null);
-
-  const selectedModule = modules.find(m => m.id === selectedModuleId);
+export function PortalModules({ modules, getModuleStatus, dayNumber, onRefetch }: PortalModulesProps) {
+  const navigate = useNavigate();
 
   const getUnlockInfo = (module: ScholarshipModule) => {
-    switch (module.unlock_type) {
-      case "day":
-        if (module.unlock_day && dayNumber < module.unlock_day) {
-          return `Unlocks on Day ${module.unlock_day}`;
-        }
-        return null;
-      case "task":
-        return "Complete required task to unlock";
-      case "manual":
-        return "Will be unlocked by admin";
-      default:
-        return null;
+    const unlockType = module.unlock_type;
+    
+    if (unlockType === "day") {
+      if (module.unlock_day && dayNumber < module.unlock_day) {
+        return `Unlocks on Day ${module.unlock_day}`;
+      }
+      return null;
     }
-  };
-
-  const getAttachedTasks = (module: ScholarshipModule): ScholarshipTask[] => {
-    return tasks.filter(task => {
-      if (task.description?.toLowerCase().includes(module.title.toLowerCase())) {
-        return true;
-      }
-      if (module.unlock_task_id === task.id) {
-        return true;
-      }
-      return false;
-    });
+    if (unlockType === "task") {
+      return "Complete required task to unlock";
+    }
+    if (unlockType === "manual") {
+      return "Will be unlocked by admin";
+    }
+    return null;
   };
 
   const completedCount = modules.filter((m) => getModuleStatus(m.id) === "completed").length;
 
-  // Module Detail View - shows video player and full info
-  if (selectedModule) {
-    return (
-      <SelectedModuleView
-        module={selectedModule}
-        isCompleted={getModuleStatus(selectedModule.id) === "completed"}
-        attachedTasks={getAttachedTasks(selectedModule)}
-        onBack={() => setSelectedModuleId(null)}
-        onRefetch={onRefetch}
-      />
-    );
-  }
+  const handleModuleClick = (moduleId: string) => {
+    navigate(`/dashboard/scholarship/modules/${moduleId}`);
+  };
 
-  // Modules List View - clean playlist style
+  // Empty state
   if (modules.length === 0) {
     return (
       <div className="space-y-4">
-        <Module0Section onRefetch={onRefetch} />
+        <Module0Card onRefetch={onRefetch} />
         
         <Card className="border-dashed">
           <CardContent className="p-12 text-center">
@@ -99,10 +75,10 @@ export function PortalModules({ modules, getModuleStatus, dayNumber, tasks = [],
         </Badge>
       </div>
 
-      {/* Clean Module List - YouTube Playlist Style */}
-      <div className="space-y-3">
-        {/* Module 0 - Introduction */}
-        <Module0Section onRefetch={onRefetch} />
+      {/* Clean Module Grid - Overview Only */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* Module 0 - Introduction Card */}
+        <Module0Card onRefetch={onRefetch} />
 
         {/* Dynamic Modules */}
         {modules.map((module, index) => {
@@ -116,50 +92,11 @@ export function PortalModules({ modules, getModuleStatus, dayNumber, tasks = [],
               index={index + 1}
               status={status}
               unlockInfo={unlockInfo}
-              isSelected={false}
-              onClick={() => setSelectedModuleId(module.id)}
+              onClick={() => handleModuleClick(module.id)}
             />
           );
         })}
       </div>
     </div>
-  );
-}
-
-// Separate component for the detail view
-function SelectedModuleView({ 
-  module, 
-  isCompleted, 
-  attachedTasks, 
-  onBack, 
-  onRefetch 
-}: { 
-  module: ScholarshipModule;
-  isCompleted: boolean;
-  attachedTasks: ScholarshipTask[];
-  onBack: () => void;
-  onRefetch?: () => void;
-}) {
-  const { markModuleCompleted } = useModuleProgress({ 
-    moduleId: module.id, 
-    xpValue: module.xp_value || 0 
-  });
-
-  const handleComplete = useCallback(async () => {
-    const result = await markModuleCompleted();
-    if (result.success) {
-      onRefetch?.();
-    }
-    return result;
-  }, [markModuleCompleted, onRefetch]);
-
-  return (
-    <ModuleVideoPlayer
-      module={module}
-      isCompleted={isCompleted}
-      attachedTasks={attachedTasks}
-      onBack={onBack}
-      onComplete={handleComplete}
-    />
   );
 }

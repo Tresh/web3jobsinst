@@ -42,6 +42,7 @@ import DashboardTalent from "./pages/dashboard/DashboardTalent";
 import DashboardSettings from "./pages/dashboard/DashboardSettings";
 import DashboardScholarship from "./pages/dashboard/DashboardScholarship";
 import DashboardBootcamps from "./pages/dashboard/DashboardBootcamps";
+import ScholarshipModuleDetail from "./pages/dashboard/ScholarshipModuleDetail";
 import Scholarship from "./pages/Scholarship";
 import ScholarshipCelebration from "./pages/ScholarshipCelebration";
 
@@ -131,6 +132,7 @@ const App = () => (
             >
               <Route index element={<DashboardOverview />} />
               <Route path="scholarship" element={<DashboardScholarship />} />
+              <Route path="scholarship/modules/:moduleId" element={<ScholarshipModuleDetail />} />
               <Route path="bootcamps" element={<DashboardBootcamps />} />
               <Route path="courses" element={<DashboardCourses />} />
               <Route path="products" element={<DashboardProducts />} />
