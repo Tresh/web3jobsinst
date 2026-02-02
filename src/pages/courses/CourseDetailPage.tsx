@@ -34,7 +34,7 @@ const CourseDetailPage = () => {
   // Check if Strapi is configured
   if (!isStrapiConfigured()) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen">
         <UnifiedNavbar />
         <div className="pt-[72px]">
           <div className="section-container py-20 text-center">
@@ -59,7 +59,7 @@ const CourseDetailPage = () => {
   // Loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen">
         <UnifiedNavbar />
         <div className="pt-[72px]">
           <div className="section-container py-8">
@@ -85,7 +85,7 @@ const CourseDetailPage = () => {
   // Error or not found
   if (error || !course) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen">
         <UnifiedNavbar />
         <div className="pt-[72px]">
           <div className="section-container py-20 text-center">
@@ -115,7 +115,7 @@ const CourseDetailPage = () => {
   const totalLessons = modules.reduce((acc, m) => acc + m.lessonCount, 0);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <UnifiedNavbar />
       
       <div className="pt-[72px]">

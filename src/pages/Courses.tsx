@@ -70,7 +70,7 @@ const Courses = () => {
     : null;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <CoursesNavbar
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}

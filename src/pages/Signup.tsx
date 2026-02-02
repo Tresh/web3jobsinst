@@ -161,7 +161,7 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4 py-12 relative">
+    <div className="min-h-screen flex items-center justify-center px-4 py-12 relative">
       {/* Close Button */}
       <button
         onClick={() => navigate("/")}

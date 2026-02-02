@@ -63,7 +63,7 @@ const LessonPlayerPage = () => {
   // Check if Strapi is configured
   if (!isStrapiConfigured()) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center max-w-md mx-auto p-6">
           <BookOpen className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
           <h1 className="text-2xl font-bold mb-2">CMS Not Configured</h1>
@@ -84,7 +84,7 @@ const LessonPlayerPage = () => {
   // Loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen">
         <div className="flex h-screen">
           <div className="flex-1 p-4">
             <Skeleton className="aspect-video w-full rounded-xl" />
@@ -107,7 +107,7 @@ const LessonPlayerPage = () => {
   // Error or not found
   if (!lesson || !course) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center max-w-md mx-auto p-6">
           <BookOpen className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
           <h1 className="text-2xl font-bold mb-2">Lesson Not Found</h1>
@@ -137,9 +137,9 @@ const LessonPlayerPage = () => {
   // TODO: Check user enrollment for paid lessons
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       {/* Top bar */}
-      <div className="fixed top-0 left-0 right-0 h-14 bg-background border-b border-border z-50 flex items-center px-4">
+      <div className="fixed top-0 left-0 right-0 h-14 bg-background/80 backdrop-blur-md border-b border-border/50 z-50 flex items-center px-4">
         <Button
           variant="ghost"
           size="sm"
@@ -263,7 +263,7 @@ const LessonPlayerPage = () => {
         {/* Sidebar */}
         <aside
           className={cn(
-            'fixed right-0 top-14 bottom-0 w-80 bg-background border-l border-border transition-transform duration-300 z-40',
+            'fixed right-0 top-14 bottom-0 w-80 bg-background/80 backdrop-blur-md border-l border-border/50 transition-transform duration-300 z-40',
             sidebarOpen ? 'translate-x-0' : 'translate-x-full'
           )}
         >
