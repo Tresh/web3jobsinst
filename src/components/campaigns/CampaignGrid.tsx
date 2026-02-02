@@ -89,9 +89,9 @@ interface CampaignCardProps {
 
 const CampaignCard = ({ campaign, onClick, onJoinClick }: CampaignCardProps) => {
   const statusColors = {
-    active: "bg-green-100 text-green-700",
-    upcoming: "bg-blue-100 text-blue-700",
-    coming_soon: "bg-primary/10 text-primary",
+    active: "bg-green-500/20 text-green-400",
+    upcoming: "bg-blue-500/20 text-blue-400",
+    coming_soon: "bg-primary/20 text-primary",
     ended: "bg-secondary text-muted-foreground",
   };
 
@@ -113,7 +113,7 @@ const CampaignCard = ({ campaign, onClick, onJoinClick }: CampaignCardProps) => 
   const isDisabled = campaign.status === "coming_soon" || campaign.status === "ended";
 
   return (
-    <div className="bg-background border border-secondary rounded-xl p-5 hover:border-primary/30 transition-colors duration-150 flex flex-col h-full">
+    <div className="bg-card border border-border rounded-xl p-5 hover:border-primary/30 transition-colors duration-150 flex flex-col h-full">
       <button
         onClick={onClick}
         className="text-left w-full flex flex-col flex-1"

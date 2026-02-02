@@ -120,7 +120,7 @@ const BootcampDetail = () => {
       
       <main className="pt-20">
         {/* Header */}
-        <section className="py-8 px-4 bg-gradient-to-b from-primary/5 to-transparent">
+        <section className="py-8 px-4 bg-gradient-to-b from-primary/10 to-transparent">
           <div className="max-w-7xl mx-auto">
             <Link to="/bootcamps" className="inline-flex items-center text-muted-foreground hover:text-foreground mb-6">
               <ArrowLeft className="w-4 h-4 mr-2" />

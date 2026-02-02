@@ -6,7 +6,62 @@
 
 @layer base {
   :root {
-    /* Core Color System - STRICT */
+    /* DARK MODE FIRST - Platform Identity */
+    --background: 0 0% 5%;
+    --background-secondary: 0 0% 8%;
+    --foreground: 0 0% 98%;
+
+    --card: 0 0% 8%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 98%;
+
+    /* Accent: #FF4D00 = hsl(18, 100%, 50%) */
+    --primary: 18 100% 50%;
+    --primary-foreground: 0 0% 100%;
+    /* Accent Hover: #FF783D = hsl(18, 100%, 62%) */
+    --primary-hover: 18 100% 62%;
+
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 64%;
+
+    --accent: 18 100% 50%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62.8% 50%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 18%;
+    --input: 0 0% 18%;
+    --ring: 18 100% 50%;
+
+    --radius: 0.75rem;
+
+    /* Shadows - Subtle for dark theme */
+    --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.2);
+    --shadow-card: 0 1px 3px hsl(0 0% 0% / 0.3);
+    --shadow-card-hover: 0 4px 12px hsl(0 0% 0% / 0.4);
+
+    --sidebar-background: 0 0% 6%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 18 100% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 12%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 0 0% 18%;
+    --sidebar-ring: 18 100% 50%;
+
+    /* Gradient tokens for accent usage */
+    --gradient-primary: linear-gradient(135deg, hsl(18, 100%, 50%), hsl(25, 100%, 55%));
+    --gradient-primary-hover: linear-gradient(135deg, hsl(18, 100%, 55%), hsl(25, 100%, 60%));
+  }
+
+  /* Light mode override (if ever needed) */
+  .light {
     --background: 0 0% 100%;
     --background-secondary: 229 25% 97%;
     --foreground: 0 0% 0%;
@@ -17,10 +72,8 @@
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 0%;
 
-    /* Accent: #FF4D00 = hsl(18, 100%, 50%) */
     --primary: 18 100% 50%;
     --primary-foreground: 0 0% 100%;
-    /* Accent Hover: #FF783D = hsl(18, 100%, 62%) */
     --primary-hover: 18 100% 62%;
 
     --secondary: 229 25% 97%;
@@ -35,16 +88,9 @@
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 229 25% 97%;
-    --input: 229 25% 97%;
+    --border: 229 25% 90%;
+    --input: 229 25% 90%;
     --ring: 18 100% 50%;
-
-    --radius: 0.75rem;
-
-    /* Shadows - Very subtle */
-    --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.03);
-    --shadow-card: 0 1px 3px hsl(0 0% 0% / 0.02);
-    --shadow-card-hover: 0 2px 8px hsl(0 0% 0% / 0.04);
 
     --sidebar-background: 229 25% 97%;
     --sidebar-foreground: 0 0% 0%;
@@ -52,48 +98,7 @@
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 229 25% 97%;
     --sidebar-accent-foreground: 0 0% 0%;
-    --sidebar-border: 229 25% 97%;
-    --sidebar-ring: 18 100% 50%;
-  }
-
-  .dark {
-    --background: 0 0% 5%;
-    --background-secondary: 0 0% 8%;
-    --foreground: 0 0% 98%;
-
-    --card: 0 0% 8%;
-    --card-foreground: 0 0% 98%;
-
-    --popover: 0 0% 8%;
-    --popover-foreground: 0 0% 98%;
-
-    --primary: 18 100% 50%;
-    --primary-foreground: 0 0% 100%;
-    --primary-hover: 18 100% 62%;
-
-    --secondary: 0 0% 15%;
-    --secondary-foreground: 0 0% 98%;
-
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 64%;
-
-    --accent: 18 100% 50%;
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 18 100% 50%;
-
-    --sidebar-background: 0 0% 8%;
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 18 100% 50%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 15%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 0 0% 20%;
+    --sidebar-border: 229 25% 90%;
     --sidebar-ring: 18 100% 50%;
   }
 }
@@ -125,7 +130,7 @@
   }
 
   .card-minimal {
-    @apply bg-card rounded-xl border border-secondary;
+    @apply bg-card rounded-xl border border-border;
     box-shadow: var(--shadow-card);
     transition: box-shadow 150ms ease-out, border-color 150ms ease-out;
   }
@@ -144,7 +149,19 @@
   }
 
   .badge-accent {
-    @apply inline-flex items-center px-3 py-1 text-xs font-medium rounded-md bg-secondary text-primary border border-primary/20;
+    @apply inline-flex items-center px-3 py-1 text-xs font-medium rounded-md bg-primary/20 text-primary border border-primary/30;
+  }
+
+  /* Gradient button variant */
+  .btn-gradient {
+    background: var(--gradient-primary);
+    @apply text-white font-semibold;
+    transition: all 150ms ease-out;
+  }
+
+  .btn-gradient:hover {
+    background: var(--gradient-primary-hover);
+    @apply shadow-lg;
   }
 }
 

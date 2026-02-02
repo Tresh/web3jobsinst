@@ -132,26 +132,26 @@ interface CourseCardProps {
 
 const CourseCard = ({ course, onClick }: CourseCardProps) => {
   const levelColors = {
-    Beginner: "bg-emerald-100 text-emerald-700",
-    Intermediate: "bg-amber-100 text-amber-700",
-    Advanced: "bg-rose-100 text-rose-700",
+    Beginner: "bg-green-500/20 text-green-400",
+    Intermediate: "bg-amber-500/20 text-amber-400",
+    Advanced: "bg-rose-500/20 text-rose-400",
   };
 
   return (
     <button
       onClick={onClick}
-      className="group text-left bg-background border border-secondary rounded-lg overflow-hidden hover:border-primary/30 hover:shadow-md transition-all duration-200 flex flex-col h-full"
+      className="group text-left bg-card border border-border rounded-lg overflow-hidden hover:border-primary/30 hover:shadow-md transition-all duration-200 flex flex-col h-full"
     >
       {/* Image with blur overlay */}
-      <div className="aspect-[4/3] overflow-hidden bg-secondary/30 relative">
+      <div className="aspect-[4/3] overflow-hidden bg-muted relative">
         <img 
           src={course.image} 
           alt={course.title}
           className="w-full h-full object-cover filter blur-[2px] scale-105"
         />
         {/* Coming Soon overlay */}
-        <div className="absolute inset-0 bg-background/60 flex items-center justify-center">
-          <span className="text-xs font-medium text-foreground bg-secondary/90 px-2 py-1 rounded">
+        <div className="absolute inset-0 bg-background/70 flex items-center justify-center">
+          <span className="text-xs font-medium text-foreground bg-secondary px-2 py-1 rounded">
             Coming Soon
           </span>
         </div>
