@@ -169,49 +169,22 @@ const DashboardScholarship = () => {
         </div>
       )}
 
-      {/* Available Programs */}
-      {availablePrograms.length > 0 && (
-        <div>
-          <h2 className="text-lg font-semibold mb-4">Available Programs</h2>
-          <div className="grid gap-4">
-            {availablePrograms.map((program) => (
-              <Card key={program.id} className="hover:border-primary/50 transition-colors">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <GraduationCap className="w-5 h-5 text-primary" />
-                    {program.title}
-                  </CardTitle>
-                  {program.description && (
-                    <CardDescription>{program.description}</CardDescription>
-                  )}
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm text-muted-foreground">
-                      {program.application_deadline && (
-                        <span>Deadline: {new Date(program.application_deadline).toLocaleDateString()}</span>
-                      )}
-                    </div>
-                    <Button asChild>
-                      <Link to={`/scholarship/${program.id}`}>Apply Now</Link>
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      )}
+      {/* Available Programs - HIDDEN: Scholarship intake closed */}
+      {/* Programs section removed - intake is closed for new applicants */}
 
-      {/* No programs available */}
-      {applications.length === 0 && availablePrograms.length === 0 && (
+      {/* Scholarship Intake Closed - Show to users without applications */}
+      {applications.length === 0 && (
         <Card className="border-dashed">
           <CardContent className="p-12 text-center">
             <GraduationCap className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No Scholarship Programs Available</h3>
+            <h3 className="text-lg font-semibold mb-2">Scholarship Intake Has Ended</h3>
             <p className="text-muted-foreground mb-4">
-              There are currently no active scholarship programs. Check back soon!
+              Thank you for your interest! The current scholarship batch is now closed. 
+              Stay tuned for the next cohort — we'll announce it soon.
             </p>
+            <Button asChild variant="outline">
+              <Link to="/courses">Explore Courses</Link>
+            </Button>
           </CardContent>
         </Card>
       )}

@@ -77,11 +77,8 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
     // Determine starting step based on profile completeness
     if (!profile?.full_name) {
       setStep(1);
-    } else if (user?.id && !hasExistingApplication && shouldShowScholarshipPopup(user.id)) {
-      // Profile is complete, no existing application, check if we should show scholarship prompt
-      setShowScholarshipPrompt(true);
     } else {
-      // Either already applied or popup was dismissed recently, complete onboarding silently
+      // Scholarship intake is closed - skip scholarship prompt entirely
       onComplete();
     }
   }, [profile, user?.id, onComplete, hasExistingApplication]);
@@ -130,12 +127,8 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
 
     setIsLoading(false);
     
-    // Only show scholarship prompt if no existing application and not dismissed recently
-    if (user?.id && !hasExistingApplication && shouldShowScholarshipPopup(user.id)) {
-      setShowScholarshipPrompt(true);
-    } else {
-      onComplete();
-    }
+    // Scholarship intake is closed - go directly to dashboard
+    onComplete();
   };
 
   const handleScholarshipChoice = (apply: boolean) => {
