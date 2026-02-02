@@ -7,14 +7,14 @@
 @layer base {
   :root {
     /* DARK MODE FIRST - Platform Identity */
-    --background: 0 0% 5%;
-    --background-secondary: 0 0% 8%;
+    --background: 7 8% 5%;
+    --background-secondary: 7 8% 6%;
     --foreground: 0 0% 98%;
 
-    --card: 0 0% 8%;
+    --card: 7 8% 8%;
     --card-foreground: 0 0% 98%;
 
-    --popover: 0 0% 10%;
+    --popover: 7 8% 10%;
     --popover-foreground: 0 0% 98%;
 
     /* Accent: #FF4D00 = hsl(18, 100%, 50%) */
@@ -23,10 +23,10 @@
     /* Accent Hover: #FF783D = hsl(18, 100%, 62%) */
     --primary-hover: 18 100% 62%;
 
-    --secondary: 0 0% 12%;
+    --secondary: 7 8% 12%;
     --secondary-foreground: 0 0% 98%;
 
-    --muted: 0 0% 15%;
+    --muted: 7 8% 15%;
     --muted-foreground: 0 0% 64%;
 
     --accent: 18 100% 50%;
@@ -35,8 +35,8 @@
     --destructive: 0 62.8% 50%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 0 0% 18%;
-    --input: 0 0% 18%;
+    --border: 7 8% 18%;
+    --input: 7 8% 18%;
     --ring: 18 100% 50%;
 
     --radius: 0.75rem;
@@ -46,14 +46,24 @@
     --shadow-card: 0 1px 3px hsl(0 0% 0% / 0.3);
     --shadow-card-hover: 0 4px 12px hsl(0 0% 0% / 0.4);
 
-    --sidebar-background: 0 0% 6%;
+    --sidebar-background: 7 8% 6%;
     --sidebar-foreground: 0 0% 98%;
     --sidebar-primary: 18 100% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 12%;
+    --sidebar-accent: 7 8% 12%;
     --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 0 0% 18%;
+    --sidebar-border: 7 8% 18%;
     --sidebar-ring: 18 100% 50%;
+
+    /* Platform signature gradient */
+    --gradient-hero: radial-gradient(
+      circle at top center,
+      rgba(255, 106, 26, 0.35) 0%,
+      rgba(194, 74, 10, 0.25) 25%,
+      rgba(42, 20, 8, 0.4) 45%,
+      rgba(11, 11, 13, 0.9) 70%,
+      #0B0B0D 100%
+    );
 
     /* Gradient tokens for accent usage */
     --gradient-primary: linear-gradient(135deg, hsl(18, 100%, 50%), hsl(25, 100%, 55%));
@@ -114,9 +124,12 @@
   }
 
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply text-foreground antialiased;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     overflow-x: hidden;
+    background: var(--gradient-hero);
+    background-attachment: fixed;
+    min-height: 100vh;
   }
 }
 
