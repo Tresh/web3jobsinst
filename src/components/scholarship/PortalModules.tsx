@@ -37,14 +37,11 @@ export function PortalModules({ modules, getModuleStatus, dayNumber, tasks = [],
     }
   };
 
-  // Get tasks that might be attached to a module (by matching module title or explicit linking)
   const getAttachedTasks = (module: ScholarshipModule): ScholarshipTask[] => {
     return tasks.filter(task => {
-      // Match tasks that reference the module title
       if (task.description?.toLowerCase().includes(module.title.toLowerCase())) {
         return true;
       }
-      // Or tasks that are explicitly related (by unlock_task_id relationship)
       if (module.unlock_task_id === task.id) {
         return true;
       }
@@ -54,7 +51,7 @@ export function PortalModules({ modules, getModuleStatus, dayNumber, tasks = [],
 
   const completedCount = modules.filter((m) => getModuleStatus(m.id) === "completed").length;
 
-  // If a module is selected, show the video player
+  // Module Detail View - shows video player and full info
   if (selectedModule) {
     return (
       <SelectedModuleView
@@ -67,10 +64,10 @@ export function PortalModules({ modules, getModuleStatus, dayNumber, tasks = [],
     );
   }
 
+  // Modules List View - clean playlist style
   if (modules.length === 0) {
     return (
       <div className="space-y-4">
-        {/* Module 0 - Introduction Video (always first, always unlocked) */}
         <Module0Section onRefetch={onRefetch} />
         
         <Card className="border-dashed">
@@ -93,7 +90,7 @@ export function PortalModules({ modules, getModuleStatus, dayNumber, tasks = [],
         <div>
           <h2 className="text-lg font-semibold">Course Modules</h2>
           <p className="text-sm text-muted-foreground">
-            Watch videos, complete tasks, and earn XP
+            Click a module to watch and earn XP
           </p>
         </div>
         <Badge variant="outline" className="gap-1">
@@ -102,9 +99,9 @@ export function PortalModules({ modules, getModuleStatus, dayNumber, tasks = [],
         </Badge>
       </div>
 
-      {/* Module List - YouTube playlist style */}
+      {/* Clean Module List - YouTube Playlist Style */}
       <div className="space-y-3">
-        {/* Module 0 - Introduction Video (always first, always unlocked) */}
+        {/* Module 0 - Introduction */}
         <Module0Section onRefetch={onRefetch} />
 
         {/* Dynamic Modules */}
@@ -116,7 +113,7 @@ export function PortalModules({ modules, getModuleStatus, dayNumber, tasks = [],
             <ModuleListItem
               key={module.id}
               module={module}
-              index={index + 1} // Start from 1 since Module 0 is intro
+              index={index + 1}
               status={status}
               unlockInfo={unlockInfo}
               isSelected={false}
@@ -129,7 +126,7 @@ export function PortalModules({ modules, getModuleStatus, dayNumber, tasks = [],
   );
 }
 
-// Separate component to use the hook
+// Separate component for the detail view
 function SelectedModuleView({ 
   module, 
   isCompleted, 
