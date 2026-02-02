@@ -31,6 +31,7 @@ import InstitutionPortal from "./pages/InstitutionPortal";
 import Bootcamps from "./pages/Bootcamps";
 import BootcampDetail from "./pages/BootcampDetail";
 import BootcampCreate from "./pages/BootcampCreate";
+import BootcampApply from "./pages/BootcampApply";
 
 // User Dashboard
 import Dashboard from "./pages/Dashboard";
@@ -103,6 +104,14 @@ const App = () => (
             {/* Bootcamp routes */}
             <Route path="/bootcamps" element={<Bootcamps />} />
             <Route path="/bootcamps/:id" element={<BootcampDetail />} />
+            <Route
+              path="/bootcamps/:id/apply"
+              element={
+                <ProtectedRoute>
+                  <BootcampApply />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/bootcamps/create"
               element={

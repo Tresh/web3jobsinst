@@ -4,11 +4,18 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMyBootcamps } from "@/hooks/useBootcamps";
-import { Rocket, Clock, Users, ArrowRight, Calendar, Plus, Loader2 } from "lucide-react";
+import { useMyBootcampApplications } from "@/hooks/useBootcampApplications";
+import { Rocket, Clock, Users, ArrowRight, Calendar, Plus, AlertCircle, CheckCircle } from "lucide-react";
 import { differenceInDays, parseISO, format } from "date-fns";
 
 const DashboardBootcamps = () => {
-  const { joinedBootcamps, hostedBootcamps, loading } = useMyBootcamps();
+  const { joinedBootcamps, hostedBootcamps, loading: loadingBootcamps } = useMyBootcamps();
+  const { applications, loading: loadingApplications } = useMyBootcampApplications();
+
+  // Filter pending applications (not yet approved/rejected)
+  const pendingApplications = applications.filter(
+    (app) => app.status === "pending" && app.bootcamp
+  );
 
   const getBootcampProgress = (bootcamp: typeof joinedBootcamps[0]) => {
     if (!bootcamp.start_date) return { currentDay: 0, totalDays: bootcamp.duration_days };
@@ -36,6 +43,8 @@ const DashboardBootcamps = () => {
     }
     return <Badge variant="outline">{bootcamp.status}</Badge>;
   };
+
+  const loading = loadingBootcamps || loadingApplications;
 
   if (loading) {
     return (
@@ -84,6 +93,64 @@ const DashboardBootcamps = () => {
           </Button>
         </div>
       </div>
+
+      {/* Pending Applications Section */}
+      {pendingApplications.length > 0 && (
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold flex items-center gap-2">
+            <AlertCircle className="w-5 h-5 text-amber-500" />
+            Pending Applications
+          </h2>
+          
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {pendingApplications.map((application) => (
+              <Card key={application.id} className="border-amber-500/30 bg-amber-500/5">
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <CardTitle className="text-lg line-clamp-2">
+                      {application.bootcamp?.title}
+                    </CardTitle>
+                    <Badge className="bg-amber-500/10 text-amber-600 border-amber-500/30">
+                      🟡 Pending
+                    </Badge>
+                  </div>
+                  <CardDescription className="flex items-center gap-1">
+                    <Users className="w-3.5 h-3.5" />
+                    Hosted by {application.bootcamp?.host_name}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground flex items-center gap-1">
+                        <Clock className="w-3.5 h-3.5" />
+                        Duration
+                      </span>
+                      <span className="font-medium">{application.bootcamp?.duration_days} Days</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground flex items-center gap-1">
+                        <Calendar className="w-3.5 h-3.5" />
+                        Applied
+                      </span>
+                      <span className="font-medium">
+                        {format(parseISO(application.created_at), "MMM d, yyyy")}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="p-3 bg-amber-500/10 rounded-lg text-sm text-amber-700 dark:text-amber-400">
+                    <p className="font-medium">Awaiting Approval</p>
+                    <p className="text-xs mt-1 opacity-80">
+                      You'll be notified once your application is reviewed
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Joined Bootcamps Section */}
       <div className="space-y-4">

@@ -147,10 +147,10 @@ const BootcampOverview = ({ bootcamp, isParticipant, onJoin, canJoin }: Bootcamp
             <CardContent className="pt-6">
               <h3 className="font-bold text-lg mb-2">Ready to Start?</h3>
               <p className="text-sm text-muted-foreground mb-4">
-                Join this bootcamp and start your journey today!
+                Apply to join this bootcamp and start your journey!
               </p>
               <Button onClick={onJoin} className="w-full" size="lg">
-                Join Bootcamp
+                Apply to Join
               </Button>
             </CardContent>
           </Card>
