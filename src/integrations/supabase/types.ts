@@ -936,6 +936,7 @@ export type Database = {
       }
       scholarship_modules: {
         Row: {
+          cover_image_url: string | null
           created_at: string
           description: string | null
           id: string
@@ -947,8 +948,12 @@ export type Database = {
           unlock_task_id: string | null
           unlock_type: string
           updated_at: string
+          video_duration: string | null
+          video_url: string | null
+          xp_value: number | null
         }
         Insert: {
+          cover_image_url?: string | null
           created_at?: string
           description?: string | null
           id?: string
@@ -960,8 +965,12 @@ export type Database = {
           unlock_task_id?: string | null
           unlock_type?: string
           updated_at?: string
+          video_duration?: string | null
+          video_url?: string | null
+          xp_value?: number | null
         }
         Update: {
+          cover_image_url?: string | null
           created_at?: string
           description?: string | null
           id?: string
@@ -973,6 +982,9 @@ export type Database = {
           unlock_task_id?: string | null
           unlock_type?: string
           updated_at?: string
+          video_duration?: string | null
+          video_url?: string | null
+          xp_value?: number | null
         }
         Relationships: [
           {

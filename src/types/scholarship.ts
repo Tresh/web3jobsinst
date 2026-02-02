@@ -82,6 +82,11 @@ export interface ScholarshipModule {
   unlock_day: number | null;
   unlock_task_id: string | null;
   is_published: boolean;
+  // New fields for video content
+  cover_image_url: string | null;
+  video_url: string | null;
+  video_duration: string | null;
+  xp_value: number;
   created_at: string;
   updated_at: string;
 }

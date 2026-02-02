@@ -63,6 +63,7 @@ import type {
   ScholarshipModule,
 } from "@/types/scholarship";
 import { TasksTab, OverviewTab, ReferrersTab, EmailHistoryTab } from "@/components/admin/scholarship";
+import { AdminModulesTab } from "@/components/admin/scholarship/AdminModulesTab";
 import { Link2 } from "lucide-react";
 
 const AdminScholarships = () => {
@@ -1460,130 +1461,13 @@ const AdminScholarships = () => {
         </TabsContent>
 
         {/* Modules Tab */}
-        <TabsContent value="modules" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Plus className="w-5 h-5" />
-                Create New Module
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Module Title *</Label>
-                  <Input
-                    value={newModule.title}
-                    onChange={(e) => setNewModule({ ...newModule, title: e.target.value })}
-                    placeholder="e.g., Week 1: Foundations"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Program *</Label>
-                  <Select
-                    value={newModule.program_id}
-                    onValueChange={(v) => setNewModule({ ...newModule, program_id: v })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select program" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {programs.map((p) => (
-                        <SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label>Description</Label>
-                <Textarea
-                  value={newModule.description}
-                  onChange={(e) => setNewModule({ ...newModule, description: e.target.value })}
-                  placeholder="Module description..."
-                />
-              </div>
-              <div className="grid md:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label>Unlock Type</Label>
-                  <Select
-                    value={newModule.unlock_type}
-                    onValueChange={(v) => setNewModule({ ...newModule, unlock_type: v as "day" | "task" | "manual" })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="day">Unlock on Day</SelectItem>
-                      <SelectItem value="task">Unlock after Task</SelectItem>
-                      <SelectItem value="manual">Manual Unlock</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Unlock Day (if day-based)</Label>
-                  <Input
-                    type="number"
-                    value={newModule.unlock_day}
-                    onChange={(e) => setNewModule({ ...newModule, unlock_day: e.target.value })}
-                    placeholder="e.g., 7"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Order Index</Label>
-                  <Input
-                    type="number"
-                    value={newModule.order_index}
-                    onChange={(e) => setNewModule({ ...newModule, order_index: e.target.value })}
-                  />
-                </div>
-              </div>
-              <Button onClick={handleCreateModule} disabled={isCreatingModule}>
-                {isCreatingModule && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                Create Module
-              </Button>
-            </CardContent>
-          </Card>
-
-          {isLoadingModules ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-            </div>
-          ) : modules.length === 0 ? (
-            <Card className="border-dashed">
-              <CardContent className="p-12 text-center">
-                <p className="text-muted-foreground">No modules created yet</p>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="space-y-3">
-              {modules.map((mod) => (
-                <Card key={mod.id}>
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-medium">{mod.title}</h3>
-                          <Badge variant="secondary">Order: {mod.order_index}</Badge>
-                          <Badge variant="outline">{mod.unlock_type}</Badge>
-                        </div>
-                        <p className="text-sm text-muted-foreground">{mod.description}</p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Switch
-                          checked={mod.is_published}
-                          onCheckedChange={() => toggleModulePublished(mod.id, mod.is_published)}
-                        />
-                        <span className="text-sm text-muted-foreground">
-                          {mod.is_published ? "Published" : "Draft"}
-                        </span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
+        <TabsContent value="modules">
+          <AdminModulesTab
+            programs={programs}
+            modules={modules}
+            isLoading={isLoadingModules}
+            onRefetch={fetchData}
+          />
         </TabsContent>
 
         {/* Programs Tab */}
