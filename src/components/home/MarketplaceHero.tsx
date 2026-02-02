@@ -22,18 +22,19 @@ const MarketplaceHero = () => {
       <div className="section-container py-12 md:py-16 lg:py-20 relative z-10">
         <div className="text-center max-w-4xl mx-auto">
           {/* Live Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/50 mb-6">
+          <div className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full border border-primary/40 bg-primary/5 backdrop-blur-sm mb-8">
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-60"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
             </span>
-            <span className="text-xs font-medium text-primary">Platform Live • Real Activity Happening Now</span>
+            <span className="text-xs font-semibold uppercase tracking-wider text-primary/90">Platform Live</span>
           </div>
 
           {/* Main Headline */}
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-foreground tracking-tight leading-tight mb-4">
-            Learn. Build. Earn.{" "}
-            <span className="text-primary">In Public.</span>
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-foreground tracking-tight leading-[1.1] mb-6">
+            Learn. Build. Earn.
+            <br />
+            <span className="bg-gradient-to-r from-primary via-primary to-orange-400 bg-clip-text text-transparent">In Public.</span>
           </h1>
 
           {/* Supporting Description */}
@@ -43,11 +44,11 @@ const MarketplaceHero = () => {
           </p>
 
           {/* Primary CTAs */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
             <Button 
               size="lg" 
               onClick={() => navigate("/courses")}
-              className="w-full sm:w-auto gap-2"
+              className="w-full sm:w-auto gap-2 h-14 px-8 text-base font-semibold shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all"
             >
               Browse Courses
               <ArrowRight className="w-4 h-4" />
@@ -56,7 +57,7 @@ const MarketplaceHero = () => {
               size="lg" 
               variant="outline"
               onClick={() => navigate("/products")}
-              className="w-full sm:w-auto border-muted-foreground/30 text-foreground hover:bg-secondary"
+              className="w-full sm:w-auto h-14 px-8 text-base font-medium border-border/60 text-foreground hover:bg-card hover:border-primary/40 transition-all"
             >
               Explore Products
             </Button>
@@ -122,12 +123,12 @@ interface StatCardProps {
 }
 
 const StatCard = ({ icon, value, label }: StatCardProps) => (
-  <div className="bg-secondary/50 border border-border rounded-xl p-4 text-center backdrop-blur-sm">
-    <div className="flex items-center justify-center mb-2">
+  <div className="bg-card/60 border border-border/50 rounded-2xl p-5 text-center backdrop-blur-md shadow-card transition-all hover:shadow-card-hover hover:border-primary/30">
+    <div className="flex items-center justify-center mb-2 opacity-80">
       {icon}
     </div>
-    <div className="text-xl md:text-2xl font-bold text-foreground">{value}</div>
-    <div className="text-xs text-muted-foreground">{label}</div>
+    <div className="text-xl md:text-2xl font-bold text-foreground tracking-tight">{value}</div>
+    <div className="text-[11px] uppercase tracking-wider text-muted-foreground mt-1">{label}</div>
   </div>
 );
 
