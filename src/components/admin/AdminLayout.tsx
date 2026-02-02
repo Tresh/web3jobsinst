@@ -29,6 +29,7 @@ import {
   GraduationCap,
   Menu,
   Bug,
+  Rocket,
 } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -63,6 +64,11 @@ const adminNavItems = [
     title: "Scholarships",
     icon: GraduationCap,
     href: "/admin/scholarships",
+  },
+  {
+    title: "Bootcamps",
+    icon: Rocket,
+    href: "/admin/bootcamps",
   },
 ];
 

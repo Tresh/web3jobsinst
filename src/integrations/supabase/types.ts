@@ -14,6 +14,300 @@ export type Database = {
   }
   public: {
     Tables: {
+      bootcamp_messages: {
+        Row: {
+          bootcamp_id: string
+          created_at: string
+          id: string
+          is_pinned: boolean
+          message: string
+          message_type: string
+          user_avatar: string | null
+          user_id: string
+          user_name: string
+        }
+        Insert: {
+          bootcamp_id: string
+          created_at?: string
+          id?: string
+          is_pinned?: boolean
+          message: string
+          message_type?: string
+          user_avatar?: string | null
+          user_id: string
+          user_name: string
+        }
+        Update: {
+          bootcamp_id?: string
+          created_at?: string
+          id?: string
+          is_pinned?: boolean
+          message?: string
+          message_type?: string
+          user_avatar?: string | null
+          user_id?: string
+          user_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bootcamp_messages_bootcamp_id_fkey"
+            columns: ["bootcamp_id"]
+            isOneToOne: false
+            referencedRelation: "bootcamps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bootcamp_participants: {
+        Row: {
+          bootcamp_id: string
+          id: string
+          joined_at: string
+          last_active_at: string | null
+          status: string
+          tasks_completed: number
+          total_xp: number
+          user_id: string
+        }
+        Insert: {
+          bootcamp_id: string
+          id?: string
+          joined_at?: string
+          last_active_at?: string | null
+          status?: string
+          tasks_completed?: number
+          total_xp?: number
+          user_id: string
+        }
+        Update: {
+          bootcamp_id?: string
+          id?: string
+          joined_at?: string
+          last_active_at?: string | null
+          status?: string
+          tasks_completed?: number
+          total_xp?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bootcamp_participants_bootcamp_id_fkey"
+            columns: ["bootcamp_id"]
+            isOneToOne: false
+            referencedRelation: "bootcamps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bootcamp_task_submissions: {
+        Row: {
+          bootcamp_id: string
+          created_at: string
+          id: string
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          submission_text: string | null
+          submission_url: string | null
+          task_id: string
+          updated_at: string
+          user_id: string
+          xp_awarded: number | null
+        }
+        Insert: {
+          bootcamp_id: string
+          created_at?: string
+          id?: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submission_text?: string | null
+          submission_url?: string | null
+          task_id: string
+          updated_at?: string
+          user_id: string
+          xp_awarded?: number | null
+        }
+        Update: {
+          bootcamp_id?: string
+          created_at?: string
+          id?: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submission_text?: string | null
+          submission_url?: string | null
+          task_id?: string
+          updated_at?: string
+          user_id?: string
+          xp_awarded?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bootcamp_task_submissions_bootcamp_id_fkey"
+            columns: ["bootcamp_id"]
+            isOneToOne: false
+            referencedRelation: "bootcamps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bootcamp_task_submissions_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "bootcamp_tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bootcamp_tasks: {
+        Row: {
+          bootcamp_id: string
+          created_at: string
+          created_by: string | null
+          day_number: number | null
+          description: string | null
+          end_time: string | null
+          external_link: string | null
+          id: string
+          is_published: boolean
+          start_time: string | null
+          task_type: string
+          title: string
+          updated_at: string
+          xp_value: number
+        }
+        Insert: {
+          bootcamp_id: string
+          created_at?: string
+          created_by?: string | null
+          day_number?: number | null
+          description?: string | null
+          end_time?: string | null
+          external_link?: string | null
+          id?: string
+          is_published?: boolean
+          start_time?: string | null
+          task_type?: string
+          title: string
+          updated_at?: string
+          xp_value?: number
+        }
+        Update: {
+          bootcamp_id?: string
+          created_at?: string
+          created_by?: string | null
+          day_number?: number | null
+          description?: string | null
+          end_time?: string | null
+          external_link?: string | null
+          id?: string
+          is_published?: boolean
+          start_time?: string | null
+          task_type?: string
+          title?: string
+          updated_at?: string
+          xp_value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bootcamp_tasks_bootcamp_id_fkey"
+            columns: ["bootcamp_id"]
+            isOneToOne: false
+            referencedRelation: "bootcamps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bootcamps: {
+        Row: {
+          admin_notes: string | null
+          bootcamp_type: Database["public"]["Enums"]["bootcamp_type"]
+          cover_image_url: string | null
+          created_at: string
+          current_participants: number
+          description: string | null
+          duration_days: number
+          end_date: string | null
+          host_name: string
+          host_user_id: string
+          id: string
+          is_featured: boolean
+          max_participants: number
+          platform_fee: number | null
+          price_amount: number | null
+          pricing_model:
+            | Database["public"]["Enums"]["bootcamp_pricing_model"]
+            | null
+          registration_open: boolean
+          revenue_share_percent: number | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          start_date: string | null
+          status: Database["public"]["Enums"]["bootcamp_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          bootcamp_type?: Database["public"]["Enums"]["bootcamp_type"]
+          cover_image_url?: string | null
+          created_at?: string
+          current_participants?: number
+          description?: string | null
+          duration_days?: number
+          end_date?: string | null
+          host_name: string
+          host_user_id: string
+          id?: string
+          is_featured?: boolean
+          max_participants?: number
+          platform_fee?: number | null
+          price_amount?: number | null
+          pricing_model?:
+            | Database["public"]["Enums"]["bootcamp_pricing_model"]
+            | null
+          registration_open?: boolean
+          revenue_share_percent?: number | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["bootcamp_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          bootcamp_type?: Database["public"]["Enums"]["bootcamp_type"]
+          cover_image_url?: string | null
+          created_at?: string
+          current_participants?: number
+          description?: string | null
+          duration_days?: number
+          end_date?: string | null
+          host_name?: string
+          host_user_id?: string
+          id?: string
+          is_featured?: boolean
+          max_participants?: number
+          platform_fee?: number | null
+          price_amount?: number | null
+          pricing_model?:
+            | Database["public"]["Enums"]["bootcamp_pricing_model"]
+            | null
+          registration_open?: boolean
+          revenue_share_percent?: number | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["bootcamp_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       bug_reports: {
         Row: {
           admin_notes: string | null
@@ -869,6 +1163,17 @@ export type Database = {
     }
     Functions: {
       generate_referral_code: { Args: never; Returns: string }
+      get_bootcamp_leaderboard: {
+        Args: { p_bootcamp_id: string }
+        Returns: {
+          rank: number
+          tasks_completed: number
+          total_xp: number
+          user_avatar: string
+          user_id: string
+          user_name: string
+        }[]
+      }
       get_referred_users: {
         Args: { p_referrer_id: string }
         Returns: {
@@ -919,6 +1224,16 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
+      bootcamp_pricing_model: "fixed_fee" | "revenue_share"
+      bootcamp_status:
+        | "draft"
+        | "pending_approval"
+        | "approved"
+        | "active"
+        | "completed"
+        | "rejected"
+        | "cancelled"
+      bootcamp_type: "free" | "paid"
       bug_report_status: "new" | "in_review" | "resolved" | "ignored"
       scholarship_status: "pending" | "approved" | "rejected" | "waitlist"
     }
@@ -1049,6 +1364,17 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user"],
+      bootcamp_pricing_model: ["fixed_fee", "revenue_share"],
+      bootcamp_status: [
+        "draft",
+        "pending_approval",
+        "approved",
+        "active",
+        "completed",
+        "rejected",
+        "cancelled",
+      ],
+      bootcamp_type: ["free", "paid"],
       bug_report_status: ["new", "in_review", "resolved", "ignored"],
       scholarship_status: ["pending", "approved", "rejected", "waitlist"],
     },
