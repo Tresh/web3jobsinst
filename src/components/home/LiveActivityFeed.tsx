@@ -99,7 +99,7 @@ const LiveActivityFeed = () => {
   ];
 
   return (
-    <section className="bg-foreground py-12">
+    <section className="py-12 border-y border-white/10">
       <div className="section-container">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
@@ -113,8 +113,8 @@ const LiveActivityFeed = () => {
               </div>
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-background">Live Platform Activity</h3>
-              <p className="text-xs text-background/60">Real-time updates from the ecosystem</p>
+              <h3 className="text-sm font-semibold text-white">Live Platform Activity</h3>
+              <p className="text-xs text-white/60">Real-time updates from the ecosystem</p>
             </div>
           </div>
         </div>
@@ -124,17 +124,17 @@ const LiveActivityFeed = () => {
           {visibleActivities.map((activity, index) => (
             <div
               key={`${activity.id}-${index}`}
-              className="flex items-center gap-3 bg-background/10 border border-background/20 rounded-lg p-3 transition-all duration-500"
+              className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-lg p-3 transition-all duration-500"
               style={{
                 opacity: 1 - (index * 0.1),
               }}
             >
-              <div className="w-7 h-7 rounded-full bg-background/20 flex items-center justify-center flex-shrink-0">
+              <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0">
                 {activity.icon}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs text-background truncate">{activity.message}</p>
-                <span className="text-[10px] text-background/50">{activity.time}</span>
+                <p className="text-xs text-white truncate">{activity.message}</p>
+                <span className="text-[10px] text-white/50">{activity.time}</span>
               </div>
             </div>
           ))}
