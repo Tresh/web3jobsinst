@@ -60,7 +60,7 @@ const About = () => {
         </section>
 
         {/* Mission */}
-        <section className="bg-secondary/30 section-padding">
+        <section className="bg-card section-padding">
           <div className="section-container">
             <div className="max-w-3xl mx-auto text-center">
               <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-6">
@@ -105,7 +105,7 @@ const About = () => {
         </section>
 
         {/* CTA */}
-        <section className="bg-primary/5 border-t border-primary/10 section-padding">
+        <section className="bg-primary/10 border-t border-border section-padding">
           <div className="section-container text-center">
             <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
               Ready to Start Your Web3 Journey?

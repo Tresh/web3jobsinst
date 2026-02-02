@@ -100,7 +100,7 @@ const TalentCard = ({ talent, onClick }: TalentCardProps) => {
   return (
     <button
       onClick={onClick}
-      className="group text-left w-full bg-background border border-secondary rounded-xl p-5 hover:border-primary/30 hover:shadow-sm transition-all duration-150"
+      className="group text-left w-full bg-card border border-border rounded-xl p-5 hover:border-primary/30 hover:shadow-sm transition-all duration-150"
     >
       {/* Header with avatar and availability */}
       <div className="flex items-start justify-between mb-4">
@@ -109,7 +109,7 @@ const TalentCard = ({ talent, onClick }: TalentCardProps) => {
         </div>
         <div className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium ${
           talent.available 
-            ? "bg-green-500/10 text-green-600" 
+            ? "bg-green-500/20 text-green-400" 
             : "bg-secondary text-muted-foreground"
         }`}>
           <span className={`w-1.5 h-1.5 rounded-full ${talent.available ? "bg-green-500" : "bg-muted-foreground"}`} />
@@ -141,7 +141,7 @@ const TalentCard = ({ talent, onClick }: TalentCardProps) => {
       </div>
 
       {/* Stats */}
-      <div className="flex items-center justify-between text-xs text-muted-foreground pt-3 border-t border-secondary">
+      <div className="flex items-center justify-between text-xs text-muted-foreground pt-3 border-t border-border">
         <div className="flex items-center gap-1">
           <Star className="w-3.5 h-3.5 text-primary fill-primary" />
           <span className="font-medium text-foreground">{talent.rating}</span>

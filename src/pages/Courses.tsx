@@ -136,7 +136,7 @@ const Courses = () => {
 
       {/* Scholarship CTA */}
       <section className="section-container pb-20">
-        <div className="rounded-2xl border border-secondary bg-secondary/20 p-10 md:p-14 text-center">
+        <div className="rounded-2xl border border-border bg-card p-10 md:p-14 text-center">
           <h2 className="text-xl md:text-2xl font-bold text-foreground mb-4">
             Don't Know Where to Start?
           </h2>

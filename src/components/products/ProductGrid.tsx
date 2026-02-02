@@ -94,17 +94,17 @@ const ProductCard = ({ product, onClick }: ProductCardProps) => {
   return (
     <button
       onClick={onClick}
-      className="group text-left w-full bg-background border border-secondary rounded-xl overflow-hidden hover:border-primary/30 hover:shadow-md transition-all duration-200"
+      className="group text-left w-full bg-card border border-border rounded-xl overflow-hidden hover:border-primary/30 hover:shadow-md transition-all duration-200"
     >
       {/* Image */}
-      <div className="relative aspect-square bg-secondary/30 overflow-hidden">
+      <div className="relative aspect-square bg-muted overflow-hidden">
         <img
           src={product.image}
           alt={product.title}
           className="w-full h-full object-cover blur-[2px] group-hover:scale-105 transition-transform duration-300"
         />
-        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-100">
-          <span className="bg-background/95 text-foreground text-xs font-medium px-3 py-1.5 rounded-full shadow-sm">
+        <div className="absolute inset-0 bg-background/60 flex items-center justify-center opacity-100">
+          <span className="bg-card text-foreground text-xs font-medium px-3 py-1.5 rounded-full shadow-sm border border-border">
             Coming Soon
           </span>
         </div>
@@ -122,7 +122,7 @@ const ProductCard = ({ product, onClick }: ProductCardProps) => {
 
         {/* Category Badge - top left */}
         <div className="absolute top-3 left-3">
-          <span className="px-2 py-1 text-[10px] uppercase tracking-wider font-medium bg-background/90 text-foreground rounded-full">
+          <span className="px-2 py-1 text-[10px] uppercase tracking-wider font-medium bg-card text-foreground rounded-full border border-border">
             {productCategoryLabels[product.category]}
           </span>
         </div>
@@ -138,7 +138,7 @@ const ProductCard = ({ product, onClick }: ProductCardProps) => {
         </p>
         
         {/* Footer */}
-        <div className="flex items-center justify-between pt-2 border-t border-secondary">
+        <div className="flex items-center justify-between pt-2 border-t border-border">
           <div className="flex items-center gap-1 text-xs text-muted-foreground">
             <Download className="w-3 h-3" />
             <span>{product.downloads.toLocaleString()}</span>

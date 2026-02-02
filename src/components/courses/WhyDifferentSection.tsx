@@ -43,7 +43,7 @@ const WhyDifferentSection = () => {
         {features.map((feature) => (
           <div
             key={feature.title}
-            className="bg-background border border-secondary rounded-xl p-6 text-center hover:border-primary/30 transition-colors"
+            className="bg-card border border-border rounded-xl p-6 text-center hover:border-primary/30 transition-colors"
           >
             <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
               <feature.icon className="w-6 h-6 text-primary" />

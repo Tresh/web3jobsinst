@@ -67,7 +67,7 @@ const Navbar = () => {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-secondary h-[72px]">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-border h-[72px]">
         <nav className="section-container h-full">
           <div className="flex items-center justify-between h-full">
             {/* Logo */}

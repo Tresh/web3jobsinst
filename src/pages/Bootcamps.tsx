@@ -145,7 +145,7 @@ const Bootcamps = () => {
       
       <main className="pt-20">
         {/* Hero Section */}
-        <section className="py-16 px-4 bg-gradient-to-b from-primary/5 to-transparent">
+        <section className="py-16 px-4 bg-gradient-to-b from-primary/10 to-transparent">
           <div className="max-w-7xl mx-auto text-center">
             <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
               Transform Your Skills
@@ -170,7 +170,7 @@ const Bootcamps = () => {
         </section>
 
         {/* Filters Section */}
-        <section className="py-8 px-4 border-b">
+        <section className="py-8 px-4 border-b border-border">
           <div className="max-w-7xl mx-auto">
             <div className="flex flex-col md:flex-row gap-4">
               <div className="relative flex-1">
