@@ -3,14 +3,16 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { BookOpen, Lock, CheckCircle, Play, Calendar } from "lucide-react";
 import type { ScholarshipModule } from "@/types/scholarship";
+import { Module0Section } from "./Module0Section";
 
 interface PortalModulesProps {
   modules: ScholarshipModule[];
   getModuleStatus: (moduleId: string) => "locked" | "available" | "completed";
   dayNumber: number;
+  onRefetch?: () => void;
 }
 
-export function PortalModules({ modules, getModuleStatus, dayNumber }: PortalModulesProps) {
+export function PortalModules({ modules, getModuleStatus, dayNumber, onRefetch }: PortalModulesProps) {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "completed":
@@ -77,6 +79,8 @@ export function PortalModules({ modules, getModuleStatus, dayNumber }: PortalMod
       </div>
 
       <div className="space-y-3">
+        {/* Module 0 - Introduction Video (always first, always unlocked) */}
+        <Module0Section onRefetch={onRefetch} />
         {modules.map((module, index) => {
           const status = getModuleStatus(module.id);
           const isLocked = status === "locked";
