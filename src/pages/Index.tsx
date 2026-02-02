@@ -1,28 +1,45 @@
 import Navbar from "@/components/Navbar";
-import HeroSlider from "@/components/HeroSlider";
-import ValueStrip from "@/components/ValueStrip";
-import AboutSection from "@/components/AboutSection";
-import ScholarshipSection from "@/components/ScholarshipSection";
-import ProgramsSection from "@/components/ProgramsSection";
-import JobsSection from "@/components/JobsSection";
-import CollabSection from "@/components/CollabSection";
-import CommunitySection from "@/components/CommunitySection";
-import CTASection from "@/components/CTASection";
 import Footer from "@/components/Footer";
+import MarketplaceHero from "@/components/home/MarketplaceHero";
+import CorePathways from "@/components/home/CorePathways";
+import WhatsHappening from "@/components/home/WhatsHappening";
+import MarketplacePreview from "@/components/home/MarketplacePreview";
+import TalentHiringSection from "@/components/home/TalentHiringSection";
+import LiveActivityFeed from "@/components/home/LiveActivityFeed";
+import ScholarshipOnramp from "@/components/home/ScholarshipOnramp";
+import BuildInPublicSection from "@/components/home/BuildInPublicSection";
+import CTASection from "@/components/CTASection";
 
 const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
       <main>
-        <HeroSlider />
-        <ValueStrip />
-        <AboutSection />
-        <ScholarshipSection />
-        <ProgramsSection />
-        <JobsSection />
-        <CollabSection />
-        <CommunitySection />
+        {/* Dynamic Hero with Live Stats */}
+        <MarketplaceHero />
+        
+        {/* Live Activity Ticker */}
+        <LiveActivityFeed />
+        
+        {/* 4 Core Entry Pathways */}
+        <CorePathways />
+        
+        {/* What's Happening Now - Live Platform Activity */}
+        <WhatsHappening />
+        
+        {/* Marketplace Preview - Courses, Products, Bootcamps */}
+        <MarketplacePreview />
+        
+        {/* Talent & Hiring Section */}
+        <TalentHiringSection />
+        
+        {/* Scholarship as Free On-ramp */}
+        <ScholarshipOnramp />
+        
+        {/* Community & Build in Public */}
+        <BuildInPublicSection />
+        
+        {/* Final CTA */}
         <CTASection />
       </main>
       <Footer />
