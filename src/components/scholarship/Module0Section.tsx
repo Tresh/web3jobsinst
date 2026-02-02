@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -53,10 +53,10 @@ export function Module0Section({ onRefetch }: Module0SectionProps) {
   }, [handleVideoEnd]);
 
   // Set up message listener
-  useState(() => {
+  useEffect(() => {
     window.addEventListener("message", handleIframeMessage);
     return () => window.removeEventListener("message", handleIframeMessage);
-  });
+  }, [handleIframeMessage]);
 
   return (
     <Card className={`transition-all ${isVideoCompleted ? "bg-green-500/5 border-green-500/20" : ""}`}>
