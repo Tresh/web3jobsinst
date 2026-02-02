@@ -6,76 +6,77 @@
 
 @layer base {
   :root {
-    /* DARK MODE FIRST - Platform Identity */
-    --background: 7 8% 5%;
-    --background-secondary: 7 8% 6%;
-    --foreground: 0 0% 98%;
+    /* ═══════════════════════════════════════════════════════════════════
+       DARK LUXURY PALETTE — Rich blacks, warm undertones, refined orange
+       ═══════════════════════════════════════════════════════════════════ */
+    --background: 0 0% 3%;          /* Near-true black for luxury depth */
+    --background-secondary: 0 0% 5%;
+    --foreground: 40 10% 96%;       /* Warm off-white for elegance */
 
-    --card: 7 8% 8%;
-    --card-foreground: 0 0% 98%;
+    --card: 0 0% 6%;                /* Subtle lift from background */
+    --card-foreground: 40 10% 96%;
 
-    --popover: 7 8% 10%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 0 0% 8%;
+    --popover-foreground: 40 10% 96%;
 
-    /* Accent: #FF4D00 = hsl(18, 100%, 50%) */
-    --primary: 18 100% 50%;
+    /* Premium Orange: refined, less saturated for luxury feel */
+    --primary: 24 95% 53%;          /* Warm amber-orange */
     --primary-foreground: 0 0% 100%;
-    /* Accent Hover: #FF783D = hsl(18, 100%, 62%) */
-    --primary-hover: 18 100% 62%;
+    --primary-hover: 24 100% 60%;
 
-    --secondary: 7 8% 12%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 40 10% 96%;
 
-    --muted: 7 8% 15%;
-    --muted-foreground: 0 0% 64%;
+    --muted: 0 0% 14%;
+    --muted-foreground: 0 0% 55%;
 
-    --accent: 18 100% 50%;
+    --accent: 24 95% 53%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 62.8% 50%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 7 8% 18%;
-    --input: 7 8% 18%;
-    --ring: 18 100% 50%;
+    --border: 0 0% 14%;
+    --input: 0 0% 14%;
+    --ring: 24 95% 53%;
 
     --radius: 0.75rem;
 
-    /* Shadows - Subtle for dark theme */
-    --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.2);
-    --shadow-card: 0 1px 3px hsl(0 0% 0% / 0.3);
-    --shadow-card-hover: 0 4px 12px hsl(0 0% 0% / 0.4);
+    /* Luxury shadows — deeper, more dramatic */
+    --shadow-sm: 0 1px 3px 0 hsl(0 0% 0% / 0.4);
+    --shadow-card: 0 4px 20px hsl(0 0% 0% / 0.5);
+    --shadow-card-hover: 0 8px 32px hsl(0 0% 0% / 0.6);
 
-    --sidebar-background: 7 8% 6%;
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 18 100% 50%;
+    --sidebar-background: 0 0% 4%;
+    --sidebar-foreground: 40 10% 96%;
+    --sidebar-primary: 24 95% 53%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 7 8% 12%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 7 8% 18%;
-    --sidebar-ring: 18 100% 50%;
+    --sidebar-accent: 0 0% 10%;
+    --sidebar-accent-foreground: 40 10% 96%;
+    --sidebar-border: 0 0% 14%;
+    --sidebar-ring: 24 95% 53%;
 
-    /* PRIMARY BRAND CANVAS (LOCKED): orange-to-dark radial glow */
+    /* ═══════════════════════════════════════════════════════════════════
+       LUXURY BRAND CANVAS — Sophisticated orange glow over deep black
+       ═══════════════════════════════════════════════════════════════════ */
     --gradient-hero: radial-gradient(
-      circle at 50% -12%,
-      hsla(18 100% 56% / 0.70) 0%,
-      hsla(18 95% 46% / 0.40) 22%,
-      hsla(18 75% 18% / 0.42) 45%,
-      hsla(7 8% 6% / 0.92) 72%,
-      hsl(7 8% 5%) 100%
+      ellipse 80% 50% at 50% -5%,
+      hsla(24 100% 50% / 0.25) 0%,
+      hsla(20 80% 35% / 0.12) 30%,
+      hsla(0 0% 3% / 0.95) 60%,
+      hsl(0 0% 3%) 100%
     );
 
-    /* Subtle vignette to match reference (adds depth; canvas colors stay intact) */
+    /* Vignette for cinematic depth */
     --canvas-vignette: radial-gradient(
-      circle at 50% 30%,
-      hsla(0 0% 0% / 0) 0%,
-      hsla(0 0% 0% / 0.35) 70%,
-      hsla(0 0% 0% / 0.55) 100%
+      ellipse 100% 100% at 50% 50%,
+      hsla(0 0% 0% / 0) 40%,
+      hsla(0 0% 0% / 0.4) 100%
     );
 
-    /* Gradient tokens for accent usage */
-    --gradient-primary: linear-gradient(135deg, hsl(18, 100%, 50%), hsl(25, 100%, 55%));
-    --gradient-primary-hover: linear-gradient(135deg, hsl(18, 100%, 55%), hsl(25, 100%, 60%));
+    /* Premium accent gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(24 95% 53%), hsl(30 100% 60%));
+    --gradient-primary-hover: linear-gradient(135deg, hsl(24 100% 58%), hsl(30 100% 65%));
   }
 
   /* Light mode override (if ever needed) */
