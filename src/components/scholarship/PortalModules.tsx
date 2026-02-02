@@ -1,43 +1,25 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useCallback } from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { BookOpen, Lock, CheckCircle, Play, Calendar } from "lucide-react";
-import type { ScholarshipModule } from "@/types/scholarship";
+import { BookOpen, CheckCircle } from "lucide-react";
+import type { ScholarshipModule, ScholarshipTask } from "@/types/scholarship";
 import { Module0Section } from "./Module0Section";
+import { ModuleListItem } from "./ModuleListItem";
+import { ModuleVideoPlayer } from "./ModuleVideoPlayer";
+import { useModuleProgress } from "@/hooks/useModuleProgress";
 
 interface PortalModulesProps {
   modules: ScholarshipModule[];
   getModuleStatus: (moduleId: string) => "locked" | "available" | "completed";
   dayNumber: number;
+  tasks?: ScholarshipTask[];
   onRefetch?: () => void;
 }
 
-export function PortalModules({ modules, getModuleStatus, dayNumber, onRefetch }: PortalModulesProps) {
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "completed":
-        return (
-          <Badge className="bg-green-500/10 text-green-500 border-green-500/20">
-            <CheckCircle className="w-3 h-3 mr-1" />
-            Completed
-          </Badge>
-        );
-      case "available":
-        return (
-          <Badge className="bg-blue-500/10 text-blue-500 border-blue-500/20">
-            <Play className="w-3 h-3 mr-1" />
-            Available
-          </Badge>
-        );
-      default:
-        return (
-          <Badge variant="secondary">
-            <Lock className="w-3 h-3 mr-1" />
-            Locked
-          </Badge>
-        );
-    }
-  };
+export function PortalModules({ modules, getModuleStatus, dayNumber, tasks = [], onRefetch }: PortalModulesProps) {
+  const [selectedModuleId, setSelectedModuleId] = useState<string | null>(null);
+
+  const selectedModule = modules.find(m => m.id === selectedModuleId);
 
   const getUnlockInfo = (module: ScholarshipModule) => {
     switch (module.unlock_type) {
@@ -55,97 +37,132 @@ export function PortalModules({ modules, getModuleStatus, dayNumber, onRefetch }
     }
   };
 
+  // Get tasks that might be attached to a module (by matching module title or explicit linking)
+  const getAttachedTasks = (module: ScholarshipModule): ScholarshipTask[] => {
+    return tasks.filter(task => {
+      // Match tasks that reference the module title
+      if (task.description?.toLowerCase().includes(module.title.toLowerCase())) {
+        return true;
+      }
+      // Or tasks that are explicitly related (by unlock_task_id relationship)
+      if (module.unlock_task_id === task.id) {
+        return true;
+      }
+      return false;
+    });
+  };
+
+  const completedCount = modules.filter((m) => getModuleStatus(m.id) === "completed").length;
+
+  // If a module is selected, show the video player
+  if (selectedModule) {
+    return (
+      <SelectedModuleView
+        module={selectedModule}
+        isCompleted={getModuleStatus(selectedModule.id) === "completed"}
+        attachedTasks={getAttachedTasks(selectedModule)}
+        onBack={() => setSelectedModuleId(null)}
+        onRefetch={onRefetch}
+      />
+    );
+  }
+
   if (modules.length === 0) {
     return (
-      <Card className="border-dashed">
-        <CardContent className="p-12 text-center">
-          <BookOpen className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-lg font-semibold mb-2">No Course Modules Yet</h3>
-          <p className="text-muted-foreground">
-            Course modules will be added soon. Check back later!
-          </p>
-        </CardContent>
-      </Card>
+      <div className="space-y-4">
+        {/* Module 0 - Introduction Video (always first, always unlocked) */}
+        <Module0Section onRefetch={onRefetch} />
+        
+        <Card className="border-dashed">
+          <CardContent className="p-12 text-center">
+            <BookOpen className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-semibold mb-2">More Modules Coming Soon</h3>
+            <p className="text-muted-foreground">
+              Additional course modules will be added soon. Check back later!
+            </p>
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      {/* Header with progress */}
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Course Modules</h2>
-        <p className="text-sm text-muted-foreground">
-          {modules.filter((m) => getModuleStatus(m.id) === "completed").length} of {modules.length} completed
-        </p>
+        <div>
+          <h2 className="text-lg font-semibold">Course Modules</h2>
+          <p className="text-sm text-muted-foreground">
+            Watch videos, complete tasks, and earn XP
+          </p>
+        </div>
+        <Badge variant="outline" className="gap-1">
+          <CheckCircle className="w-3 h-3" />
+          {completedCount} of {modules.length + 1} completed
+        </Badge>
       </div>
 
+      {/* Module List - YouTube playlist style */}
       <div className="space-y-3">
         {/* Module 0 - Introduction Video (always first, always unlocked) */}
         <Module0Section onRefetch={onRefetch} />
+
+        {/* Dynamic Modules */}
         {modules.map((module, index) => {
           const status = getModuleStatus(module.id);
-          const isLocked = status === "locked";
           const unlockInfo = getUnlockInfo(module);
 
           return (
-            <Card
+            <ModuleListItem
               key={module.id}
-              className={`transition-all ${
-                status === "completed"
-                  ? "bg-green-500/5 border-green-500/20"
-                  : isLocked
-                  ? "opacity-75"
-                  : ""
-              }`}
-            >
-              <CardContent className="p-4">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex items-start gap-4">
-                    <div
-                      className={`h-10 w-10 rounded-lg flex items-center justify-center ${
-                        status === "completed"
-                          ? "bg-green-500/10 text-green-500"
-                          : status === "available"
-                          ? "bg-blue-500/10 text-blue-500"
-                          : "bg-secondary text-muted-foreground"
-                      }`}
-                    >
-                      {status === "completed" ? (
-                        <CheckCircle className="w-5 h-5" />
-                      ) : status === "available" ? (
-                        <Play className="w-5 h-5" />
-                      ) : (
-                        <Lock className="w-5 h-5" />
-                      )}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-sm text-muted-foreground">Module {index + 1}</span>
-                        {getStatusBadge(status)}
-                      </div>
-                      <h3 className="font-medium">{module.title}</h3>
-                      {module.description && (
-                        <p className="text-sm text-muted-foreground mt-1">{module.description}</p>
-                      )}
-                      {isLocked && unlockInfo && (
-                        <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
-                          {unlockInfo}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  {status === "available" && (
-                    <Button size="sm">
-                      <Play className="w-4 h-4 mr-1" />
-                      Start
-                    </Button>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+              module={module}
+              index={index + 1} // Start from 1 since Module 0 is intro
+              status={status}
+              unlockInfo={unlockInfo}
+              isSelected={false}
+              onClick={() => setSelectedModuleId(module.id)}
+            />
           );
         })}
       </div>
     </div>
+  );
+}
+
+// Separate component to use the hook
+function SelectedModuleView({ 
+  module, 
+  isCompleted, 
+  attachedTasks, 
+  onBack, 
+  onRefetch 
+}: { 
+  module: ScholarshipModule;
+  isCompleted: boolean;
+  attachedTasks: ScholarshipTask[];
+  onBack: () => void;
+  onRefetch?: () => void;
+}) {
+  const { markModuleCompleted } = useModuleProgress({ 
+    moduleId: module.id, 
+    xpValue: module.xp_value || 0 
+  });
+
+  const handleComplete = useCallback(async () => {
+    const result = await markModuleCompleted();
+    if (result.success) {
+      onRefetch?.();
+    }
+    return result;
+  }, [markModuleCompleted, onRefetch]);
+
+  return (
+    <ModuleVideoPlayer
+      module={module}
+      isCompleted={isCompleted}
+      attachedTasks={attachedTasks}
+      onBack={onBack}
+      onComplete={handleComplete}
+    />
   );
 }

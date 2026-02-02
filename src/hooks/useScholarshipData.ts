@@ -73,10 +73,10 @@ export function useScholarshipPortal() {
 
           setSubmissions((subsData || []) as unknown as ScholarshipTaskSubmission[]);
 
-          // Fetch modules
+          // Fetch modules with new video/cover fields
           const { data: modulesData } = await supabase
             .from("scholarship_modules")
-            .select("*")
+            .select("id, program_id, title, description, order_index, unlock_type, unlock_day, unlock_task_id, is_published, cover_image_url, video_url, video_duration, xp_value, created_at, updated_at")
             .eq("program_id", appData.program_id)
             .eq("is_published", true)
             .order("order_index", { ascending: true });
