@@ -140,7 +140,7 @@ const Bootcamps = () => {
   });
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <UnifiedNavbar />
       
       <main className="pt-20">

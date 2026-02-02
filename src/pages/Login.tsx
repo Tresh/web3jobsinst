@@ -101,7 +101,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4 relative">
+    <div className="min-h-screen flex items-center justify-center px-4 relative">
       {/* Close Button */}
       <button
         onClick={() => navigate("/")}

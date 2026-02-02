@@ -73,7 +73,7 @@ const Products = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <PageNavbar
         showSearch
         searchQuery={searchQuery}

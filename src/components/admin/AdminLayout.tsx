@@ -118,8 +118,8 @@ const AdminLayout = () => {
 
   return (
     <SidebarProvider defaultOpen={!isMobile}>
-      <div className="min-h-screen flex w-full bg-background overflow-x-hidden">
-        <Sidebar className="border-r border-border" collapsible="icon">
+      <div className="min-h-screen flex w-full overflow-x-hidden">
+        <Sidebar className="border-r border-border/50 bg-background/80 backdrop-blur-md" collapsible="icon">
           <SidebarHeader className="p-4 border-b border-border">
             <Link to="/admin" className="flex items-center gap-3">
               <img src={logo} alt="Logo" className="w-8 h-8 object-contain" />
@@ -210,7 +210,7 @@ const AdminLayout = () => {
 
         <SidebarInset className="flex-1 min-w-0">
           {/* Top Header */}
-          <header className="sticky top-0 z-10 flex h-14 sm:h-16 items-center justify-between border-b border-border bg-background px-3 sm:px-6">
+          <header className="sticky top-0 z-10 flex h-14 sm:h-16 items-center justify-between border-b border-border/50 bg-background/80 backdrop-blur-md px-3 sm:px-6">
             <SidebarTrigger className="mr-2 sm:mr-4">
               <Menu className="h-5 w-5" />
             </SidebarTrigger>
