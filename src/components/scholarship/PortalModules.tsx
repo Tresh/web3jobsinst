@@ -1,20 +1,26 @@
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, CheckCircle, Zap } from "lucide-react";
+import { BookOpen, CheckCircle, Zap, Loader2 } from "lucide-react";
 import type { ScholarshipModule } from "@/types/scholarship";
 import { Module0Card } from "./Module0Card";
 import { ModuleListItem } from "./ModuleListItem";
+import { useIntroModule } from "@/hooks/useIntroModule";
+import { useScholarshipPortal } from "@/hooks/useScholarshipData";
+import { useModule0Progress } from "@/hooks/useModule0Progress";
 
 interface PortalModulesProps {
   modules: ScholarshipModule[];
   getModuleStatus: (moduleId: string) => "locked" | "available" | "completed";
   dayNumber: number;
   onRefetch?: () => void;
+  programId?: string;
 }
 
-export function PortalModules({ modules, getModuleStatus, dayNumber, onRefetch }: PortalModulesProps) {
+export function PortalModules({ modules, getModuleStatus, dayNumber, onRefetch, programId }: PortalModulesProps) {
   const navigate = useNavigate();
+  const { introModule, isLoading: introLoading } = useIntroModule(programId);
+  const { isVideoCompleted } = useModule0Progress();
 
   const getUnlockInfo = (module: ScholarshipModule) => {
     const unlockType = module.unlock_type;
@@ -34,24 +40,26 @@ export function PortalModules({ modules, getModuleStatus, dayNumber, onRefetch }
     return null;
   };
 
-  const completedCount = modules.filter((m) => getModuleStatus(m.id) === "completed").length;
+  // Count completed modules (including intro if completed)
+  const regularCompletedCount = modules.filter((m) => getModuleStatus(m.id) === "completed").length;
+  const introCompleted = isVideoCompleted ? 1 : 0;
+  const completedCount = regularCompletedCount + introCompleted;
+  const totalModules = modules.length + (introModule ? 1 : 0);
 
   const handleModuleClick = (moduleId: string) => {
     navigate(`/dashboard/scholarship/modules/${moduleId}`);
   };
 
-  // Empty state
-  if (modules.length === 0) {
+  // Empty state (no modules at all)
+  if (modules.length === 0 && !introModule && !introLoading) {
     return (
       <div className="space-y-4">
-        <Module0Card onRefetch={onRefetch} />
-        
         <Card className="border-dashed">
           <CardContent className="p-12 text-center">
             <BookOpen className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">More Modules Coming Soon</h3>
+            <h3 className="text-lg font-semibold mb-2">No Modules Available</h3>
             <p className="text-muted-foreground">
-              Additional course modules will be added soon. Check back later!
+              Course modules will be added soon. Check back later!
             </p>
           </CardContent>
         </Card>
@@ -71,14 +79,18 @@ export function PortalModules({ modules, getModuleStatus, dayNumber, onRefetch }
         </div>
         <Badge variant="outline" className="gap-1">
           <CheckCircle className="w-3 h-3" />
-          {completedCount} of {modules.length + 1} completed
+          {completedCount} of {totalModules} completed
         </Badge>
       </div>
 
       {/* Clean Module Grid - Overview Only */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {/* Module 0 - Introduction Card */}
-        <Module0Card onRefetch={onRefetch} />
+        {/* Introduction Module Card - Fetched from database */}
+        <Module0Card 
+          onRefetch={onRefetch} 
+          introModule={introModule} 
+          isLoading={introLoading} 
+        />
 
         {/* Dynamic Modules */}
         {modules.map((module, index) => {
@@ -89,7 +101,7 @@ export function PortalModules({ modules, getModuleStatus, dayNumber, onRefetch }
             <ModuleListItem
               key={module.id}
               module={module}
-              index={index + 1}
+              index={index}
               status={status}
               unlockInfo={unlockInfo}
               onClick={() => handleModuleClick(module.id)}

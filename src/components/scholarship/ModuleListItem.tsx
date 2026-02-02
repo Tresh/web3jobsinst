@@ -111,7 +111,7 @@ export function ModuleListItem({
         {/* Content */}
         <div className="p-4">
           <div className="flex items-center gap-2 mb-2 flex-wrap">
-            <span className="text-xs text-muted-foreground">Module {index + 1}</span>
+            <span className="text-xs text-muted-foreground">Module {index}</span>
             {getStatusBadge()}
           </div>
           <h4 className="font-medium text-sm line-clamp-2 mb-2">{module.title}</h4>

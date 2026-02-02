@@ -20,21 +20,11 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useModuleProgress } from "@/hooks/useModuleProgress";
+import { useModule0Progress } from "@/hooks/useModule0Progress";
 import type { ScholarshipModule, ScholarshipTask } from "@/types/scholarship";
-import Module0DetailPage from "./Module0DetailPage";
 
 export default function ScholarshipModuleDetail() {
   const { moduleId } = useParams<{ moduleId: string }>();
-
-  // Handle Module 0 separately
-  if (moduleId === "module-0") {
-    return <Module0DetailPage />;
-  }
-
-  return <RegularModuleDetail moduleId={moduleId} />;
-}
-
-function RegularModuleDetail({ moduleId }: { moduleId: string | undefined }) {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [videoStarted, setVideoStarted] = useState(false);
@@ -116,12 +106,18 @@ function RegularModuleDetail({ moduleId }: { moduleId: string | undefined }) {
     enabled: !!application?.program_id,
   });
 
-  const isCompleted = moduleProgress?.status === "completed";
+  // Determine if this is the intro module (order_index = -1)
+  const isIntroModule = module?.order_index === -1;
   
-  const { markModuleCompleted, isAwarding } = useModuleProgress({ 
+  // Use appropriate progress hook based on module type
+  const { isVideoCompleted: introCompleted, isAwarding: introAwarding, markVideoCompleted } = useModule0Progress();
+  const { markModuleCompleted, isAwarding: regularAwarding } = useModuleProgress({ 
     moduleId: moduleId || "", 
     xpValue: module?.xp_value || 0 
   });
+
+  const isCompleted = isIntroModule ? introCompleted : (moduleProgress?.status === "completed");
+  const isAwarding = isIntroModule ? introAwarding : regularAwarding;
 
   // Calculate day number
   const dayNumber = application?.scholarship_start_date
@@ -131,6 +127,8 @@ function RegularModuleDetail({ moduleId }: { moduleId: string | undefined }) {
   // Check if module is locked
   const isLocked = useCallback(() => {
     if (!module) return true;
+    // Intro module is never locked
+    if (module.order_index === -1) return false;
     
     const unlockType = module.unlock_type;
     
@@ -138,13 +136,11 @@ function RegularModuleDetail({ moduleId }: { moduleId: string | undefined }) {
       return module.unlock_day ? dayNumber < module.unlock_day : false;
     }
     if (unlockType === "task") {
-      // Would need to check if unlock_task is completed
       return false;
     }
     if (unlockType === "manual") {
-      return true; // Manual unlock required
+      return true;
     }
-    // Default: immediate or unrecognized types are not locked
     return false;
   }, [module, dayNumber]);
 
@@ -203,12 +199,24 @@ function RegularModuleDetail({ moduleId }: { moduleId: string | undefined }) {
   }, [isCompleted]);
 
   const handleConfirmCompletion = async () => {
-    const result = await markModuleCompleted();
-    if (result.success) {
-      toast.success(`Module Complete! +${module?.xp_value} XP awarded 🎉`);
-      setShowCompletionPrompt(false);
+    if (isIntroModule) {
+      const result = await markVideoCompleted();
+      if (result.success) {
+        if (!result.alreadyCompleted) {
+          toast.success(`Module Complete! +${module?.xp_value || 100} XP awarded 🎉`);
+        }
+        setShowCompletionPrompt(false);
+      } else {
+        toast.error("Failed to record completion. Please try again.");
+      }
     } else {
-      toast.error("Failed to record completion. Please try again.");
+      const result = await markModuleCompleted();
+      if (result.success) {
+        toast.success(`Module Complete! +${module?.xp_value} XP awarded 🎉`);
+        setShowCompletionPrompt(false);
+      } else {
+        toast.error("Failed to record completion. Please try again.");
+      }
     }
   };
 
@@ -392,12 +400,35 @@ function RegularModuleDetail({ moduleId }: { moduleId: string | undefined }) {
         </CardContent>
       </Card>
 
-      {/* Attached Tasks */}
-      {attachedTasks.length > 0 && (
+      {/* Attached Tasks - Show for intro module OR any module with tasks */}
+      {(isIntroModule || attachedTasks.length > 0) && (
         <Card>
           <CardContent className="p-6">
             <h3 className="font-semibold mb-4">Attached Tasks</h3>
             <div className="space-y-4">
+              {isIntroModule && (
+                <div className="flex items-start gap-3 p-4 bg-secondary/50 rounded-lg">
+                  <div className="h-8 w-8 rounded-lg bg-background flex items-center justify-center shrink-0">
+                    <ExternalLink className="w-4 h-4 text-muted-foreground" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h4 className="font-medium text-sm">Announce Your Web3 Jobs Institute Journey</h4>
+                      <Badge variant="outline" className="text-xs">
+                        50 XP
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground mb-2">
+                      After watching the video, make a post on X (Twitter) announcing that you are starting 
+                      the Web3 Jobs Institute Scholarship. Share that you will be building in public and 
+                      carrying your audience along. Attach a screenshot showing you watched the video.
+                    </p>
+                    <p className="text-xs text-muted-foreground italic">
+                      📌 Submit this task from the Tasks tab once completed.
+                    </p>
+                  </div>
+                </div>
+              )}
               {attachedTasks.map((task) => (
                 <div key={task.id} className="flex items-start gap-3 p-4 bg-secondary/50 rounded-lg">
                   <div className="h-8 w-8 rounded-lg bg-background flex items-center justify-center shrink-0">

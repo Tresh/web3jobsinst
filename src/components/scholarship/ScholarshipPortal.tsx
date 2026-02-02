@@ -115,6 +115,7 @@ export function ScholarshipPortal() {
             getModuleStatus={getModuleStatus}
             dayNumber={dayNumber}
             onRefetch={refetch}
+            programId={application.program_id}
           />
         </TabsContent>
 
