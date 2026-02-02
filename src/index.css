@@ -131,8 +131,10 @@
     @apply text-foreground antialiased;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     overflow-x: hidden;
-    background: var(--gradient-hero);
+    background-color: hsl(0 0% 0%);
+    background-image: var(--gradient-hero);
     background-attachment: fixed;
+    background-repeat: no-repeat;
     min-height: 100vh;
   }
 

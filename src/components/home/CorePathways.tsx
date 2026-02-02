@@ -64,13 +64,13 @@ const CorePathways = () => {
   };
 
   return (
-    <section className="bg-foreground py-16 md:py-24">
+    <section className="py-16 md:py-24">
       <div className="section-container">
         <div className="text-center mb-12">
-          <h2 className="text-2xl md:text-3xl font-bold text-background mb-4">
+          <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
             Your Path Into the Ecosystem
           </h2>
-          <p className="text-background/60 max-w-2xl mx-auto">
+          <p className="text-white/60 max-w-2xl mx-auto">
             Four clear pathways to learn, earn, and grow in the decentralized economy
           </p>
         </div>
@@ -80,7 +80,7 @@ const CorePathways = () => {
             <Card
               key={pathway.id}
               onClick={() => handleClick(pathway)}
-              className="cursor-pointer group bg-background/5 border-background/10 hover:border-primary/30 transition-all duration-200 relative overflow-hidden"
+              className="cursor-pointer group bg-white/5 border-white/10 hover:border-primary/30 transition-all duration-200 relative overflow-hidden"
             >
               <CardContent className="p-6 relative">
                 {/* Badge */}
@@ -96,12 +96,12 @@ const CorePathways = () => {
                 </div>
 
                 {/* Title */}
-                <h3 className="text-lg font-semibold text-background mb-2">
+                <h3 className="text-lg font-semibold text-white mb-2">
                   {pathway.title}
                 </h3>
 
                 {/* Description */}
-                <p className="text-sm text-background/60 mb-4">
+                <p className="text-sm text-white/60 mb-4">
                   {pathway.description}
                 </p>
 
@@ -110,7 +110,7 @@ const CorePathways = () => {
                   {pathway.features.map((feature) => (
                     <span 
                       key={feature}
-                      className="text-[10px] px-2 py-1 bg-background/10 text-background/70 rounded"
+                      className="text-[10px] px-2 py-1 bg-white/10 text-white/70 rounded"
                     >
                       {feature}
                     </span>

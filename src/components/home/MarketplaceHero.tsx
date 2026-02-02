@@ -123,12 +123,12 @@ interface StatCardProps {
 }
 
 const StatCard = ({ icon, value, label }: StatCardProps) => (
-  <div className="bg-card/60 border border-border/50 rounded-2xl p-5 text-center backdrop-blur-md shadow-card transition-all hover:shadow-card-hover hover:border-primary/30">
-    <div className="flex items-center justify-center mb-2 opacity-80">
+  <div className="bg-white/5 border border-white/10 rounded-2xl p-5 text-center backdrop-blur-sm transition-all hover:bg-white/10 hover:border-white/20">
+    <div className="flex items-center justify-center mb-2">
       {icon}
     </div>
-    <div className="text-xl md:text-2xl font-bold text-foreground tracking-tight">{value}</div>
-    <div className="text-[11px] uppercase tracking-wider text-muted-foreground mt-1">{label}</div>
+    <div className="text-xl md:text-2xl font-bold text-white tracking-tight">{value}</div>
+    <div className="text-[11px] uppercase tracking-wider text-white/60 mt-1">{label}</div>
   </div>
 );
 
