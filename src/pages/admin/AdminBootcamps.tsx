@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Table,
   TableBody,
@@ -13,14 +12,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import {
   Select,
   SelectContent,
   SelectItem,
@@ -28,40 +19,39 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import {
   Search,
   CheckCircle,
-  XCircle,
   Eye,
   Star,
   Users,
   Clock,
-  DollarSign,
   Plus,
+  Loader2,
 } from "lucide-react";
 import type { Bootcamp, BootcampStatus } from "@/types/bootcamp";
+import BootcampCreateDialog from "@/components/admin/bootcamp/BootcampCreateDialog";
+import BootcampManageDialog from "@/components/admin/bootcamp/BootcampManageDialog";
 
 const statusColors: Record<BootcampStatus, string> = {
-  draft: "bg-gray-500/10 text-gray-500",
-  pending_approval: "bg-amber-500/10 text-amber-500",
-  approved: "bg-blue-500/10 text-blue-500",
-  active: "bg-green-500/10 text-green-500",
-  completed: "bg-gray-500/10 text-gray-500",
-  rejected: "bg-red-500/10 text-red-500",
-  cancelled: "bg-red-500/10 text-red-500",
+  draft: "bg-secondary text-secondary-foreground",
+  pending_approval: "bg-accent text-accent-foreground",
+  approved: "bg-primary/10 text-primary",
+  active: "bg-primary/20 text-primary",
+  completed: "bg-muted text-muted-foreground",
+  rejected: "bg-destructive/10 text-destructive",
+  cancelled: "bg-destructive/10 text-destructive",
 };
 
 const AdminBootcamps = () => {
-  const { user } = useAuth();
   const [bootcamps, setBootcamps] = useState<Bootcamp[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [selectedBootcamp, setSelectedBootcamp] = useState<Bootcamp | null>(null);
-  const [adminNotes, setAdminNotes] = useState("");
-  const [processing, setProcessing] = useState(false);
+  const [manageDialogOpen, setManageDialogOpen] = useState(false);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
   useEffect(() => {
     fetchBootcamps();
@@ -81,32 +71,6 @@ const AdminBootcamps = () => {
       toast.error("Failed to load bootcamps", { description: err.message });
     } finally {
       setLoading(false);
-    }
-  };
-
-  const updateBootcampStatus = async (bootcampId: string, status: BootcampStatus) => {
-    setProcessing(true);
-    try {
-      const { error } = await supabase
-        .from("bootcamps")
-        .update({
-          status,
-          admin_notes: adminNotes || null,
-          reviewed_by: user?.id,
-          reviewed_at: new Date().toISOString(),
-        })
-        .eq("id", bootcampId);
-
-      if (error) throw error;
-
-      toast.success(`Bootcamp ${status === "approved" ? "approved" : "updated"} successfully`);
-      setSelectedBootcamp(null);
-      setAdminNotes("");
-      fetchBootcamps();
-    } catch (err: any) {
-      toast.error("Failed to update bootcamp", { description: err.message });
-    } finally {
-      setProcessing(false);
     }
   };
 
@@ -144,6 +108,10 @@ const AdminBootcamps = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Bootcamp Management</h1>
+        <Button onClick={() => setCreateDialogOpen(true)}>
+          <Plus className="w-4 h-4 mr-2" />
+          Create Bootcamp
+        </Button>
       </div>
 
       {/* Stats Cards */}
@@ -164,8 +132,8 @@ const AdminBootcamps = () => {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-amber-500/10 rounded-lg">
-                <Clock className="w-5 h-5 text-amber-500" />
+              <div className="p-2 bg-accent rounded-lg">
+                <Clock className="w-5 h-5 text-accent-foreground" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Pending Approval</p>
@@ -177,8 +145,8 @@ const AdminBootcamps = () => {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-green-500/10 rounded-lg">
-                <CheckCircle className="w-5 h-5 text-green-500" />
+              <div className="p-2 bg-primary/20 rounded-lg">
+                <CheckCircle className="w-5 h-5 text-primary" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Active</p>
@@ -190,8 +158,8 @@ const AdminBootcamps = () => {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-500/10 rounded-lg">
-                <Users className="w-5 h-5 text-blue-500" />
+              <div className="p-2 bg-secondary rounded-lg">
+                <Users className="w-5 h-5 text-secondary-foreground" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Total Participants</p>
@@ -219,11 +187,13 @@ const AdminBootcamps = () => {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="draft">Draft</SelectItem>
             <SelectItem value="pending_approval">Pending Approval</SelectItem>
             <SelectItem value="approved">Approved</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="active">Active (Ongoing)</SelectItem>
             <SelectItem value="completed">Completed</SelectItem>
             <SelectItem value="rejected">Rejected</SelectItem>
+            <SelectItem value="cancelled">Cancelled</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -246,7 +216,7 @@ const AdminBootcamps = () => {
               {loading ? (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center py-12">
-                    Loading...
+                    <Loader2 className="w-6 h-6 mx-auto animate-spin text-muted-foreground" />
                   </TableCell>
                 </TableRow>
               ) : filteredBootcamps.length === 0 ? (
@@ -261,7 +231,7 @@ const AdminBootcamps = () => {
                     <TableCell>
                       <div className="flex items-center gap-2">
                         {bootcamp.is_featured && (
-                          <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                          <Star className="w-4 h-4 text-primary fill-primary" />
                         )}
                         <div>
                           <p className="font-medium">{bootcamp.title}</p>
@@ -292,7 +262,7 @@ const AdminBootcamps = () => {
                           size="icon"
                           onClick={() => {
                             setSelectedBootcamp(bootcamp);
-                            setAdminNotes(bootcamp.admin_notes || "");
+                            setManageDialogOpen(true);
                           }}
                         >
                           <Eye className="w-4 h-4" />
@@ -302,7 +272,7 @@ const AdminBootcamps = () => {
                           size="icon"
                           onClick={() => toggleFeatured(bootcamp)}
                         >
-                          <Star className={`w-4 h-4 ${bootcamp.is_featured ? "text-amber-500 fill-amber-500" : ""}`} />
+                          <Star className={`w-4 h-4 ${bootcamp.is_featured ? "text-primary fill-primary" : ""}`} />
                         </Button>
                       </div>
                     </TableCell>
@@ -314,107 +284,20 @@ const AdminBootcamps = () => {
         </CardContent>
       </Card>
 
-      {/* Bootcamp Detail Dialog */}
-      <Dialog open={!!selectedBootcamp} onOpenChange={(open) => !open && setSelectedBootcamp(null)}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>{selectedBootcamp?.title}</DialogTitle>
-            <DialogDescription>
-              Hosted by {selectedBootcamp?.host_name}
-            </DialogDescription>
-          </DialogHeader>
+      {/* Create Dialog */}
+      <BootcampCreateDialog
+        open={createDialogOpen}
+        onOpenChange={setCreateDialogOpen}
+        onSuccess={fetchBootcamps}
+      />
 
-          {selectedBootcamp && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-3 bg-muted/50 rounded-lg">
-                  <p className="text-sm text-muted-foreground">Duration</p>
-                  <p className="font-medium">{selectedBootcamp.duration_days} Days</p>
-                </div>
-                <div className="p-3 bg-muted/50 rounded-lg">
-                  <p className="text-sm text-muted-foreground">Type</p>
-                  <p className="font-medium">
-                    {selectedBootcamp.bootcamp_type === "free" ? "Free" : `Paid ($${selectedBootcamp.price_amount})`}
-                  </p>
-                </div>
-                <div className="p-3 bg-muted/50 rounded-lg">
-                  <p className="text-sm text-muted-foreground">Max Participants</p>
-                  <p className="font-medium">{selectedBootcamp.max_participants}</p>
-                </div>
-                <div className="p-3 bg-muted/50 rounded-lg">
-                  <p className="text-sm text-muted-foreground">Platform Fee</p>
-                  <p className="font-medium">${selectedBootcamp.platform_fee}</p>
-                </div>
-              </div>
-
-              <div>
-                <p className="text-sm font-medium mb-2">Description</p>
-                <p className="text-sm text-muted-foreground">
-                  {selectedBootcamp.description || "No description provided."}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-sm font-medium mb-2">Admin Notes</p>
-                <Textarea
-                  value={adminNotes}
-                  onChange={(e) => setAdminNotes(e.target.value)}
-                  placeholder="Add notes for this bootcamp..."
-                  rows={3}
-                />
-              </div>
-
-              <div>
-                <p className="text-sm font-medium mb-2">Update Status</p>
-                <div className="flex flex-wrap gap-2">
-                  {selectedBootcamp.status === "pending_approval" && (
-                    <>
-                      <Button
-                        onClick={() => updateBootcampStatus(selectedBootcamp.id, "approved")}
-                        disabled={processing}
-                      >
-                        <CheckCircle className="w-4 h-4 mr-2" />
-                        Approve
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        onClick={() => updateBootcampStatus(selectedBootcamp.id, "rejected")}
-                        disabled={processing}
-                      >
-                        <XCircle className="w-4 h-4 mr-2" />
-                        Reject
-                      </Button>
-                    </>
-                  )}
-                  {selectedBootcamp.status === "approved" && (
-                    <Button
-                      onClick={() => updateBootcampStatus(selectedBootcamp.id, "active")}
-                      disabled={processing}
-                    >
-                      Start Bootcamp
-                    </Button>
-                  )}
-                  {selectedBootcamp.status === "active" && (
-                    <Button
-                      variant="secondary"
-                      onClick={() => updateBootcampStatus(selectedBootcamp.id, "completed")}
-                      disabled={processing}
-                    >
-                      Mark Completed
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setSelectedBootcamp(null)}>
-              Close
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Manage Dialog */}
+      <BootcampManageDialog
+        bootcamp={selectedBootcamp}
+        open={manageDialogOpen}
+        onOpenChange={setManageDialogOpen}
+        onSuccess={fetchBootcamps}
+      />
     </div>
   );
 };

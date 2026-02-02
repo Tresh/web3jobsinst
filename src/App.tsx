@@ -40,6 +40,7 @@ import DashboardProducts from "./pages/dashboard/DashboardProducts";
 import DashboardTalent from "./pages/dashboard/DashboardTalent";
 import DashboardSettings from "./pages/dashboard/DashboardSettings";
 import DashboardScholarship from "./pages/dashboard/DashboardScholarship";
+import DashboardBootcamps from "./pages/dashboard/DashboardBootcamps";
 import Scholarship from "./pages/Scholarship";
 import ScholarshipCelebration from "./pages/ScholarshipCelebration";
 
@@ -121,6 +122,7 @@ const App = () => (
             >
               <Route index element={<DashboardOverview />} />
               <Route path="scholarship" element={<DashboardScholarship />} />
+              <Route path="bootcamps" element={<DashboardBootcamps />} />
               <Route path="courses" element={<DashboardCourses />} />
               <Route path="products" element={<DashboardProducts />} />
               <Route path="talent" element={<DashboardTalent />} />
