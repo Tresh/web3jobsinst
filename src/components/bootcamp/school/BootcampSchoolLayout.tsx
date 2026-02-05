@@ -73,7 +73,7 @@ const BootcampSchoolLayout = ({
   ];
 
   return (
-    <div className="flex flex-col h-full min-h-screen bg-background">
+    <div className="flex flex-col min-h-screen bg-background overflow-y-auto">
       {/* Header */}
       <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pwa-safe-header">
         <div className="px-4 py-3">
