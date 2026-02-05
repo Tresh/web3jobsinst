@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useNavigate } from "react-router-dom";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -29,10 +30,10 @@ import {
   Clock,
   Plus,
   Loader2,
+  Calendar,
 } from "lucide-react";
 import type { Bootcamp, BootcampStatus } from "@/types/bootcamp";
 import BootcampCreateDialog from "@/components/admin/bootcamp/BootcampCreateDialog";
-import BootcampManageDialog from "@/components/admin/bootcamp/BootcampManageDialog";
 
 const statusColors: Record<BootcampStatus, string> = {
   draft: "bg-secondary text-secondary-foreground",
@@ -45,12 +46,11 @@ const statusColors: Record<BootcampStatus, string> = {
 };
 
 const AdminBootcamps = () => {
+  const navigate = useNavigate();
   const [bootcamps, setBootcamps] = useState<Bootcamp[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [selectedBootcamp, setSelectedBootcamp] = useState<Bootcamp | null>(null);
-  const [manageDialogOpen, setManageDialogOpen] = useState(false);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
   useEffect(() => {
@@ -260,10 +260,7 @@ const AdminBootcamps = () => {
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => {
-                            setSelectedBootcamp(bootcamp);
-                            setManageDialogOpen(true);
-                          }}
+                          onClick={() => navigate(`/admin/bootcamps/${bootcamp.id}`)}
                         >
                           <Eye className="w-4 h-4" />
                         </Button>
@@ -288,14 +285,6 @@ const AdminBootcamps = () => {
       <BootcampCreateDialog
         open={createDialogOpen}
         onOpenChange={setCreateDialogOpen}
-        onSuccess={fetchBootcamps}
-      />
-
-      {/* Manage Dialog */}
-      <BootcampManageDialog
-        bootcamp={selectedBootcamp}
-        open={manageDialogOpen}
-        onOpenChange={setManageDialogOpen}
         onSuccess={fetchBootcamps}
       />
     </div>
