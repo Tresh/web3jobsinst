@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -6,10 +6,12 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useBootcampTopicMessages } from "@/hooks/useBootcampCommunity";
 import { useAuth } from "@/contexts/AuthContext";
+import { useVoiceRecorder } from "@/hooks/useVoiceRecorder";
 import { toast } from "sonner";
 import { ArrowLeft, Send, Pin, Lock, MoreVertical, Smile } from "lucide-react";
-import { format, isToday, isYesterday, isSameDay } from "date-fns";
+import { format, isToday, isYesterday } from "date-fns";
 import type { Bootcamp, BootcampCommunityTopic } from "@/types/bootcamp";
+import { VoiceNotePlayer, VoiceRecordButton } from "@/components/bootcamp/voice";
 
 interface TelegramRoomChatProps {
   bootcamp: Bootcamp;
@@ -20,11 +22,23 @@ interface TelegramRoomChatProps {
 
 const TelegramRoomChat = ({ bootcamp, topic, isCompleted, onBack }: TelegramRoomChatProps) => {
   const { user } = useAuth();
-  const { messages, loading, sendMessage } = useBootcampTopicMessages(bootcamp.id, topic.id);
+  const { messages, loading, sendMessage, sendVoiceNote } = useBootcampTopicMessages(bootcamp.id, topic.id);
   const [newMessage, setNewMessage] = useState("");
   const [sending, setSending] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleVoiceNoteComplete = useCallback(async (url: string, duration: number) => {
+    const result = await sendVoiceNote(url, duration);
+    if (!result.success) {
+      toast.error("Failed to send voice note");
+    }
+  }, [sendVoiceNote]);
+
+  const voiceRecorder = useVoiceRecorder({
+    bootcampId: bootcamp.id,
+    onRecordingComplete: handleVoiceNoteComplete,
+  });
 
   // Auto-scroll to bottom on new messages
   useEffect(() => {
@@ -210,7 +224,16 @@ const TelegramRoomChat = ({ bootcamp, topic, isCompleted, onBack }: TelegramRoom
                                 : "bg-muted rounded-bl-md"
                             }`}
                           >
-                            <p className="break-words whitespace-pre-wrap">{msg.message}</p>
+                            {/* Voice Note */}
+                            {(msg as any).voice_note_url ? (
+                              <VoiceNotePlayer
+                                url={(msg as any).voice_note_url}
+                                duration={(msg as any).voice_note_duration || 0}
+                                variant={isOwnMessage ? "sent" : "received"}
+                              />
+                            ) : (
+                              <p className="break-words whitespace-pre-wrap">{msg.message}</p>
+                            )}
                             <p
                               className={`text-[10px] mt-1 ${
                                 isOwnMessage ? "text-primary-foreground/70" : "text-muted-foreground"
@@ -237,25 +260,52 @@ const TelegramRoomChat = ({ bootcamp, topic, isCompleted, onBack }: TelegramRoom
             <Button variant="ghost" size="icon" className="shrink-0 text-muted-foreground">
               <Smile className="w-5 h-5" />
             </Button>
-            <Input
-              ref={inputRef}
-              placeholder="Message..."
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
-              disabled={sending}
-              className="flex-1 bg-muted/50 border-0 focus-visible:ring-1"
-            />
-            <Button
-              onClick={handleSend}
-              disabled={!newMessage.trim() || sending}
-              size="icon"
-              className={`shrink-0 transition-all ${
-                newMessage.trim() ? "bg-primary" : "bg-muted text-muted-foreground"
-              }`}
-            >
-              <Send className="w-4 h-4" />
-            </Button>
+            
+            {/* Text Input or Voice Recording */}
+            {voiceRecorder.isRecording || voiceRecorder.isUploading ? (
+              <div className="flex-1 flex justify-center">
+                <VoiceRecordButton
+                  isRecording={voiceRecorder.isRecording}
+                  isUploading={voiceRecorder.isUploading}
+                  formattedDuration={voiceRecorder.formattedDuration}
+                  onStartRecording={voiceRecorder.startRecording}
+                  onStopRecording={voiceRecorder.stopRecording}
+                  onCancelRecording={voiceRecorder.cancelRecording}
+                />
+              </div>
+            ) : (
+              <>
+                <Input
+                  ref={inputRef}
+                  placeholder="Message..."
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  disabled={sending}
+                  className="flex-1 bg-muted/50 border-0 focus-visible:ring-1"
+                />
+                
+                {newMessage.trim() ? (
+                  <Button
+                    onClick={handleSend}
+                    disabled={sending}
+                    size="icon"
+                    className="shrink-0 bg-primary"
+                  >
+                    <Send className="w-4 h-4" />
+                  </Button>
+                ) : (
+                  <VoiceRecordButton
+                    isRecording={voiceRecorder.isRecording}
+                    isUploading={voiceRecorder.isUploading}
+                    formattedDuration={voiceRecorder.formattedDuration}
+                    onStartRecording={voiceRecorder.startRecording}
+                    onStopRecording={voiceRecorder.stopRecording}
+                    onCancelRecording={voiceRecorder.cancelRecording}
+                  />
+                )}
+              </>
+            )}
           </div>
         </div>
       ) : (

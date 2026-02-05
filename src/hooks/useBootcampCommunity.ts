@@ -178,5 +178,30 @@ export function useBootcampTopicMessages(bootcampId: string | undefined, topicId
     }
   };
 
-  return { messages, loading, sendMessage, refetch: fetchMessages };
+  const sendVoiceNote = async (voiceNoteUrl: string, duration: number) => {
+    if (!bootcampId || !user?.id || !topicId) return { success: false };
+
+    try {
+      const { error } = await supabase
+        .from("bootcamp_messages")
+        .insert({
+          bootcamp_id: bootcampId,
+          topic_id: topicId,
+          user_id: user.id,
+          user_name: profile?.full_name || "Anonymous",
+          user_avatar: profile?.avatar_url,
+          message: "🎤 Voice note",
+          message_type: "voice_note",
+          voice_note_url: voiceNoteUrl,
+          voice_note_duration: duration,
+        });
+
+      if (error) throw error;
+      return { success: true };
+    } catch (err: any) {
+      return { success: false, error: err.message };
+    }
+  };
+
+  return { messages, loading, sendMessage, sendVoiceNote, refetch: fetchMessages };
 }
