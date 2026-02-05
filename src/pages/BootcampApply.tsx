@@ -384,16 +384,28 @@ const BootcampApply = () => {
                   <div className="space-y-4 border-t pt-4">
                     <h3 className="font-medium">Required Post Links</h3>
                     {bootcamp.required_post_links.map((p) => {
-                      const isPlaceholderUrl = p.placeholder?.startsWith("http");
+                      // Some bootcamps store the reference post URL inside the label text.
+                      // Extract it to keep the label readable and make the link clickable.
+                      const urlRegex = /(https?:\/\/\S+)/i;
+                      const labelUrlMatch = p.label?.match(urlRegex);
+                      const labelUrl = labelUrlMatch?.[1];
+
+                      const placeholderUrl = p.placeholder?.startsWith("http") ? p.placeholder : undefined;
+                      const referenceUrl = labelUrl || placeholderUrl;
+
+                      const cleanedLabel = labelUrl
+                        ? p.label.replace(urlRegex, "").replace(/\s{2,}/g, " ").trim()
+                        : p.label;
+
                       return (
                         <div key={p.id} className="space-y-2">
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 flex-wrap">
                             <Label htmlFor={`p-${p.id}`}>
-                              {p.label} {p.required && "*"}
+                              {cleanedLabel} {p.required && "*"}
                             </Label>
-                            {isPlaceholderUrl && (
+                            {referenceUrl && (
                               <a
-                                href={p.placeholder}
+                                href={referenceUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="text-xs text-primary hover:underline"
@@ -407,7 +419,7 @@ const BootcampApply = () => {
                             type="url"
                             value={postLinkValues[p.id] || ""}
                             onChange={(e) => setPostLinkValues({ ...postLinkValues, [p.id]: e.target.value })}
-                            placeholder={isPlaceholderUrl ? "Paste your post link here" : (p.placeholder || "https://...")}
+                            placeholder={referenceUrl ? "Paste your post link here" : (p.placeholder || "https://...")}
                             required={p.required}
                           />
                         </div>
@@ -415,6 +427,7 @@ const BootcampApply = () => {
                     })}
                   </div>
                 )}
+
 
                 {/* Skill Level */}
                 <div className="space-y-3">
