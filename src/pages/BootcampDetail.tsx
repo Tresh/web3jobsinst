@@ -1,11 +1,8 @@
-import { useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import UnifiedNavbar from "@/components/UnifiedNavbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useBootcamp } from "@/hooks/useBootcamps";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -13,13 +10,9 @@ import {
   Calendar,
   Users,
   Clock,
-  Trophy,
-  CheckCircle,
-  Zap,
-  Play,
 } from "lucide-react";
 import BootcampOverview from "@/components/bootcamp/BootcampOverview";
-import BootcampInternalDashboard from "@/components/bootcamp/BootcampInternalDashboard";
+import { TelegramBootcampRoom } from "@/components/bootcamp/telegram";
 
 const BootcampDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -88,10 +81,10 @@ const BootcampDetail = () => {
   const canJoin = !isParticipant && bootcamp.registration_open && 
     bootcamp.current_participants < bootcamp.max_participants && !isCompleted;
 
-  // If user is a participant, show the internal dashboard
+  // If user is a participant, show the Telegram-style room
   if (isParticipant) {
     return (
-      <BootcampInternalDashboard
+      <TelegramBootcampRoom
         bootcamp={bootcamp}
         participation={participation}
         tasks={tasks}
