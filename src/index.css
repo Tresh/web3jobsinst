@@ -134,6 +134,7 @@
     overscroll-behavior: none;
     background-color: hsl(0 0% 0%);
     background-image: var(--gradient-hero);
+    /* Note: background-attachment: fixed can break scrolling on mobile Safari/PWA */
     background-attachment: fixed;
     background-repeat: no-repeat;
     min-height: 100vh;
@@ -142,6 +143,19 @@
     padding-bottom: env(safe-area-inset-bottom);
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
+  }
+
+  /* Mobile/iOS: avoid scroll lock/jank caused by fixed background attachment */
+  @media (max-width: 768px) {
+    body {
+      background-attachment: scroll;
+    }
+  }
+
+  @supports (-webkit-touch-callout: none) {
+    body {
+      background-attachment: scroll;
+    }
   }
 
   body::before {
