@@ -227,7 +227,11 @@ const AdminBootcamps = () => {
                 </TableRow>
               ) : (
                 filteredBootcamps.map((bootcamp) => (
-                  <TableRow key={bootcamp.id}>
+                  <TableRow 
+                    key={bootcamp.id} 
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => navigate(`/admin/bootcamps/${bootcamp.id}`)}
+                  >
                     <TableCell>
                       <div className="flex items-center gap-2">
                         {bootcamp.is_featured && (
@@ -243,31 +247,37 @@ const AdminBootcamps = () => {
                     </TableCell>
                     <TableCell>{bootcamp.host_name}</TableCell>
                     <TableCell>
-                      <Badge variant="outline">
+                      <span className="inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold">
                         {bootcamp.bootcamp_type === "free" ? "Free" : `$${bootcamp.price_amount}`}
-                      </Badge>
+                      </span>
                     </TableCell>
                     <TableCell>
                       {bootcamp.current_participants} / {bootcamp.max_participants}
                     </TableCell>
                     <TableCell>
-                      <Badge className={statusColors[bootcamp.status]}>
+                      <span className={`inline-flex items-center rounded-md px-2.5 py-0.5 text-xs font-semibold ${statusColors[bootcamp.status]}`}>
                         {bootcamp.status.replace("_", " ")}
-                      </Badge>
+                      </span>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => navigate(`/admin/bootcamps/${bootcamp.id}`)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/admin/bootcamps/${bootcamp.id}`);
+                          }}
                         >
                           <Eye className="w-4 h-4" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => toggleFeatured(bootcamp)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleFeatured(bootcamp);
+                          }}
                         >
                           <Star className={`w-4 h-4 ${bootcamp.is_featured ? "text-primary fill-primary" : ""}`} />
                         </Button>
