@@ -101,7 +101,12 @@ export function useBootcampApplicationsAdmin(bootcampId?: string) {
     adminNotes?: string
   ) => {
     try {
-      const { error } = await supabase
+      // First get the application to get user_id and bootcamp_id
+      const application = applications.find((a) => a.id === applicationId);
+      if (!application) throw new Error("Application not found");
+
+      // Update the application status
+      const { error: updateError } = await supabase
         .from("bootcamp_applications")
         .update({
           status,
@@ -110,7 +115,45 @@ export function useBootcampApplicationsAdmin(bootcampId?: string) {
         })
         .eq("id", applicationId);
 
-      if (error) throw error;
+      if (updateError) throw updateError;
+
+      // If approved, create participant record
+      if (status === "approved") {
+        // Check if participant already exists
+        const { data: existingParticipant } = await supabase
+          .from("bootcamp_participants")
+          .select("id")
+          .eq("bootcamp_id", application.bootcamp_id)
+          .eq("user_id", application.user_id)
+          .maybeSingle();
+
+        if (!existingParticipant) {
+          const { error: participantError } = await supabase
+            .from("bootcamp_participants")
+            .insert({
+              bootcamp_id: application.bootcamp_id,
+              user_id: application.user_id,
+              status: "active",
+            });
+
+          if (participantError) throw participantError;
+
+          // Increment the current_participants count on the bootcamp
+          const { data: bootcamp } = await supabase
+            .from("bootcamps")
+            .select("current_participants")
+            .eq("id", application.bootcamp_id)
+            .single();
+
+          if (bootcamp) {
+            await supabase
+              .from("bootcamps")
+              .update({ current_participants: bootcamp.current_participants + 1 })
+              .eq("id", application.bootcamp_id);
+          }
+        }
+      }
+
       await fetchApplications();
       return { success: true };
     } catch (err: any) {
