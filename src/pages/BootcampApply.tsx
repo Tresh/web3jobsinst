@@ -383,21 +383,36 @@ const BootcampApply = () => {
                 {bootcamp.required_post_links && bootcamp.required_post_links.length > 0 && (
                   <div className="space-y-4 border-t pt-4">
                     <h3 className="font-medium">Required Post Links</h3>
-                    {bootcamp.required_post_links.map((p) => (
-                      <div key={p.id} className="space-y-2">
-                        <Label htmlFor={`p-${p.id}`}>
-                          {p.label} {p.required && "*"}
-                        </Label>
-                        <Input
-                          id={`p-${p.id}`}
-                          type="url"
-                          value={postLinkValues[p.id] || ""}
-                          onChange={(e) => setPostLinkValues({ ...postLinkValues, [p.id]: e.target.value })}
-                          placeholder={p.placeholder || "https://..."}
-                          required={p.required}
-                        />
-                      </div>
-                    ))}
+                    {bootcamp.required_post_links.map((p) => {
+                      const isPlaceholderUrl = p.placeholder?.startsWith("http");
+                      return (
+                        <div key={p.id} className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <Label htmlFor={`p-${p.id}`}>
+                              {p.label} {p.required && "*"}
+                            </Label>
+                            {isPlaceholderUrl && (
+                              <a
+                                href={p.placeholder}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs text-primary hover:underline"
+                              >
+                                (View post)
+                              </a>
+                            )}
+                          </div>
+                          <Input
+                            id={`p-${p.id}`}
+                            type="url"
+                            value={postLinkValues[p.id] || ""}
+                            onChange={(e) => setPostLinkValues({ ...postLinkValues, [p.id]: e.target.value })}
+                            placeholder={isPlaceholderUrl ? "Paste your post link here" : (p.placeholder || "https://...")}
+                            required={p.required}
+                          />
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
 
