@@ -78,8 +78,9 @@ const BootcampDetail = () => {
 
   const isParticipant = !!participation;
   const isCompleted = bootcamp.status === "completed";
+  const isOpen = bootcamp.status === "approved" || bootcamp.status === "active";
   const canJoin = !isParticipant && bootcamp.registration_open && 
-    bootcamp.current_participants < bootcamp.max_participants && !isCompleted;
+    bootcamp.current_participants < bootcamp.max_participants && isOpen;
 
   // If user is a participant, show the School layout
   if (isParticipant) {
