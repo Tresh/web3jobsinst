@@ -1405,6 +1405,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_bootcamp_participant: {
+        Args: { p_bootcamp_id: string; p_user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
