@@ -224,6 +224,53 @@ export type Database = {
           },
         ]
       }
+      bootcamp_progress_logs: {
+        Row: {
+          blockers: string | null
+          bootcamp_id: string
+          created_at: string
+          id: string
+          log_date: string
+          progress_notes: string | null
+          updated_at: string
+          user_id: string
+          wins: string | null
+          worked_on: string | null
+        }
+        Insert: {
+          blockers?: string | null
+          bootcamp_id: string
+          created_at?: string
+          id?: string
+          log_date?: string
+          progress_notes?: string | null
+          updated_at?: string
+          user_id: string
+          wins?: string | null
+          worked_on?: string | null
+        }
+        Update: {
+          blockers?: string | null
+          bootcamp_id?: string
+          created_at?: string
+          id?: string
+          log_date?: string
+          progress_notes?: string | null
+          updated_at?: string
+          user_id?: string
+          wins?: string | null
+          worked_on?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bootcamp_progress_logs_bootcamp_id_fkey"
+            columns: ["bootcamp_id"]
+            isOneToOne: false
+            referencedRelation: "bootcamps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bootcamp_task_submissions: {
         Row: {
           bootcamp_id: string
