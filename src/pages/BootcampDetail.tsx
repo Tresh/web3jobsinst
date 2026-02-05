@@ -19,10 +19,7 @@ import {
   Play,
 } from "lucide-react";
 import BootcampOverview from "@/components/bootcamp/BootcampOverview";
-import BootcampTasks from "@/components/bootcamp/BootcampTasks";
-import BootcampCommunityAdvanced from "@/components/bootcamp/BootcampCommunityAdvanced";
-import BootcampLeaderboard from "@/components/bootcamp/BootcampLeaderboard";
-import BootcampParticipants from "@/components/bootcamp/BootcampParticipants";
+import BootcampInternalDashboard from "@/components/bootcamp/BootcampInternalDashboard";
 
 const BootcampDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -40,7 +37,6 @@ const BootcampDetail = () => {
     submitTask,
     refetch,
   } = useBootcamp(id);
-  const [activeTab, setActiveTab] = useState("overview");
 
   const handleApply = () => {
     if (!user) {
@@ -92,28 +88,23 @@ const BootcampDetail = () => {
   const canJoin = !isParticipant && bootcamp.registration_open && 
     bootcamp.current_participants < bootcamp.max_participants && !isCompleted;
 
-  // Calculate days remaining
-  const getDaysInfo = () => {
-    if (!bootcamp.start_date) return null;
-    const startDate = new Date(bootcamp.start_date);
-    const endDate = bootcamp.end_date ? new Date(bootcamp.end_date) : 
-      new Date(startDate.getTime() + bootcamp.duration_days * 24 * 60 * 60 * 1000);
-    const now = new Date();
-    
-    if (now < startDate) {
-      const daysUntilStart = Math.ceil((startDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-      return { type: "starting", days: daysUntilStart };
-    } else if (now < endDate) {
-      const daysPassed = Math.floor((now.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-      const daysRemaining = bootcamp.duration_days - daysPassed;
-      return { type: "ongoing", daysPassed, daysRemaining, total: bootcamp.duration_days };
-    } else {
-      return { type: "ended" };
-    }
-  };
+  // If user is a participant, show the internal dashboard
+  if (isParticipant) {
+    return (
+      <BootcampInternalDashboard
+        bootcamp={bootcamp}
+        participation={participation}
+        tasks={tasks}
+        submissions={submissions}
+        leaderboard={leaderboard}
+        participants={participants}
+        onSubmitTask={submitTask}
+        refetch={refetch}
+      />
+    );
+  }
 
-  const daysInfo = getDaysInfo();
-
+  // Non-participant view (public bootcamp page)
   return (
     <div className="min-h-screen bg-background">
       <UnifiedNavbar />
@@ -143,12 +134,6 @@ const BootcampDetail = () => {
                   ) : (
                     <Badge className="bg-primary/10 text-primary">Registration Open</Badge>
                   )}
-                  {isParticipant && (
-                    <Badge className="bg-blue-500/10 text-blue-500 border-blue-500/20">
-                      <CheckCircle className="w-3 h-3 mr-1" />
-                      Joined
-                    </Badge>
-                  )}
                 </div>
 
                 <h1 className="text-3xl md:text-4xl font-bold">{bootcamp.title}</h1>
@@ -173,7 +158,7 @@ const BootcampDetail = () => {
                   )}
                 </div>
 
-                {!isParticipant && canJoin && (
+                {canJoin && (
                   <div className="pt-4">
                     <Button size="lg" onClick={handleApply}>
                       Apply to Join
@@ -181,115 +166,19 @@ const BootcampDetail = () => {
                   </div>
                 )}
               </div>
-
-              {/* Right Side - Stats Card */}
-              {isParticipant && (
-                <Card className="lg:w-80 shrink-0">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-lg">Your Progress</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Zap className="w-5 h-5 text-amber-500" />
-                        <span className="font-medium">XP Earned</span>
-                      </div>
-                      <span className="text-2xl font-bold text-primary">{participation.total_xp}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="w-5 h-5 text-green-500" />
-                        <span className="font-medium">Tasks Completed</span>
-                      </div>
-                      <span className="text-2xl font-bold">{participation.tasks_completed}</span>
-                    </div>
-                    {daysInfo && daysInfo.type === "ongoing" && (
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Play className="w-5 h-5 text-blue-500" />
-                          <span className="font-medium">Day</span>
-                        </div>
-                        <span className="text-2xl font-bold">{daysInfo.daysPassed} / {daysInfo.total}</span>
-                      </div>
-                    )}
-                    {leaderboard.length > 0 && (
-                      <div className="flex items-center justify-between pt-2 border-t">
-                        <div className="flex items-center gap-2">
-                          <Trophy className="w-5 h-5 text-amber-500" />
-                          <span className="font-medium">Your Rank</span>
-                        </div>
-                        <span className="text-2xl font-bold">
-                          #{leaderboard.find((l) => l.user_id === user?.id)?.rank || "-"}
-                        </span>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              )}
             </div>
           </div>
         </section>
 
-        {/* Content Tabs */}
+        {/* Content - Overview Only for Non-Participants */}
         <section className="py-8 px-4">
           <div className="max-w-7xl mx-auto">
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 mb-8">
-                <TabsTrigger value="overview">Overview</TabsTrigger>
-                {isParticipant && (
-                  <>
-                    <TabsTrigger value="tasks">Tasks</TabsTrigger>
-                    <TabsTrigger value="community">Community</TabsTrigger>
-                    <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
-                    <TabsTrigger value="participants">Participants</TabsTrigger>
-                  </>
-                )}
-              </TabsList>
-
-              <TabsContent value="overview">
-                <BootcampOverview 
-                  bootcamp={bootcamp} 
-                  isParticipant={isParticipant}
-                  onJoin={handleApply}
-                  canJoin={canJoin}
-                />
-              </TabsContent>
-
-              {isParticipant && (
-                <>
-                  <TabsContent value="tasks">
-                    <BootcampTasks 
-                      tasks={tasks} 
-                      submissions={submissions}
-                      bootcamp={bootcamp}
-                      onSubmit={submitTask}
-                      refetch={refetch}
-                    />
-                  </TabsContent>
-
-                  <TabsContent value="community">
-                    <BootcampCommunityAdvanced 
-                      bootcampId={bootcamp.id}
-                      isCompleted={isCompleted}
-                    />
-                  </TabsContent>
-
-                  <TabsContent value="leaderboard">
-                    <BootcampLeaderboard 
-                      leaderboard={leaderboard}
-                      currentUserId={user?.id}
-                    />
-                  </TabsContent>
-
-                  <TabsContent value="participants">
-                    <BootcampParticipants 
-                      participants={participants}
-                      currentUserId={user?.id}
-                    />
-                  </TabsContent>
-                </>
-              )}
-            </Tabs>
+            <BootcampOverview 
+              bootcamp={bootcamp} 
+              isParticipant={false}
+              onJoin={handleApply}
+              canJoin={canJoin}
+            />
           </div>
         </section>
       </main>
