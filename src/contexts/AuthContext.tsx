@@ -10,6 +10,7 @@ interface Profile {
   email: string | null;
   full_name: string | null;
   avatar_url: string | null;
+  headline: string | null;
   provider: string | null;
   onboarding_completed: boolean | null;
   onboarding_step: number | null;
@@ -29,6 +30,7 @@ interface AuthContextType {
   signUpWithEmail: (email: string, password: string, fullName?: string, referralCode?: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   refreshRole: () => Promise<void>;
+  refetchProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -90,6 +92,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (user) {
       const userRole = await fetchRole(user.id);
       setRole(userRole);
+    }
+  };
+
+  const refetchProfile = async () => {
+    if (user) {
+      const userProfile = await fetchProfile(user.id);
+      setProfile(userProfile);
     }
   };
 
@@ -236,6 +245,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signUpWithEmail,
     signOut,
     refreshRole,
+    refetchProfile,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,20 +7,37 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, User, Lock, AlertCircle } from "lucide-react";
+import { Loader2, User, Lock, AlertCircle, Camera } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useProfilePhotoUpload } from "@/hooks/useProfilePhotoUpload";
 
 const DashboardSettings = () => {
-  const { user, profile } = useAuth();
+  const { user, profile, refetchProfile } = useAuth();
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { uploadPhoto, uploading } = useProfilePhotoUpload(user?.id);
   
   const [isLoading, setIsLoading] = useState(false);
   const [fullName, setFullName] = useState(profile?.full_name || "");
+  const [headline, setHeadline] = useState(profile?.headline || "");
+  const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url || "");
   
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
+
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const url = await uploadPhoto(file);
+    if (url) {
+      setAvatarUrl(url);
+      await refetchProfile();
+    }
+  };
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,6 +47,7 @@ const DashboardSettings = () => {
       .from("profiles")
       .update({
         full_name: fullName,
+        headline: headline || null,
       })
       .eq("user_id", user?.id);
 
@@ -44,6 +62,7 @@ const DashboardSettings = () => {
         title: "Profile updated",
         description: "Your profile has been successfully updated.",
       });
+      await refetchProfile();
     }
 
     setIsLoading(false);
@@ -145,17 +164,39 @@ const DashboardSettings = () => {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleUpdateProfile} className="space-y-6">
-                {/* Avatar - Color background with initial */}
+                {/* Avatar with upload */}
                 <div className="flex items-center gap-4">
-                  <div className="h-20 w-20 rounded-full bg-primary flex items-center justify-center">
-                    <span className="text-2xl font-bold text-primary-foreground">
-                      {getInitial()}
-                    </span>
+                  <div className="relative">
+                    <Avatar className="h-20 w-20">
+                      <AvatarImage src={avatarUrl || undefined} />
+                      <AvatarFallback className="bg-primary text-primary-foreground text-2xl font-bold">
+                        {getInitial()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handlePhotoChange}
+                      className="hidden"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploading}
+                      className="absolute bottom-0 right-0 p-1.5 bg-primary text-primary-foreground rounded-full hover:bg-primary/90 transition-colors disabled:opacity-50"
+                    >
+                      {uploading ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Camera className="w-4 h-4" />
+                      )}
+                    </button>
                   </div>
                   <div className="space-y-1">
                     <p className="text-sm font-medium">Profile Picture</p>
                     <p className="text-xs text-muted-foreground">
-                      Your avatar shows the first letter of your name
+                      Click the camera icon to upload a photo
                     </p>
                   </div>
                 </div>
@@ -172,6 +213,21 @@ const DashboardSettings = () => {
                   />
                 </div>
 
+                {/* Headline */}
+                <div className="space-y-2">
+                  <Label htmlFor="headline">Headline</Label>
+                  <Input
+                    id="headline"
+                    type="text"
+                    placeholder="e.g., Web3 Developer | DeFi Builder"
+                    value={headline}
+                    onChange={(e) => setHeadline(e.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    A short description that appears under your name
+                  </p>
+                </div>
+
                 {/* Email (read-only) */}
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
@@ -184,7 +240,7 @@ const DashboardSettings = () => {
                   />
                 </div>
 
-                <Button type="submit" disabled={isLoading}>
+                <Button type="submit" disabled={isLoading || uploading}>
                   {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                   Save Changes
                 </Button>

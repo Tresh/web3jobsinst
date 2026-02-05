@@ -791,6 +791,7 @@ export type Database = {
           created_at: string
           email: string | null
           full_name: string | null
+          headline: string | null
           id: string
           onboarding_completed: boolean
           onboarding_step: number
@@ -805,6 +806,7 @@ export type Database = {
           created_at?: string
           email?: string | null
           full_name?: string | null
+          headline?: string | null
           id?: string
           onboarding_completed?: boolean
           onboarding_step?: number
@@ -819,6 +821,7 @@ export type Database = {
           created_at?: string
           email?: string | null
           full_name?: string | null
+          headline?: string | null
           id?: string
           onboarding_completed?: boolean
           onboarding_step?: number
@@ -1397,6 +1400,66 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      talent_profiles: {
+        Row: {
+          availability: string
+          bio: string | null
+          category: string
+          completed_projects: number | null
+          created_at: string
+          headline: string
+          hourly_rate: number | null
+          id: string
+          is_published: boolean | null
+          portfolio_links: string[] | null
+          rating: number | null
+          skills: string[] | null
+          social_github: string | null
+          social_linkedin: string | null
+          social_twitter: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          availability?: string
+          bio?: string | null
+          category: string
+          completed_projects?: number | null
+          created_at?: string
+          headline: string
+          hourly_rate?: number | null
+          id?: string
+          is_published?: boolean | null
+          portfolio_links?: string[] | null
+          rating?: number | null
+          skills?: string[] | null
+          social_github?: string | null
+          social_linkedin?: string | null
+          social_twitter?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          availability?: string
+          bio?: string | null
+          category?: string
+          completed_projects?: number | null
+          created_at?: string
+          headline?: string
+          hourly_rate?: number | null
+          id?: string
+          is_published?: boolean | null
+          portfolio_links?: string[] | null
+          rating?: number | null
+          skills?: string[] | null
+          social_github?: string | null
+          social_linkedin?: string | null
+          social_twitter?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {
