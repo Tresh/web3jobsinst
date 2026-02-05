@@ -82,7 +82,7 @@ const PageNavbar = ({
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-border h-[72px]">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-border pwa-safe-header" style={{ height: 'calc(72px + env(safe-area-inset-top, 0px))' }}>
         <nav className="section-container h-full">
           <div className="flex items-center justify-between h-full gap-4">
             {/* Logo */}
