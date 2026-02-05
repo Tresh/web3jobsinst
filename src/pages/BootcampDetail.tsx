@@ -12,7 +12,7 @@ import {
   Clock,
 } from "lucide-react";
 import BootcampOverview from "@/components/bootcamp/BootcampOverview";
-import { TelegramBootcampRoom } from "@/components/bootcamp/telegram";
+import { BootcampSchoolLayout } from "@/components/bootcamp/school";
 
 const BootcampDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -81,10 +81,10 @@ const BootcampDetail = () => {
   const canJoin = !isParticipant && bootcamp.registration_open && 
     bootcamp.current_participants < bootcamp.max_participants && !isCompleted;
 
-  // If user is a participant, show the Telegram-style room
+  // If user is a participant, show the School layout
   if (isParticipant) {
     return (
-      <TelegramBootcampRoom
+      <BootcampSchoolLayout
         bootcamp={bootcamp}
         participation={participation}
         tasks={tasks}
