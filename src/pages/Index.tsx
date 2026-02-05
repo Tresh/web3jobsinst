@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import BugReportButton from "@/components/BugReportButton";
 import MarketplaceHero from "@/components/home/MarketplaceHero";
 import CorePathways from "@/components/home/CorePathways";
 import WhatsHappening from "@/components/home/WhatsHappening";
@@ -43,6 +44,7 @@ const Index = () => {
         <CTASection />
       </main>
       <Footer />
+      <BugReportButton />
     </div>
   );
 };
