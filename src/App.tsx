@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import BugReportButton from "@/components/BugReportButton";
+
 
 import Index from "./pages/Index";
 import Courses from "./pages/Courses";
@@ -69,7 +69,6 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BugReportButton />
         <BrowserRouter>
           <Routes>
             {/* Public routes */}
