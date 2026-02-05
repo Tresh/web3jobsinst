@@ -2,6 +2,19 @@ export type BootcampStatus = 'draft' | 'pending_approval' | 'approved' | 'active
 export type BootcampType = 'free' | 'paid';
 export type BootcampPricingModel = 'fixed_fee' | 'revenue_share';
 
+export interface ApplicationQuestion {
+  id: string;
+  question: string;
+  required: boolean;
+}
+
+export interface RequiredPostLink {
+  id: string;
+  label: string;
+  placeholder: string;
+  required: boolean;
+}
+
 export interface Bootcamp {
   id: string;
   title: string;
@@ -27,6 +40,8 @@ export interface Bootcamp {
   reviewed_at: string | null;
   created_at: string;
   updated_at: string;
+  application_questions: ApplicationQuestion[] | null;
+  required_post_links: RequiredPostLink[] | null;
 }
 
 export interface BootcampParticipant {

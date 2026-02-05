@@ -13,7 +13,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2, CheckCircle, Clock } from "lucide-react";
-import type { Bootcamp, BootcampApplication } from "@/types/bootcamp";
+import type { Bootcamp, BootcampApplication, ApplicationQuestion, RequiredPostLink } from "@/types/bootcamp";
 
 const BootcampApply = () => {
   const { id } = useParams<{ id: string }>();
@@ -33,6 +33,10 @@ const BootcampApply = () => {
   const [skillLevel, setSkillLevel] = useState("beginner");
   const [availabilityCommitment, setAvailabilityCommitment] = useState(false);
   const [agreedToRules, setAgreedToRules] = useState(false);
+  
+  // Dynamic form state for custom questions and post links
+  const [customAnswers, setCustomAnswers] = useState<Record<string, string>>({});
+  const [postLinkValues, setPostLinkValues] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (!user) {
@@ -64,7 +68,7 @@ const BootcampApply = () => {
         .single();
 
       if (bootcampError) throw bootcampError;
-      setBootcamp(bootcampData as Bootcamp);
+      setBootcamp(bootcampData as unknown as Bootcamp);
 
       // Check for existing application
       const { data: applicationData } = await supabase
@@ -101,7 +105,7 @@ const BootcampApply = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!user || !id) return;
+    if (!user || !id || !bootcamp) return;
 
     if (!agreedToRules) {
       toast.error("Please agree to the bootcamp rules and expectations");
@@ -113,6 +117,38 @@ const BootcampApply = () => {
       return;
     }
 
+    // Validate required custom questions
+    const customQuestions = bootcamp.application_questions || [];
+    for (const q of customQuestions) {
+      if (q.required && !customAnswers[q.id]?.trim()) {
+        toast.error(`Please answer: ${q.question}`);
+        return;
+      }
+    }
+
+    // Validate required post links
+    const postLinks = bootcamp.required_post_links || [];
+    for (const p of postLinks) {
+      if (p.required && !postLinkValues[p.id]?.trim()) {
+        toast.error(`Please provide: ${p.label}`);
+        return;
+      }
+    }
+
+    // Combine custom answers and post links into why_join/goals for storage
+    // Format: standard answers + custom questions + post links
+    const customQuestionsText = customQuestions
+      .map((q) => `${q.question}: ${customAnswers[q.id] || "N/A"}`)
+      .join("\n\n");
+    
+    const postLinksText = postLinks
+      .map((p) => `${p.label}: ${postLinkValues[p.id] || "N/A"}`)
+      .join("\n");
+
+    const combinedWhyJoin = whyJoin.trim() + 
+      (customQuestionsText ? `\n\n--- Custom Responses ---\n${customQuestionsText}` : "") +
+      (postLinksText ? `\n\n--- Post Links ---\n${postLinksText}` : "");
+
     setSubmitting(true);
     try {
       const { error } = await supabase
@@ -122,7 +158,7 @@ const BootcampApply = () => {
           user_id: user.id,
           full_name: fullName.trim(),
           email: email.trim(),
-          why_join: whyJoin.trim(),
+          why_join: combinedWhyJoin,
           goals: goals.trim(),
           skill_level: skillLevel,
           availability_commitment: availabilityCommitment,
@@ -319,6 +355,51 @@ const BootcampApply = () => {
                   />
                   <p className="text-xs text-muted-foreground">{goals.length}/1000 characters</p>
                 </div>
+
+                {/* Custom Application Questions */}
+                {bootcamp.application_questions && bootcamp.application_questions.length > 0 && (
+                  <div className="space-y-4 border-t pt-4">
+                    <h3 className="font-medium">Additional Questions</h3>
+                    {bootcamp.application_questions.map((q) => (
+                      <div key={q.id} className="space-y-2">
+                        <Label htmlFor={`q-${q.id}`}>
+                          {q.question} {q.required && "*"}
+                        </Label>
+                        <Textarea
+                          id={`q-${q.id}`}
+                          value={customAnswers[q.id] || ""}
+                          onChange={(e) => setCustomAnswers({ ...customAnswers, [q.id]: e.target.value })}
+                          placeholder="Your answer..."
+                          rows={3}
+                          required={q.required}
+                          maxLength={1000}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Required Post Links */}
+                {bootcamp.required_post_links && bootcamp.required_post_links.length > 0 && (
+                  <div className="space-y-4 border-t pt-4">
+                    <h3 className="font-medium">Required Post Links</h3>
+                    {bootcamp.required_post_links.map((p) => (
+                      <div key={p.id} className="space-y-2">
+                        <Label htmlFor={`p-${p.id}`}>
+                          {p.label} {p.required && "*"}
+                        </Label>
+                        <Input
+                          id={`p-${p.id}`}
+                          type="url"
+                          value={postLinkValues[p.id] || ""}
+                          onChange={(e) => setPostLinkValues({ ...postLinkValues, [p.id]: e.target.value })}
+                          placeholder={p.placeholder || "https://..."}
+                          required={p.required}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
 
                 {/* Skill Level */}
                 <div className="space-y-3">
