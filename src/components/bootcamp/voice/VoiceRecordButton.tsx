@@ -82,8 +82,7 @@ const VoiceRecordButton = ({
         </div>
         
         <button
-          onMouseUp={handleMouseUp}
-          onTouchEnd={handleTouchEnd}
+          onClick={onStopRecording}
           className="p-2 rounded-full bg-primary text-primary-foreground hover:bg-primary-hover transition-colors"
         >
           <Send className="w-4 h-4" />
