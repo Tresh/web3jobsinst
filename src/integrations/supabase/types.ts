@@ -528,6 +528,7 @@ export type Database = {
       bootcamps: {
         Row: {
           admin_notes: string | null
+          application_questions: Json | null
           bootcamp_type: Database["public"]["Enums"]["bootcamp_type"]
           cover_image_url: string | null
           created_at: string
@@ -546,6 +547,7 @@ export type Database = {
             | Database["public"]["Enums"]["bootcamp_pricing_model"]
             | null
           registration_open: boolean
+          required_post_links: Json | null
           revenue_share_percent: number | null
           reviewed_at: string | null
           reviewed_by: string | null
@@ -556,6 +558,7 @@ export type Database = {
         }
         Insert: {
           admin_notes?: string | null
+          application_questions?: Json | null
           bootcamp_type?: Database["public"]["Enums"]["bootcamp_type"]
           cover_image_url?: string | null
           created_at?: string
@@ -574,6 +577,7 @@ export type Database = {
             | Database["public"]["Enums"]["bootcamp_pricing_model"]
             | null
           registration_open?: boolean
+          required_post_links?: Json | null
           revenue_share_percent?: number | null
           reviewed_at?: string | null
           reviewed_by?: string | null
@@ -584,6 +588,7 @@ export type Database = {
         }
         Update: {
           admin_notes?: string | null
+          application_questions?: Json | null
           bootcamp_type?: Database["public"]["Enums"]["bootcamp_type"]
           cover_image_url?: string | null
           created_at?: string
@@ -602,6 +607,7 @@ export type Database = {
             | Database["public"]["Enums"]["bootcamp_pricing_model"]
             | null
           registration_open?: boolean
+          required_post_links?: Json | null
           revenue_share_percent?: number | null
           reviewed_at?: string | null
           reviewed_by?: string | null

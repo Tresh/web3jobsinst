@@ -23,7 +23,7 @@ export function useBootcamps() {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setBootcamps((data as Bootcamp[]) || []);
+      setBootcamps((data as unknown as Bootcamp[]) || []);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -65,7 +65,7 @@ export function useBootcamp(bootcampId: string | undefined) {
         .single();
 
       if (bootcampError) throw bootcampError;
-      setBootcamp(bootcampData as Bootcamp);
+      setBootcamp(bootcampData as unknown as Bootcamp);
 
       // Fetch user participation if logged in
       if (user?.id) {
@@ -287,7 +287,7 @@ export function useMyBootcamps() {
         .eq("host_user_id", user.id)
         .order("created_at", { ascending: false });
 
-      setHostedBootcamps((hosted as Bootcamp[]) || []);
+      setHostedBootcamps((hosted as unknown as Bootcamp[]) || []);
 
       // Fetch bootcamps I've joined
       const { data: participations } = await supabase
@@ -303,7 +303,7 @@ export function useMyBootcamps() {
           .in("id", bootcampIds)
           .order("created_at", { ascending: false });
 
-        setJoinedBootcamps((joined as Bootcamp[]) || []);
+        setJoinedBootcamps((joined as unknown as Bootcamp[]) || []);
       } else {
         setJoinedBootcamps([]);
       }

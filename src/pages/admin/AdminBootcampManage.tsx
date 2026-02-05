@@ -70,7 +70,7 @@ const AdminBootcampManage = () => {
         .single();
 
       if (error) throw error;
-      setBootcamp(data as Bootcamp);
+      setBootcamp(data as unknown as Bootcamp);
       setAdminNotes(data.admin_notes || "");
     } catch (err: any) {
       toast.error("Failed to load bootcamp", { description: err.message });

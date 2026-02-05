@@ -49,7 +49,7 @@ export function useMyBootcampApplications() {
 
       const applicationsWithBootcamps: ApplicationWithBootcamp[] = appData.map((app) => ({
         ...app,
-        bootcamp: bootcampMap.get(app.bootcamp_id) as Bootcamp | undefined,
+        bootcamp: bootcampMap.get(app.bootcamp_id) as unknown as Bootcamp | undefined,
       }));
 
       setApplications(applicationsWithBootcamps);

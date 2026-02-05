@@ -66,7 +66,7 @@ const AdminBootcamps = () => {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setBootcamps((data as Bootcamp[]) || []);
+      setBootcamps((data as unknown as Bootcamp[]) || []);
     } catch (err: any) {
       toast.error("Failed to load bootcamps", { description: err.message });
     } finally {

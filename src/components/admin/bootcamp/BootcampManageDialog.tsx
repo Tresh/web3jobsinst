@@ -34,9 +34,10 @@ import {
   ClipboardList,
   MessageCircle,
 } from "lucide-react";
-import type { Bootcamp, BootcampStatus, BootcampLeaderboardEntry } from "@/types/bootcamp";
+import type { Bootcamp, BootcampStatus, BootcampLeaderboardEntry, ApplicationQuestion, RequiredPostLink } from "@/types/bootcamp";
 import BootcampApplicationsTab from "./BootcampApplicationsTab";
 import BootcampCommunityManagement from "./BootcampCommunityManagement";
+import BootcampApplicationSettings from "./BootcampApplicationSettings";
 
 interface BootcampManageDialogProps {
   bootcamp: Bootcamp | null;
@@ -161,8 +162,11 @@ const BootcampManageDialog = ({ bootcamp, open, onOpenChange, onSuccess }: Bootc
         </DialogHeader>
 
         <Tabs defaultValue="details" className="mt-4">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="details">Details</TabsTrigger>
+            <TabsTrigger value="application-settings">
+              App Form
+            </TabsTrigger>
             <TabsTrigger value="applications">
               <ClipboardList className="w-4 h-4 mr-1" />
               Applications
@@ -221,6 +225,15 @@ const BootcampManageDialog = ({ bootcamp, open, onOpenChange, onSuccess }: Bootc
                 Save Notes
               </Button>
             </div>
+          </TabsContent>
+
+          <TabsContent value="application-settings" className="mt-4">
+            <BootcampApplicationSettings
+              bootcampId={bootcamp.id}
+              initialQuestions={bootcamp.application_questions}
+              initialPostLinks={bootcamp.required_post_links}
+              onSave={onSuccess}
+            />
           </TabsContent>
 
           <TabsContent value="applications" className="mt-4">
