@@ -141,6 +141,8 @@ export type Database = {
           user_avatar: string | null
           user_id: string
           user_name: string
+          voice_note_duration: number | null
+          voice_note_url: string | null
         }
         Insert: {
           bootcamp_id: string
@@ -153,6 +155,8 @@ export type Database = {
           user_avatar?: string | null
           user_id: string
           user_name: string
+          voice_note_duration?: number | null
+          voice_note_url?: string | null
         }
         Update: {
           bootcamp_id?: string
@@ -165,6 +169,8 @@ export type Database = {
           user_avatar?: string | null
           user_id?: string
           user_name?: string
+          voice_note_duration?: number | null
+          voice_note_url?: string | null
         }
         Relationships: [
           {
@@ -389,6 +395,132 @@ export type Database = {
             columns: ["bootcamp_id"]
             isOneToOne: false
             referencedRelation: "bootcamps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bootcamp_voice_room_participants: {
+        Row: {
+          id: string
+          is_muted: boolean
+          joined_at: string
+          left_at: string | null
+          role: string
+          room_id: string
+          user_avatar: string | null
+          user_id: string
+          user_name: string
+        }
+        Insert: {
+          id?: string
+          is_muted?: boolean
+          joined_at?: string
+          left_at?: string | null
+          role?: string
+          room_id: string
+          user_avatar?: string | null
+          user_id: string
+          user_name: string
+        }
+        Update: {
+          id?: string
+          is_muted?: boolean
+          joined_at?: string
+          left_at?: string | null
+          role?: string
+          room_id?: string
+          user_avatar?: string | null
+          user_id?: string
+          user_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bootcamp_voice_room_participants_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "bootcamp_voice_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bootcamp_voice_rooms: {
+        Row: {
+          bootcamp_id: string
+          created_at: string
+          ended_at: string | null
+          host_user_id: string
+          id: string
+          is_recording: boolean
+          recording_url: string | null
+          started_at: string
+          status: string
+          title: string
+        }
+        Insert: {
+          bootcamp_id: string
+          created_at?: string
+          ended_at?: string | null
+          host_user_id: string
+          id?: string
+          is_recording?: boolean
+          recording_url?: string | null
+          started_at?: string
+          status?: string
+          title?: string
+        }
+        Update: {
+          bootcamp_id?: string
+          created_at?: string
+          ended_at?: string | null
+          host_user_id?: string
+          id?: string
+          is_recording?: boolean
+          recording_url?: string | null
+          started_at?: string
+          status?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bootcamp_voice_rooms_bootcamp_id_fkey"
+            columns: ["bootcamp_id"]
+            isOneToOne: false
+            referencedRelation: "bootcamps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bootcamp_voice_speak_requests: {
+        Row: {
+          created_at: string
+          id: string
+          room_id: string
+          status: string
+          user_id: string
+          user_name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          room_id: string
+          status?: string
+          user_id: string
+          user_name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          room_id?: string
+          status?: string
+          user_id?: string
+          user_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bootcamp_voice_speak_requests_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "bootcamp_voice_rooms"
             referencedColumns: ["id"]
           },
         ]

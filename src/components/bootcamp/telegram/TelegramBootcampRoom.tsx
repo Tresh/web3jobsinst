@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,20 +9,12 @@ import {
   ArrowLeft,
   MoreVertical,
   Pin,
-  MessageCircle,
-  CheckSquare,
-  HelpCircle,
-  Flame,
-  Users,
-  Settings,
-  ChevronRight,
-  ListTodo,
-  Trophy,
   Zap,
 } from "lucide-react";
 import type { Bootcamp, BootcampParticipant, BootcampTask, BootcampTaskSubmission, BootcampLeaderboardEntry, BootcampCommunityTopic } from "@/types/bootcamp";
 import TelegramRoomChat from "./TelegramRoomChat";
 import TelegramRoomList from "./TelegramRoomList";
+import { LiveVoiceRoom } from "@/components/bootcamp/voice";
 
 interface TelegramBootcampRoomProps {
   bootcamp: Bootcamp;
@@ -115,6 +107,8 @@ const TelegramBootcampRoom = ({
                   <Zap className="w-3 h-3 mr-1" />
                   {participation.total_xp} XP
                 </Badge>
+                {/* Live Voice Room Button */}
+                <LiveVoiceRoom bootcampId={bootcamp.id} isHost={isHost} />
                 <Button variant="ghost" size="icon">
                   <MoreVertical className="w-5 h-5" />
                 </Button>
