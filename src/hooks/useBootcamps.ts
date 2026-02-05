@@ -304,6 +304,8 @@ export function useMyBootcamps() {
           .order("created_at", { ascending: false });
 
         setJoinedBootcamps((joined as Bootcamp[]) || []);
+      } else {
+        setJoinedBootcamps([]);
       }
     } catch (err) {
       console.error("Failed to fetch my bootcamps:", err);
