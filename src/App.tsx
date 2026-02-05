@@ -60,6 +60,7 @@ import AdminScholarships from "./pages/admin/AdminScholarships";
 import AdminScholarshipTasks from "./pages/admin/AdminScholarshipTasks";
 import AdminBugReports from "./pages/admin/AdminBugReports";
 import AdminBootcamps from "./pages/admin/AdminBootcamps";
+import AdminBootcampManage from "./pages/admin/AdminBootcampManage";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -174,6 +175,8 @@ const App = () => (
               />
               <Route path="bug-reports" element={<AdminBugReports />} />
               <Route path="bootcamps" element={<AdminBootcamps />} />
+              <Route path="bootcamps/:id" element={<AdminBootcampManage />} />
+              <Route path="settings" element={<AdminSettings />} />
               <Route path="settings" element={<AdminSettings />} />
             </Route>
 
