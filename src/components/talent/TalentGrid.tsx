@@ -1,17 +1,19 @@
 import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Star, Briefcase, MapPin } from "lucide-react";
-import { type Talent } from "@/data/talentsData";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { ChevronLeft, ChevronRight, Star, Briefcase } from "lucide-react";
+import { type TalentProfileWithUser, TALENT_CATEGORIES } from "@/hooks/useTalentProfile";
 
 const ITEMS_PER_PAGE = 8;
 
 interface TalentGridProps {
-  talents: Talent[];
-  onTalentClick: (talent: Talent) => void;
+  talents: TalentProfileWithUser[];
 }
 
-const TalentGrid = ({ talents, onTalentClick }: TalentGridProps) => {
+const TalentGrid = ({ talents }: TalentGridProps) => {
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedTalent, setSelectedTalent] = useState<TalentProfileWithUser | null>(null);
 
   const totalPages = Math.ceil(talents.length / ITEMS_PER_PAGE);
 
@@ -40,7 +42,7 @@ const TalentGrid = ({ talents, onTalentClick }: TalentGridProps) => {
           <TalentCard
             key={talent.id}
             talent={talent}
-            onClick={() => onTalentClick(talent)}
+            onClick={() => setSelectedTalent(talent)}
           />
         ))}
       </div>
@@ -81,21 +83,32 @@ const TalentGrid = ({ talents, onTalentClick }: TalentGridProps) => {
           </Button>
         </div>
       )}
+
+      {/* Talent Detail Modal */}
+      {selectedTalent && (
+        <TalentDetailModal
+          talent={selectedTalent}
+          onClose={() => setSelectedTalent(null)}
+        />
+      )}
     </div>
   );
 };
 
 interface TalentCardProps {
-  talent: Talent;
+  talent: TalentProfileWithUser;
   onClick: () => void;
 }
 
 const TalentCard = ({ talent, onClick }: TalentCardProps) => {
-  const initials = talent.name
+  const initials = talent.full_name
     .split(" ")
     .map((n) => n[0])
     .join("")
-    .toUpperCase();
+    .toUpperCase()
+    .slice(0, 2);
+
+  const categoryLabel = TALENT_CATEGORIES.find((c) => c.value === talent.category)?.label || talent.category;
 
   return (
     <button
@@ -104,24 +117,28 @@ const TalentCard = ({ talent, onClick }: TalentCardProps) => {
     >
       {/* Header with avatar and availability */}
       <div className="flex items-start justify-between mb-4">
-        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center text-lg font-bold text-primary">
-          {initials}
-        </div>
+        <Avatar className="w-14 h-14">
+          <AvatarImage src={talent.avatar_url || undefined} />
+          <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/5 text-lg font-bold text-primary">
+            {initials}
+          </AvatarFallback>
+        </Avatar>
         <div className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium ${
-          talent.available 
+          talent.availability === "available" 
             ? "bg-green-500/20 text-green-400" 
             : "bg-secondary text-muted-foreground"
         }`}>
-          <span className={`w-1.5 h-1.5 rounded-full ${talent.available ? "bg-green-500" : "bg-muted-foreground"}`} />
-          {talent.available ? "Available" : "Busy"}
+          <span className={`w-1.5 h-1.5 rounded-full ${talent.availability === "available" ? "bg-green-500" : "bg-muted-foreground"}`} />
+          {talent.availability === "available" ? "Available" : "Busy"}
         </div>
       </div>
 
       {/* Name and title */}
       <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
-        {talent.name}
+        {talent.full_name}
       </h3>
-      <p className="text-sm text-muted-foreground mb-3">{talent.title}</p>
+      <p className="text-sm text-muted-foreground mb-1">{talent.headline}</p>
+      <Badge variant="outline" className="text-xs mb-3">{categoryLabel}</Badge>
 
       {/* Skills */}
       <div className="flex flex-wrap gap-1.5 mb-4">
@@ -144,17 +161,134 @@ const TalentCard = ({ talent, onClick }: TalentCardProps) => {
       <div className="flex items-center justify-between text-xs text-muted-foreground pt-3 border-t border-border">
         <div className="flex items-center gap-1">
           <Star className="w-3.5 h-3.5 text-primary fill-primary" />
-          <span className="font-medium text-foreground">{talent.rating}</span>
+          <span className="font-medium text-foreground">{Number(talent.rating).toFixed(1)}</span>
         </div>
         <div className="flex items-center gap-1">
           <Briefcase className="w-3.5 h-3.5" />
-          <span>{talent.completedProjects} projects</span>
+          <span>{talent.completed_projects} projects</span>
         </div>
-        {talent.hourlyRate && (
-          <span className="font-medium text-foreground">${talent.hourlyRate}/hr</span>
+        {talent.hourly_rate && (
+          <span className="font-medium text-foreground">${talent.hourly_rate}/hr</span>
         )}
       </div>
     </button>
+  );
+};
+
+interface TalentDetailModalProps {
+  talent: TalentProfileWithUser;
+  onClose: () => void;
+}
+
+const TalentDetailModal = ({ talent, onClose }: TalentDetailModalProps) => {
+  const initials = talent.full_name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+
+  const categoryLabel = TALENT_CATEGORIES.find((c) => c.value === talent.category)?.label || talent.category;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={onClose}>
+      <div
+        className="bg-card border border-border rounded-2xl p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-start gap-4 mb-6">
+          <Avatar className="w-20 h-20">
+            <AvatarImage src={talent.avatar_url || undefined} />
+            <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/5 text-2xl font-bold text-primary">
+              {initials}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex-1">
+            <h2 className="text-xl font-bold">{talent.full_name}</h2>
+            <p className="text-muted-foreground">{talent.headline}</p>
+            <div className="flex items-center gap-2 mt-2">
+              <Badge variant="outline">{categoryLabel}</Badge>
+              <span className={`text-xs flex items-center gap-1 ${talent.availability === "available" ? "text-green-500" : "text-muted-foreground"}`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${talent.availability === "available" ? "bg-green-500" : "bg-muted-foreground"}`} />
+                {talent.availability === "available" ? "Available" : "Busy"}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Bio */}
+        {talent.bio && (
+          <div className="mb-6">
+            <h3 className="font-semibold mb-2">About</h3>
+            <p className="text-sm text-muted-foreground">{talent.bio}</p>
+          </div>
+        )}
+
+        {/* Skills */}
+        {talent.skills.length > 0 && (
+          <div className="mb-6">
+            <h3 className="font-semibold mb-2">Skills</h3>
+            <div className="flex flex-wrap gap-2">
+              {talent.skills.map((skill) => (
+                <Badge key={skill} variant="secondary">{skill}</Badge>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Stats */}
+        <div className="grid grid-cols-3 gap-4 mb-6">
+          <div className="text-center p-3 bg-secondary rounded-lg">
+            <div className="flex items-center justify-center gap-1 text-lg font-bold">
+              <Star className="w-4 h-4 text-primary fill-primary" />
+              {Number(talent.rating).toFixed(1)}
+            </div>
+            <p className="text-xs text-muted-foreground">Rating</p>
+          </div>
+          <div className="text-center p-3 bg-secondary rounded-lg">
+            <div className="text-lg font-bold">{talent.completed_projects}</div>
+            <p className="text-xs text-muted-foreground">Projects</p>
+          </div>
+          {talent.hourly_rate && (
+            <div className="text-center p-3 bg-secondary rounded-lg">
+              <div className="text-lg font-bold">${talent.hourly_rate}</div>
+              <p className="text-xs text-muted-foreground">Per hour</p>
+            </div>
+          )}
+        </div>
+
+        {/* Portfolio */}
+        {talent.portfolio_links.length > 0 && (
+          <div className="mb-6">
+            <h3 className="font-semibold mb-2">Portfolio</h3>
+            <div className="space-y-2">
+              {talent.portfolio_links.map((link) => (
+                <a
+                  key={link}
+                  href={link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block text-sm text-primary hover:underline truncate"
+                >
+                  {link}
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Actions */}
+        <div className="flex gap-3">
+          <Button className="flex-1" onClick={() => window.open(`mailto:contact@example.com?subject=Hiring ${talent.full_name}`)}>
+            Contact
+          </Button>
+          <Button variant="outline" onClick={onClose}>
+            Close
+          </Button>
+        </div>
+      </div>
+    </div>
   );
 };
 

@@ -1,21 +1,21 @@
 import { useState, useMemo } from "react";
+import { Link } from "react-router-dom";
 import PageNavbar from "@/components/PageNavbar";
 import Footer from "@/components/Footer";
 import TalentGrid from "@/components/talent/TalentGrid";
 import TalentFilterSheet from "@/components/talent/TalentFilterSheet";
-import ComingSoonDialog from "@/components/ComingSoonDialog";
-import ScholarshipFormDialog from "@/components/ScholarshipFormDialog";
-import { talents, type Talent, type TalentCategory } from "@/data/talentsData";
-import { UserPlus } from "lucide-react";
+import { useTalentMarketplace, TALENT_CATEGORIES, type TalentProfileWithUser } from "@/hooks/useTalentProfile";
+import { type TalentCategory } from "@/data/talentsData";
+import { UserPlus, Loader2 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+
 const TalentMarket = () => {
+  const { user } = useAuth();
+  const { talents, loading } = useTalentMarketplace();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<TalentCategory>("all");
   const [selectedAvailability, setSelectedAvailability] = useState<"all" | "available" | "busy">("all");
   const [filterSheetOpen, setFilterSheetOpen] = useState(false);
-  const [scholarshipOpen, setScholarshipOpen] = useState(false);
-  const [comingSoonOpen, setComingSoonOpen] = useState(false);
-  const [listTalentDialogOpen, setListTalentDialogOpen] = useState(false);
-  const [selectedTalent, setSelectedTalent] = useState<Talent | null>(null);
 
   const activeFiltersCount = useMemo(() => {
     let count = 0;
@@ -28,32 +28,26 @@ const TalentMarket = () => {
     return talents.filter((talent) => {
       const matchesSearch =
         searchQuery === "" ||
-        talent.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        talent.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        talent.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        talent.headline.toLowerCase().includes(searchQuery.toLowerCase()) ||
         talent.skills.some((s) => s.toLowerCase().includes(searchQuery.toLowerCase()));
 
       const matchesCategory =
         selectedCategory === "all" ||
-        (selectedCategory === "developer" && talent.title.toLowerCase().includes("developer")) ||
-        (selectedCategory === "designer" && talent.title.toLowerCase().includes("designer")) ||
-        (selectedCategory === "marketer" && (talent.title.toLowerCase().includes("market") || talent.title.toLowerCase().includes("growth"))) ||
-        (selectedCategory === "writer" && (talent.title.toLowerCase().includes("writer") || talent.title.toLowerCase().includes("content"))) ||
-        (selectedCategory === "trader" && talent.title.toLowerCase().includes("trad")) ||
-        (selectedCategory === "community" && talent.title.toLowerCase().includes("community"));
+        (selectedCategory === "developer" && (talent.category === "developer" || talent.category === "ai_developer")) ||
+        (selectedCategory === "designer" && talent.category === "designer") ||
+        (selectedCategory === "marketer" && talent.category === "marketer") ||
+        (selectedCategory === "writer" && talent.category === "writer") ||
+        (selectedCategory === "trader" && talent.category === "trader") ||
+        (selectedCategory === "community" && talent.category === "community_manager");
 
       const matchesAvailability =
         selectedAvailability === "all" ||
-        (selectedAvailability === "available" && talent.available) ||
-        (selectedAvailability === "busy" && !talent.available);
+        talent.availability === selectedAvailability;
 
       return matchesSearch && matchesCategory && matchesAvailability;
     });
-  }, [searchQuery, selectedCategory, selectedAvailability]);
-
-  const handleTalentClick = (talent: Talent) => {
-    setSelectedTalent(talent);
-    setComingSoonOpen(true);
-  };
+  }, [searchQuery, selectedCategory, selectedAvailability, talents]);
 
   const clearAllFilters = () => {
     setSelectedCategory("all");
@@ -102,14 +96,20 @@ const TalentMarket = () => {
 
         {/* Talent Grid */}
         <section className="section-container pb-8">
-          <TalentGrid talents={filteredTalents} onTalentClick={handleTalentClick} />
+          {loading ? (
+            <div className="flex items-center justify-center py-16">
+              <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+            </div>
+          ) : (
+            <TalentGrid talents={filteredTalents} />
+          )}
         </section>
 
         {/* List as a Talent Card */}
         <section className="section-container pb-20">
-          <button
-            onClick={() => setListTalentDialogOpen(true)}
-            className="w-full bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 rounded-xl p-6 md:p-8 hover:border-primary/40 hover:from-primary/15 hover:to-primary/10 transition-all duration-200 text-left group"
+          <Link
+            to={user ? "/dashboard/talent" : "/login"}
+            className="w-full bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 rounded-xl p-6 md:p-8 hover:border-primary/40 hover:from-primary/15 hover:to-primary/10 transition-all duration-200 text-left group block"
           >
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
@@ -124,7 +124,7 @@ const TalentMarket = () => {
                 </p>
               </div>
             </div>
-          </button>
+          </Link>
         </section>
       </main>
 
@@ -139,21 +139,6 @@ const TalentMarket = () => {
         selectedAvailability={selectedAvailability}
         onAvailabilityChange={setSelectedAvailability}
         onClearAll={clearAllFilters}
-      />
-
-      {/* Dialogs */}
-      <ScholarshipFormDialog open={scholarshipOpen} onOpenChange={setScholarshipOpen} />
-      <ComingSoonDialog
-        open={comingSoonOpen}
-        onOpenChange={setComingSoonOpen}
-        title={selectedTalent ? `${selectedTalent.name}'s Profile` : "Profile Coming Soon"}
-        onScholarshipClick={() => setScholarshipOpen(true)}
-      />
-      <ComingSoonDialog
-        open={listTalentDialogOpen}
-        onOpenChange={setListTalentDialogOpen}
-        title="List as a Talent"
-        onScholarshipClick={() => setScholarshipOpen(true)}
       />
     </div>
   );

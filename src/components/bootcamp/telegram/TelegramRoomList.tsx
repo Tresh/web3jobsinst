@@ -22,10 +22,12 @@ import {
   Loader2,
   Save,
   Target,
+  Sparkles,
 } from "lucide-react";
 import type { Bootcamp, BootcampParticipant, BootcampTask, BootcampTaskSubmission, BootcampLeaderboardEntry, BootcampCommunityTopic } from "@/types/bootcamp";
 import { useBootcampProgressLog } from "@/hooks/useBootcampProgressLog";
 import BootcampCreatorControls from "../BootcampCreatorControls";
+import BootcampAICoach from "../BootcampAICoach";
 
 interface TelegramRoomListProps {
   topics: BootcampCommunityTopic[];
@@ -63,6 +65,7 @@ const TelegramRoomList = ({
   const [showPeopleDialog, setShowPeopleDialog] = useState(false);
   const [showProgressDialog, setShowProgressDialog] = useState(false);
   const [showHostControls, setShowHostControls] = useState(false);
+  const [showAICoach, setShowAICoach] = useState(false);
   const [selectedTask, setSelectedTask] = useState<BootcampTask | null>(null);
   const [submissionUrl, setSubmissionUrl] = useState("");
   const [submissionText, setSubmissionText] = useState("");
@@ -166,6 +169,14 @@ const TelegramRoomList = ({
       title: "People",
       subtitle: `${participants.length} participants`,
       onClick: () => setShowPeopleDialog(true),
+    },
+    {
+      id: "ai-coach",
+      icon: <Sparkles className="w-5 h-5" />,
+      emoji: "🤖",
+      title: "AI Coach",
+      subtitle: "Get help & guidance",
+      onClick: () => setShowAICoach(true),
     },
   ];
 
@@ -505,6 +516,14 @@ const TelegramRoomList = ({
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* AI Coach */}
+      <BootcampAICoach
+        open={showAICoach}
+        onOpenChange={setShowAICoach}
+        bootcamp={bootcamp}
+        currentDay={currentDay}
+      />
     </div>
   );
 };
