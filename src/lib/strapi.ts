@@ -8,12 +8,6 @@ import type {
   StrapiModuleWithLessons,
   StrapiLesson,
   CourseQueryParams,
-  Course,
-  Module,
-  Lesson,
-  transformCourse,
-  transformModule,
-  transformLesson,
 } from '@/types/strapi';
 
 // ============================================

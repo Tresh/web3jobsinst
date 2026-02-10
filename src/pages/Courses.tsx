@@ -1,4 +1,5 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import Footer from "@/components/Footer";
@@ -10,9 +11,13 @@ import ActiveFilters from "@/components/courses/ActiveFilters";
 import WhyDifferentSection from "@/components/courses/WhyDifferentSection";
 import ScholarshipFormDialog from "@/components/ScholarshipFormDialog";
 import ComingSoonDialog from "@/components/ComingSoonDialog";
-import { courses, learningPaths, type Course } from "@/data/coursesData";
+import { courses as hardcodedCourses, learningPaths, type Course } from "@/data/coursesData";
+import { useStrapiCourses } from "@/hooks/useStrapiCourses";
+import { isStrapiConfigured } from "@/lib/strapi";
+import { transformCourse } from "@/types/strapi";
 
 const Courses = () => {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedLevel, setSelectedLevel] = useState("all");
@@ -22,6 +27,21 @@ const Courses = () => {
   const [comingSoonOpen, setComingSoonOpen] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
 
+  // Strapi data fetching
+  const strapiConfigured = isStrapiConfigured();
+  const { data: strapiData } = useStrapiCourses({
+    search: searchQuery || undefined,
+    category: selectedCategory !== "all" ? selectedCategory : undefined,
+    level: selectedLevel !== "all" ? (selectedLevel as "Beginner" | "Intermediate" | "Advanced") : undefined,
+  });
+
+  // Transform Strapi courses into a unified shape for the grid
+  const strapiUrl = import.meta.env.VITE_STRAPI_API_URL || '';
+  const strapiCourses = useMemo(() => {
+    if (!strapiConfigured || !strapiData?.courses) return [];
+    return strapiData.courses.map(c => transformCourse(c, strapiUrl));
+  }, [strapiConfigured, strapiData, strapiUrl]);
+
   // Count active filters (excluding path since it's handled by tabs)
   const activeFiltersCount = useMemo(() => {
     let count = 0;
@@ -30,32 +50,37 @@ const Courses = () => {
     return count;
   }, [selectedCategory, selectedLevel]);
 
-  // Filter courses
-  const filteredCourses = useMemo(() => {
-    return courses.filter((course) => {
+  // Filter hardcoded courses (fallback)
+  const filteredHardcoded = useMemo(() => {
+    if (strapiConfigured) return []; // Don't use hardcoded when Strapi is active
+    return hardcodedCourses.filter((course) => {
       const matchesSearch =
         searchQuery === "" ||
         course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         course.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
         course.category.toLowerCase().includes(searchQuery.toLowerCase());
-
       const matchesCategory =
         selectedCategory === "all" || course.category === selectedCategory;
-
       const matchesLevel =
         selectedLevel === "all" || course.level === selectedLevel;
-
       const matchesPath =
         selectedPath === "all" ||
         (course.learningPathIds && course.learningPathIds.includes(selectedPath));
-
       return matchesSearch && matchesCategory && matchesLevel && matchesPath;
     });
-  }, [searchQuery, selectedCategory, selectedLevel, selectedPath]);
+  }, [searchQuery, selectedCategory, selectedLevel, selectedPath, strapiConfigured]);
+
+  // Determine which data source to use
+  const isUsingStrapi = strapiConfigured && strapiCourses.length >= 0;
+  const displayCount = isUsingStrapi ? strapiCourses.length : filteredHardcoded.length;
 
   const handleCourseClick = (course: Course) => {
     setSelectedCourse(course);
     setComingSoonOpen(true);
+  };
+
+  const handleStrapiCourseClick = (slug: string) => {
+    navigate(`/courses/${slug}`);
   };
 
   const clearAllFilters = () => {
@@ -64,9 +89,8 @@ const Courses = () => {
     setSearchQuery("");
   };
 
-  // Get current path name for display
-  const currentPathName = selectedPath !== "all" 
-    ? learningPaths.find(p => p.id === selectedPath)?.name 
+  const currentPathName = selectedPath !== "all"
+    ? learningPaths.find(p => p.id === selectedPath)?.name
     : null;
 
   return (
@@ -99,7 +123,7 @@ const Courses = () => {
         />
       </section>
 
-      {/* Active Filters (only show if category/level filters are active) */}
+      {/* Active Filters */}
       {(selectedCategory !== "all" || selectedLevel !== "all") && (
         <section className="section-container pb-4">
           <ActiveFilters
@@ -110,7 +134,7 @@ const Courses = () => {
             onLevelChange={setSelectedLevel}
             onPathChange={() => {}}
             onClearAll={clearAllFilters}
-            totalResults={filteredCourses.length}
+            totalResults={displayCount}
           />
         </section>
       )}
@@ -123,7 +147,7 @@ const Courses = () => {
               {currentPathName ? `${currentPathName} Path` : "All Courses"}
             </h2>
             <p className="text-sm text-muted-foreground">
-              {filteredCourses.length} {filteredCourses.length === 1 ? "course" : "courses"} available
+              {displayCount} {displayCount === 1 ? "course" : "courses"} available
             </p>
           </div>
         </div>
@@ -131,7 +155,17 @@ const Courses = () => {
 
       {/* Course Grid */}
       <section className="section-container pb-20">
-        <CourseGrid courses={filteredCourses} onCourseClick={handleCourseClick} />
+        {isUsingStrapi ? (
+          <CourseGrid
+            strapiCourses={strapiCourses}
+            onStrapiCourseClick={handleStrapiCourseClick}
+          />
+        ) : (
+          <CourseGrid
+            courses={filteredHardcoded}
+            onCourseClick={handleCourseClick}
+          />
+        )}
       </section>
 
       {/* Scholarship CTA */}
@@ -177,7 +211,6 @@ const Courses = () => {
 
       <Footer />
 
-      {/* Filter Sheet */}
       <FilterSheet
         open={filterSheetOpen}
         onOpenChange={setFilterSheetOpen}
@@ -190,7 +223,6 @@ const Courses = () => {
         onClearAll={clearAllFilters}
       />
 
-      {/* Dialogs */}
       <ScholarshipFormDialog
         open={scholarshipOpen}
         onOpenChange={setScholarshipOpen}
