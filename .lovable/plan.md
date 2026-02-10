@@ -1,76 +1,84 @@
 
-# Referral System Fix Plan
 
-## Problem Summary
+# Strapi + Vimeo Frontend Integration Plan
 
-The referral system is **completely broken**. After investigating the database and code:
+## Current State
 
-- **0 referrals recorded** (empty `scholar_referrals` table) despite 1,668 users
-- **0 WJI earned** by anyone (empty `wji_balances` and `wji_transactions`)
-- **20+ referral codes exist** but no referrals tracked
+The integration is **80% built**. The Strapi API client, types, React Query hooks, VimeoPlayer component, CourseDetailPage, and LessonPlayerPage all exist and are well-structured. However, the system is currently non-functional because:
 
-## Root Cause
+1. **No Strapi credentials are configured** (missing `VITE_STRAPI_API_URL` and `VITE_STRAPI_API_TOKEN`)
+2. **The Courses listing page still uses hardcoded data** instead of fetching from Strapi
+3. A broken import in `src/lib/strapi.ts` (imports transform functions as types)
 
-The referral code is stored in `sessionStorage` during signup, but the actual referral record is only created when the user logs in after email confirmation. This fails because:
+## What Will Be Done
 
-1. `sessionStorage` is cleared when the browser closes
-2. Users often confirm email from a different device/browser
-3. Even if same browser, the session might be lost
+### 1. Fix broken import in `src/lib/strapi.ts`
 
-## Technical Solution
+The file currently imports `transformCourse`, `transformModule`, `transformLesson` inside a `type` import, but these are runtime functions used only as type references. This import is unused and will be cleaned up to prevent build issues.
 
-### Step 1: Capture Referral Code Immediately During Signup
+### 2. Connect the Courses listing page to Strapi
 
-Store the referral code in Supabase user metadata during signup (not just sessionStorage). This survives email confirmation and cross-device login.
+The `/courses` page (`src/pages/Courses.tsx`) currently renders from `src/data/coursesData.ts` (hardcoded array of ~40+ courses). This will be upgraded to:
 
-**File: `src/contexts/AuthContext.tsx`**
-- Modify `signUpWithEmail` to include referral code in user metadata
-- The referral code should be passed from the signup form
+- Use `useStrapiCourses()` hook to fetch live data from Strapi when configured
+- **Fall back to hardcoded data** when Strapi is not configured (preserves current behavior)
+- Navigate to `/courses/:slug` (the existing CourseDetailPage) instead of showing "Coming Soon" dialog
+- Remove the blurred "Coming Soon" overlay for Strapi-sourced courses
 
-**File: `src/pages/Signup.tsx`**
-- Pass the referral code to `signUpWithEmail` function
-- Code is already captured from URL parameter
+### 3. Update CourseGrid to support both data sources
 
-### Step 2: Create Referral Record on First Login
+The `CourseGrid` component currently only accepts the hardcoded `Course` type from `coursesData.ts`. It will be updated to also render Strapi-sourced courses with proper thumbnails and clickable links to the detail page.
 
-Modify the `SIGNED_IN` event handler to:
-1. First check `sessionStorage` (for same-session signups)
-2. Then check `user.user_metadata.referral_code` (for cross-device confirmation)
-3. Create the referral record if valid code found
-4. Clear the metadata after successful tracking
+### 4. Environment variables guidance
 
-**File: `src/contexts/AuthContext.tsx`**
-- Update the `onAuthStateChange` handler
-- Add fallback to user metadata for referral code
+Since `VITE_STRAPI_API_URL` and `VITE_STRAPI_API_TOKEN` are **public/publishable** keys (they're read-only API tokens embedded in the frontend bundle), they will be added directly to the codebase as environment references. You will need to provide:
 
-### Step 3: Update AuthContext Interface
+- Your Strapi instance URL (e.g., `https://your-app.strapiapp.com`)
+- A read-only API token generated from Strapi Admin > Settings > API Tokens
 
-Add referral code parameter to `signUpWithEmail`:
-```typescript
-signUpWithEmail: (email: string, password: string, fullName?: string, referralCode?: string) => Promise<{ error: Error | null }>;
+## Files to Be Modified
+
+| File | Change |
+|------|--------|
+| `src/lib/strapi.ts` | Fix broken type-only import of transform functions |
+| `src/pages/Courses.tsx` | Add Strapi data fetching with fallback to hardcoded data; route to detail page for live courses |
+| `src/components/courses/CourseGrid.tsx` | Support rendering Strapi-sourced courses (with cover images, no "Coming Soon" overlay, clickable to detail page) |
+
+## Files NOT Modified
+
+All other existing features remain untouched: scholarship system, bootcamp system, admin dashboards, auth flows, dashboard pages, etc.
+
+## Technical Details
+
+### Data Flow
+```text
+Strapi CMS (content)  -->  src/lib/strapi.ts (API client)
+                            --> src/hooks/useStrapiCourses.ts (React Query)
+                                --> src/pages/Courses.tsx (listing)
+                                --> src/pages/courses/CourseDetailPage.tsx (detail)
+                                --> src/pages/courses/LessonPlayerPage.tsx (player)
+
+Vimeo (video hosting)  -->  vimeoVideoId stored in Strapi lesson
+                            --> VimeoPlayer component renders iframe embed
 ```
 
-## Files to Modify
+### Access Control Logic (already implemented)
+- `lesson.accessLevel === 'free'` or `lesson.isPreview === true` -- playback allowed
+- Otherwise -- locked UI shown with "Enroll to access" message
+- Enrollment check is stubbed with TODO comments for future backend integration
 
-1. **`src/contexts/AuthContext.tsx`**
-   - Add `referralCode` parameter to `signUpWithEmail`
-   - Store referral code in user metadata during signup
-   - Check both sessionStorage AND user metadata in SIGNED_IN handler
+## Remaining Steps After This Implementation
 
-2. **`src/pages/Signup.tsx`**
-   - Pass `referralCode` to `signUpWithEmail`
+1. **Add Strapi credentials** -- You must provide your Strapi URL and read-only API token
+2. **Enrollment system** -- Backend logic to track paid course enrollments (Supabase)
+3. **Progress tracking** -- Save lesson watch progress to Supabase (TODOs already in code)
+4. **Tutor dashboard** -- Admin interface for content creators to manage their courses
+5. **Authentication-gated content** -- Wire up Supabase auth to check enrollment before unlocking paid lessons
 
-## What This Fixes
+## Assumptions
 
-- Referrals will be recorded immediately after first login
-- Works even if user confirms email from different device
-- WJI will be awarded when referred user completes first task
-- Scholar dashboard will show accurate referral counts
+- Strapi is deployed and accessible with the content types (Course, Module, Lesson) already created
+- The `@vimeo/player` npm package is NOT needed since the existing VimeoPlayer component uses iframe embeds (lighter, works without additional dependencies)
+- `axios` is NOT needed since native `fetch` is already used in the Strapi client
+- Hardcoded course data is preserved as fallback for when Strapi is not yet connected
 
-## What Stays Unchanged
-
-- XP system (not touched)
-- Task submission logic (not touched)
-- Fraud detection rules (not touched)
-- Admin dashboards (not touched)
-- WJI reward trigger logic (already correct, just needs referrals to exist)
