@@ -326,7 +326,7 @@ const AdminLearnFi = () => {
 
         {/* Module Dialog */}
         <Dialog open={moduleDialogOpen} onOpenChange={setModuleDialogOpen}>
-          <DialogContent className="bg-background border-border">
+          <DialogContent className="bg-background border-border max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{editingModule ? "Edit Module" : "Add Module"}</DialogTitle>
             </DialogHeader>
@@ -344,7 +344,7 @@ const AdminLearnFi = () => {
 
         {/* Mission Dialog */}
         <Dialog open={missionDialogOpen} onOpenChange={setMissionDialogOpen}>
-          <DialogContent className="bg-background border-border">
+          <DialogContent className="bg-background border-border max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{editingMission ? "Edit Mission" : "Add Mission"}</DialogTitle>
             </DialogHeader>

@@ -389,10 +389,10 @@ const AdminBugReports = () => {
                     href={selectedReport.page_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-primary hover:underline flex items-center gap-1"
+                    className="text-sm text-primary hover:underline flex items-center gap-1 break-all"
                   >
                     {selectedReport.page_url}
-                    <ExternalLink className="h-3 w-3" />
+                    <ExternalLink className="h-3 w-3 shrink-0" />
                   </a>
                 </div>
               )}
@@ -404,10 +404,10 @@ const AdminBugReports = () => {
                     <Monitor className="h-4 w-4 text-muted-foreground" />
                     <span className="font-medium text-sm">Technical Info</span>
                   </div>
-                  <div className="text-xs text-muted-foreground bg-muted p-2 rounded font-mono">
-                    {selectedReport.device_info && <div>Device: {selectedReport.device_info}</div>}
+                  <div className="text-xs text-muted-foreground bg-muted p-2 rounded font-mono break-all overflow-hidden">
+                    {selectedReport.device_info && <div className="break-all">Device: {selectedReport.device_info}</div>}
                     {selectedReport.browser_info && (
-                      <div className="truncate">Browser: {selectedReport.browser_info}</div>
+                      <div className="break-all">Browser: {selectedReport.browser_info}</div>
                     )}
                   </div>
                 </div>
