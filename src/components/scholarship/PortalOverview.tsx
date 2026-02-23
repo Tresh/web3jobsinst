@@ -53,30 +53,6 @@ export function PortalOverview({
         </CardContent>
       </Card>
 
-      {/* Celebration E-Card Section */}
-      <Card className="bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-transparent border-amber-500/20">
-        <CardContent className="p-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-lg bg-amber-500/10 flex items-center justify-center">
-                <PartyPopper className="w-6 h-6 text-amber-500" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-lg">Celebrate Your Acceptance! 🎉</h3>
-                <p className="text-sm text-muted-foreground">
-                  Generate your personalized e-card, share it on X, and earn bonus XP!
-                </p>
-              </div>
-            </div>
-            <Button asChild className="bg-amber-500 hover:bg-amber-600 text-white">
-              <Link to="/scholarship/celebration">
-                Create E-Card
-              </Link>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {/* XP Points */}

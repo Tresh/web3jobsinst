@@ -12,27 +12,6 @@ interface ScholarshipStatusCardProps {
 
 export function ScholarshipStatusCard({ application, hasActivePrograms }: ScholarshipStatusCardProps) {
   if (!application) {
-    // No application yet
-    if (hasActivePrograms) {
-      return (
-        <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <GraduationCap className="w-5 h-5 text-primary" />
-              Apply for a Scholarship
-            </CardTitle>
-            <CardDescription>
-              Get free access to courses and join our learning community
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button asChild>
-              <Link to="/dashboard/scholarship">View Available Programs</Link>
-            </Button>
-          </CardContent>
-        </Card>
-      );
-    }
     return null;
   }
 
