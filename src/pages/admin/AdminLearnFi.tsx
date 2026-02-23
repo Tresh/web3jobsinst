@@ -359,10 +359,10 @@ const AdminLearnFi = () => {
               {modules.length > 0 && (
                 <div>
                   <Label>Linked Module (optional)</Label>
-                  <Select value={missionForm.module_id} onValueChange={(v) => setMissionForm(p => ({ ...p, module_id: v }))}>
+                  <Select value={missionForm.module_id || "none"} onValueChange={(v) => setMissionForm(p => ({ ...p, module_id: v === "none" ? "" : v }))}>
                     <SelectTrigger><SelectValue placeholder="None" /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">None</SelectItem>
+                      <SelectItem value="none">None</SelectItem>
                       {modules.map((m) => <SelectItem key={m.id} value={m.id}>{m.title}</SelectItem>)}
                     </SelectContent>
                   </Select>
