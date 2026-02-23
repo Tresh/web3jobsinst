@@ -66,7 +66,8 @@ import type {
 } from "@/types/scholarship";
 import { TasksTab, OverviewTab, ReferrersTab, EmailHistoryTab, AdminOffersTab, AdminPOWTab } from "@/components/admin/scholarship";
 import { AdminModulesTab } from "@/components/admin/scholarship/AdminModulesTab";
-import { Link2 } from "lucide-react";
+import { AdminInternshipsTab } from "@/components/admin/scholarship/AdminInternshipsTab";
+import { Link2, Briefcase } from "lucide-react";
 
 const AdminScholarships = () => {
   const { user } = useAuth();
@@ -941,6 +942,10 @@ const AdminScholarships = () => {
             <FolderCheck className="w-4 h-4" />
             Proof of Work
           </TabsTrigger>
+          <TabsTrigger value="internships" className="gap-2">
+            <Briefcase className="w-4 h-4" />
+            Internships
+          </TabsTrigger>
         </TabsList>
 
         {/* Overview Tab */}
@@ -1667,6 +1672,11 @@ const AdminScholarships = () => {
         {/* Proof of Work Tab */}
         <TabsContent value="pow">
           <AdminPOWTab />
+        </TabsContent>
+
+        {/* Internships Tab */}
+        <TabsContent value="internships">
+          <AdminInternshipsTab />
         </TabsContent>
       </Tabs>
     </div>

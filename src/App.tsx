@@ -32,6 +32,7 @@ import Bootcamps from "./pages/Bootcamps";
 import BootcampDetail from "./pages/BootcampDetail";
 import BootcampCreate from "./pages/BootcampCreate";
 import BootcampApply from "./pages/BootcampApply";
+import InternshipMarket from "./pages/InternshipMarket";
 
 // User Dashboard
 import Dashboard from "./pages/Dashboard";
@@ -91,6 +92,7 @@ const App = () => (
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/scholarship/:programId" element={<Scholarship />} />
             {/* Celebration route removed */}
+            <Route path="/internships" element={<InternshipMarket />} />
             <Route path="/tutors" element={<Tutors />} />
             <Route path="/institutions" element={<Institutions />} />
             <Route path="/institutions/:slug" element={<InstitutionPortal />} />

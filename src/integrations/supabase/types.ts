@@ -764,6 +764,81 @@ export type Database = {
           },
         ]
       }
+      internship_profiles: {
+        Row: {
+          admin_notes: string | null
+          created_at: string
+          email: string
+          experience_description: string | null
+          full_name: string
+          hours_per_week: string
+          id: string
+          internship_status: string
+          is_approved: boolean
+          is_public: boolean
+          open_to_immediate: boolean
+          paid_preference: string
+          portfolio_link: string | null
+          primary_skill_category: string
+          profile_photo_url: string | null
+          skill_level: string
+          telegram_username: string | null
+          tools_known: string[] | null
+          twitter_handle: string | null
+          updated_at: string
+          user_id: string
+          work_mode: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string
+          email: string
+          experience_description?: string | null
+          full_name: string
+          hours_per_week?: string
+          id?: string
+          internship_status?: string
+          is_approved?: boolean
+          is_public?: boolean
+          open_to_immediate?: boolean
+          paid_preference?: string
+          portfolio_link?: string | null
+          primary_skill_category?: string
+          profile_photo_url?: string | null
+          skill_level?: string
+          telegram_username?: string | null
+          tools_known?: string[] | null
+          twitter_handle?: string | null
+          updated_at?: string
+          user_id: string
+          work_mode?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string
+          email?: string
+          experience_description?: string | null
+          full_name?: string
+          hours_per_week?: string
+          id?: string
+          internship_status?: string
+          is_approved?: boolean
+          is_public?: boolean
+          open_to_immediate?: boolean
+          paid_preference?: string
+          portfolio_link?: string | null
+          primary_skill_category?: string
+          profile_photo_url?: string | null
+          skill_level?: string
+          telegram_username?: string | null
+          tools_known?: string[] | null
+          twitter_handle?: string | null
+          updated_at?: string
+          user_id?: string
+          work_mode?: string
+        }
+        Relationships: []
+      }
       password_reset_attempts: {
         Row: {
           attempt_count: number
