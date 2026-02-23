@@ -64,21 +64,21 @@ const TalentHiringSection = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="bg-foreground text-background py-16 md:py-24">
+    <section className="py-16 md:py-24">
       <div className="section-container">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left Side - Content */}
           <div>
-            <Badge variant="secondary" className="bg-background/10 text-background border-background/20 mb-4">
+            <Badge variant="secondary" className="bg-white/10 text-foreground border-white/20 mb-4">
               Talent Marketplace
             </Badge>
             
-            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-4">
               Hire Talent Based on{" "}
               <span className="text-primary">Proof of Work</span>
             </h2>
             
-            <p className="text-background/70 mb-8 max-w-md">
+            <p className="text-muted-foreground mb-8 max-w-md">
               Skip resumes. Hire verified talent who have demonstrated their skills 
               through completed tasks and earned XP on our platform.
             </p>
@@ -91,8 +91,8 @@ const TalentHiringSection = () => {
                     <feature.icon className="w-4 h-4 text-primary" />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-background text-sm">{feature.title}</h4>
-                    <p className="text-xs text-background/60">{feature.description}</p>
+                    <h4 className="font-semibold text-foreground text-sm">{feature.title}</h4>
+                    <p className="text-xs text-muted-foreground">{feature.description}</p>
                   </div>
                 </div>
               ))}
@@ -112,7 +112,7 @@ const TalentHiringSection = () => {
                 size="lg"
                 variant="outline"
                 onClick={() => navigate("/talent")}
-                className="border-background/30 text-background hover:bg-background/10"
+                className="border-white/20 text-foreground hover:bg-white/5"
               >
                 List as Talent
               </Button>
@@ -122,7 +122,7 @@ const TalentHiringSection = () => {
           {/* Right Side - Talent Cards */}
           <div className="space-y-3">
             {talentProfiles.map((talent) => (
-              <Card key={talent.id} className="bg-background/5 border-background/10 hover:bg-background/10 transition-colors cursor-pointer">
+              <Card key={talent.id} className="bg-white/5 border-white/10 hover:bg-white/10 transition-colors cursor-pointer">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -131,17 +131,17 @@ const TalentHiringSection = () => {
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="font-semibold text-background text-sm">{talent.name}</span>
+                          <span className="font-semibold text-foreground text-sm">{talent.name}</span>
                           {talent.verified && (
                             <CheckCircle className="w-3.5 h-3.5 text-primary" />
                           )}
                         </div>
-                        <span className="text-xs text-background/60">{talent.role}</span>
+                        <span className="text-xs text-muted-foreground">{talent.role}</span>
                       </div>
                     </div>
                     <div className="text-right">
                       <div className="text-sm font-bold text-primary">{talent.xp}</div>
-                      <div className="text-[10px] text-background/60">{talent.tasks} tasks</div>
+                      <div className="text-[10px] text-muted-foreground">{talent.tasks} tasks</div>
                     </div>
                   </div>
                   
@@ -149,7 +149,7 @@ const TalentHiringSection = () => {
                     {talent.skills.map((skill) => (
                       <span 
                         key={skill}
-                        className="text-[10px] px-2 py-0.5 bg-background/10 text-background/80 rounded"
+                        className="text-[10px] px-2 py-0.5 bg-white/10 text-foreground/80 rounded"
                       >
                         {skill}
                       </span>
@@ -161,7 +161,7 @@ const TalentHiringSection = () => {
 
             <Button 
               variant="ghost" 
-              className="w-full text-background/70 hover:text-background hover:bg-background/10"
+              className="w-full text-muted-foreground hover:text-foreground hover:bg-white/5"
               onClick={() => navigate("/talent")}
             >
               View All Talent

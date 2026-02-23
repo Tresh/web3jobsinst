@@ -50,21 +50,21 @@ const BuildInPublicSection = () => {
   ];
 
   return (
-    <section className="bg-foreground py-16 md:py-24">
+    <section className="py-16 md:py-24">
       <div className="section-container">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left - Content */}
           <div>
-            <Badge variant="secondary" className="mb-4 bg-background/10 text-background border-0">
+            <Badge variant="secondary" className="mb-4 bg-white/10 text-foreground border-0">
               Build In Public
             </Badge>
             
-            <h2 className="text-2xl md:text-3xl font-bold text-background mb-4">
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
               Learn Publicly.{" "}
               <span className="text-primary">Grow Together.</span>
             </h2>
             
-            <p className="text-background/60 mb-6">
+            <p className="text-muted-foreground mb-6">
               Our community believes in learning out loud. Share your progress, 
               celebrate wins, and connect with builders from around the world.
             </p>
@@ -73,10 +73,10 @@ const BuildInPublicSection = () => {
             <div className="grid grid-cols-3 gap-4 mb-8">
               {communityStats.map((stat) => (
                 <div key={stat.label} className="text-center">
-                  <div className="text-xl md:text-2xl font-bold text-background">
+                  <div className="text-xl md:text-2xl font-bold text-foreground">
                     {stat.value}
                   </div>
-                  <div className="text-xs text-background/60">{stat.label}</div>
+                  <div className="text-xs text-muted-foreground">{stat.label}</div>
                 </div>
               ))}
             </div>
@@ -87,23 +87,23 @@ const BuildInPublicSection = () => {
                 <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
                   <Twitter className="w-4 h-4 text-blue-400" />
                 </div>
-                <span className="text-sm text-background">Share progress on Twitter/X</span>
+                <span className="text-sm text-foreground">Share progress on Twitter/X</span>
               </div>
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center">
                   <Users className="w-4 h-4 text-purple-400" />
                 </div>
-                <span className="text-sm text-background">Join our Telegram community</span>
+                <span className="text-sm text-foreground">Join our Telegram community</span>
               </div>
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-green-500/20 flex items-center justify-center">
                   <MessageSquare className="w-4 h-4 text-green-400" />
                 </div>
-                <span className="text-sm text-background">Engage in bootcamp discussions</span>
+                <span className="text-sm text-foreground">Engage in bootcamp discussions</span>
               </div>
             </div>
 
-            <Button variant="outline" onClick={() => window.open("https://twitter.com/Web3JobsInst", "_blank")} className="border-background/20 text-background hover:bg-background/10">
+            <Button variant="outline" onClick={() => window.open("https://twitter.com/Web3JobsInst", "_blank")} className="border-white/20 text-foreground hover:bg-white/5">
               Follow on Twitter
               <ExternalLink className="w-4 h-4 ml-2" />
             </Button>
@@ -112,20 +112,20 @@ const BuildInPublicSection = () => {
           {/* Right - Social Proof */}
           <div className="space-y-4">
             {communityHighlights.map((tweet) => (
-              <Card key={tweet.id} className="bg-background/5 border-background/10 hover:border-primary/30 transition-colors">
+              <Card key={tweet.id} className="bg-white/5 border-white/10 hover:border-primary/30 transition-colors">
                 <CardContent className="p-4">
                   <div className="flex items-start gap-3">
                     <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0">
                       <Twitter className="w-5 h-5 text-blue-400" />
                     </div>
                     <div className="flex-1">
-                      <div className="font-semibold text-sm text-background mb-1">
+                      <div className="font-semibold text-sm text-foreground mb-1">
                         {tweet.author}
                       </div>
-                      <p className="text-sm text-background/70 mb-3">
+                      <p className="text-sm text-foreground/70 mb-3">
                         {tweet.content}
                       </p>
-                      <div className="flex items-center gap-4 text-xs text-background/50">
+                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <Heart className="w-3.5 h-3.5" />
                           {tweet.likes}
