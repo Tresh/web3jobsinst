@@ -55,19 +55,19 @@ const ScholarshipOnramp = () => {
   };
 
   return (
-    <section className="bg-foreground py-16 md:py-24">
+    <section className="py-16 md:py-24">
       <div className="section-container">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="text-center mb-12">
-            <Badge variant="secondary" className="mb-4 bg-background/10 text-background border-0">
+            <Badge variant="secondary" className="mb-4 bg-white/10 text-foreground border-0">
               Free Entry Point
             </Badge>
-            <h2 className="text-2xl md:text-3xl font-bold text-background mb-4">
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
               Start Free. Build Skills.{" "}
               <span className="text-primary">Get Paid.</span>
             </h2>
-            <p className="text-background/60 max-w-xl mx-auto">
+            <p className="text-muted-foreground max-w-xl mx-auto">
               The Web3 Jobs Institute Scholarship is your zero-cost entry into the ecosystem. 
               Learn, complete tasks, and prove your skills to unlock real opportunities.
             </p>
@@ -76,7 +76,7 @@ const ScholarshipOnramp = () => {
           {/* Steps */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
             {steps.map((step, index) => (
-              <Card key={step.step} className="relative bg-background/5 border-background/10">
+              <Card key={step.step} className="relative bg-white/5 border-white/10">
                 <CardContent className="p-5">
                   {/* Step Number */}
                   <div className="absolute -top-3 -left-3 w-7 h-7 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center">
@@ -89,16 +89,16 @@ const ScholarshipOnramp = () => {
                   </div>
                   
                   {/* Content */}
-                  <h3 className="font-semibold text-background text-sm mb-1">
+                  <h3 className="font-semibold text-foreground text-sm mb-1">
                     {step.title}
                   </h3>
-                  <p className="text-xs text-background/60">
+                  <p className="text-xs text-muted-foreground">
                     {step.description}
                   </p>
 
                   {/* Connector Line */}
                   {index < steps.length - 1 && (
-                    <div className="hidden lg:block absolute top-1/2 -right-2 w-4 border-t-2 border-dashed border-background/20" />
+                    <div className="hidden lg:block absolute top-1/2 -right-2 w-4 border-t-2 border-dashed border-white/20" />
                   )}
                 </CardContent>
               </Card>
@@ -114,23 +114,23 @@ const ScholarshipOnramp = () => {
                   <div className="text-center">
                     <div className="flex items-center justify-center gap-1 mb-1">
                       <Users className="w-4 h-4 text-primary" />
-                      <span className="text-2xl font-bold text-background">{(stats?.activeScholars || 1193).toLocaleString()}+</span>
+                      <span className="text-2xl font-bold text-foreground">{(stats?.activeScholars || 1193).toLocaleString()}+</span>
                     </div>
-                    <span className="text-xs text-background/60">Active Scholars</span>
+                    <span className="text-xs text-muted-foreground">Active Scholars</span>
                   </div>
                   <div className="text-center">
                     <div className="flex items-center justify-center gap-1 mb-1">
                       <BookOpen className="w-4 h-4 text-primary" />
-                      <span className="text-2xl font-bold text-background">30</span>
+                      <span className="text-2xl font-bold text-foreground">30</span>
                     </div>
-                    <span className="text-xs text-background/60">Day Program</span>
+                    <span className="text-xs text-muted-foreground">Day Program</span>
                   </div>
                   <div className="text-center">
                     <div className="flex items-center justify-center gap-1 mb-1">
                       <Trophy className="w-4 h-4 text-primary" />
-                      <span className="text-2xl font-bold text-background">$0</span>
+                      <span className="text-2xl font-bold text-foreground">$0</span>
                     </div>
-                    <span className="text-xs text-background/60">Entry Cost</span>
+                    <span className="text-xs text-muted-foreground">Entry Cost</span>
                   </div>
                 </div>
 
