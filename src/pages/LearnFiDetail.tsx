@@ -249,16 +249,16 @@ const LearnFiDetail = () => {
                 </div>
               </div>
 
-              <div className="shrink-0">
+              <div className="shrink-0 flex gap-2">
                 {program.status === "live" && !isParticipant ? (
                   <Button onClick={handleJoin} disabled={isJoining} size="lg" className="gap-2">
                     {isJoining ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
                     {user ? "Join Program" : "Sign in to Join"}
                   </Button>
                 ) : isParticipant ? (
-                  <Badge className="bg-green-500/10 text-green-400 border-green-500/20 text-sm px-4 py-2">
-                    <CheckCircle className="w-4 h-4 mr-1.5" /> Joined
-                  </Badge>
+                  <Button onClick={() => navigate("/dashboard/learnfi")} size="lg" className="gap-2">
+                    Open in Dashboard <ArrowLeft className="w-4 h-4" />
+                  </Button>
                 ) : null}
               </div>
             </div>
@@ -360,34 +360,11 @@ const LearnFiDetail = () => {
                               {isComplete && <Badge className="bg-green-500/10 text-green-400 border-green-500/20 text-xs">Approved · +{sub.xp_awarded} XP</Badge>}
                               {sub?.status === "rejected" && <Badge className="bg-destructive/10 text-destructive border-destructive/20 text-xs">Rejected</Badge>}
 
-                              {/* Submission form */}
+                              {/* Redirect to dashboard for submissions */}
                               {!sub && isParticipant && program.status === "live" && (
-                                activeMission === mission.id ? (
-                                  <div className="mt-3 space-y-2">
-                                    <Input
-                                      placeholder="Submission URL (optional)"
-                                      value={submissionUrl}
-                                      onChange={(e) => setSubmissionUrl(e.target.value)}
-                                    />
-                                    <Textarea
-                                      placeholder="Describe your work..."
-                                      value={submissionText}
-                                      onChange={(e) => setSubmissionText(e.target.value)}
-                                      rows={3}
-                                    />
-                                    <div className="flex gap-2">
-                                      <Button size="sm" onClick={() => handleSubmitMission(mission.id)} disabled={isSubmitting}>
-                                        {isSubmitting ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Send className="w-3 h-3 mr-1" />}
-                                        Submit
-                                      </Button>
-                                      <Button size="sm" variant="outline" onClick={() => setActiveMission(null)}>Cancel</Button>
-                                    </div>
-                                  </div>
-                                ) : (
-                                  <Button size="sm" variant="outline" className="mt-2" onClick={() => setActiveMission(mission.id)}>
-                                    Submit Mission
-                                  </Button>
-                                )
+                                <Button size="sm" variant="outline" className="mt-2" onClick={() => navigate("/dashboard/learnfi")}>
+                                  Submit in Dashboard
+                                </Button>
                               )}
                             </div>
                           </div>
