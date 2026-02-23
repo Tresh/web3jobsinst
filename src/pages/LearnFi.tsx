@@ -101,11 +101,6 @@ const LearnFi = () => {
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primary/5 rounded-full blur-[120px]" />
 
           <div className="section-container relative py-16 md:py-24 text-center">
-            <Badge className="bg-primary/10 text-primary border-primary/20 mb-6 text-sm px-4 py-1.5">
-              <Rocket className="w-3.5 h-3.5 mr-1.5" />
-              Public Ecosystem Hub
-            </Badge>
-
             <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4 tracking-tight">
               LearnFi
             </h1>
