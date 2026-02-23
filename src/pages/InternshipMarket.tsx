@@ -1,14 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import UnifiedNavbar from "@/components/UnifiedNavbar";
+import PageNavbar from "@/components/PageNavbar";
 import Footer from "@/components/Footer";
+import InternshipFilterSheet from "@/components/internships/InternshipFilterSheet";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Search, Briefcase, MapPin, Clock, ExternalLink, Mail, Loader2 } from "lucide-react";
+import { Briefcase, Clock, ExternalLink, Mail, MapPin, Loader2 } from "lucide-react";
 
 interface InternProfile {
   id: string;
@@ -29,27 +28,19 @@ interface InternProfile {
   internship_status: string;
 }
 
-const SKILL_CATEGORIES = [
-  { value: "_all", label: "All Categories" },
-  { value: "web_development", label: "Web Development" },
-  { value: "mobile_development", label: "Mobile Development" },
-  { value: "design", label: "UI/UX Design" },
-  { value: "marketing", label: "Digital Marketing" },
-  { value: "content_creation", label: "Content Creation" },
-  { value: "data_science", label: "Data Science" },
-  { value: "blockchain", label: "Blockchain / Web3" },
-  { value: "video_editing", label: "Video Editing" },
-  { value: "community_management", label: "Community Management" },
-  { value: "project_management", label: "Project Management" },
-  { value: "general", label: "General" },
-];
-
-const SKILL_LEVELS = [
-  { value: "_all", label: "All Levels" },
-  { value: "beginner", label: "Beginner" },
-  { value: "intermediate", label: "Intermediate" },
-  { value: "advanced", label: "Advanced" },
-];
+const CATEGORY_LABELS: Record<string, string> = {
+  web_development: "Web Development",
+  mobile_development: "Mobile Development",
+  design: "UI/UX Design",
+  marketing: "Digital Marketing",
+  content_creation: "Content Creation",
+  data_science: "Data Science",
+  blockchain: "Blockchain / Web3",
+  video_editing: "Video Editing",
+  community_management: "Community Management",
+  project_management: "Project Management",
+  general: "General",
+};
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   active_intern: { label: "Active Intern", color: "bg-green-500/10 text-green-500 border-green-500/20" },
@@ -62,9 +53,10 @@ const InternshipMarket = () => {
   const [interns, setInterns] = useState<InternProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("_all");
-  const [levelFilter, setLevelFilter] = useState("_all");
-  const [paidFilter, setPaidFilter] = useState("_all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [levelFilter, setLevelFilter] = useState("all");
+  const [paidFilter, setPaidFilter] = useState("all");
+  const [filterSheetOpen, setFilterSheetOpen] = useState(false);
 
   useEffect(() => {
     const fetchInterns = async () => {
@@ -80,82 +72,80 @@ const InternshipMarket = () => {
     fetchInterns();
   }, []);
 
-  const filtered = interns.filter((intern) => {
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      if (
-        !intern.full_name.toLowerCase().includes(q) &&
-        !intern.primary_skill_category.toLowerCase().includes(q) &&
-        !(intern.experience_description || "").toLowerCase().includes(q) &&
-        !(intern.tools_known || []).some((t) => t.toLowerCase().includes(q))
-      ) return false;
-    }
-    if (categoryFilter !== "_all" && intern.primary_skill_category !== categoryFilter) return false;
-    if (levelFilter !== "_all" && intern.skill_level !== levelFilter) return false;
-    if (paidFilter !== "_all" && intern.paid_preference !== paidFilter) return false;
-    return true;
-  });
+  const activeFiltersCount = useMemo(() => {
+    let count = 0;
+    if (categoryFilter !== "all") count++;
+    if (levelFilter !== "all") count++;
+    if (paidFilter !== "all") count++;
+    return count;
+  }, [categoryFilter, levelFilter, paidFilter]);
 
-  const getCategoryLabel = (val: string) =>
-    SKILL_CATEGORIES.find((c) => c.value === val)?.label || val;
+  const filtered = useMemo(() => {
+    return interns.filter((intern) => {
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        if (
+          !intern.full_name.toLowerCase().includes(q) &&
+          !intern.primary_skill_category.toLowerCase().includes(q) &&
+          !(intern.experience_description || "").toLowerCase().includes(q) &&
+          !(intern.tools_known || []).some((t) => t.toLowerCase().includes(q))
+        ) return false;
+      }
+      if (categoryFilter !== "all" && intern.primary_skill_category !== categoryFilter) return false;
+      if (levelFilter !== "all" && intern.skill_level !== levelFilter) return false;
+      if (paidFilter !== "all" && intern.paid_preference !== paidFilter) return false;
+      return true;
+    });
+  }, [searchQuery, categoryFilter, levelFilter, paidFilter, interns]);
+
+  const clearAllFilters = () => {
+    setCategoryFilter("all");
+    setLevelFilter("all");
+    setPaidFilter("all");
+    setSearchQuery("");
+  };
 
   return (
-    <div className="min-h-screen bg-background">
-      <UnifiedNavbar />
-      <main className="pt-24 pb-16">
-        <div className="section-container">
-          {/* Hero */}
-          <div className="text-center mb-12">
-            <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
-              Internship Market
-            </h1>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Discover skilled interns from our scholarship program. Filter by skill, level, and availability to find the right fit for your team.
+    <div className="min-h-screen">
+      <PageNavbar
+        showSearch
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        onFilterClick={() => setFilterSheetOpen(true)}
+        activeFiltersCount={activeFiltersCount}
+        searchPlaceholder="Search interns, skills..."
+      />
+
+      <main className="pt-[72px]">
+        {/* Header */}
+        <section className="section-container py-6 md:py-10">
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-1 md:mb-2">
+            Internship Market
+          </h1>
+          <p className="text-sm md:text-base text-muted-foreground">
+            Discover skilled interns from our scholarship program. Filter by skill, level, and availability.
+          </p>
+        </section>
+
+        {/* Results info */}
+        <section className="section-container pb-4">
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">
+              <span className="font-medium text-foreground">{filtered.length}</span> interns found
             </p>
+            {activeFiltersCount > 0 && (
+              <button onClick={clearAllFilters} className="text-xs text-primary hover:underline">
+                Clear filters
+              </button>
+            )}
           </div>
+        </section>
 
-          {/* Filters */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Search interns..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger><SelectValue placeholder="Category" /></SelectTrigger>
-              <SelectContent>
-                {SKILL_CATEGORIES.map((c) => (
-                  <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={levelFilter} onValueChange={setLevelFilter}>
-              <SelectTrigger><SelectValue placeholder="Skill Level" /></SelectTrigger>
-              <SelectContent>
-                {SKILL_LEVELS.map((l) => (
-                  <SelectItem key={l.value} value={l.value}>{l.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={paidFilter} onValueChange={setPaidFilter}>
-              <SelectTrigger><SelectValue placeholder="Paid Preference" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="_all">All</SelectItem>
-                <SelectItem value="paid">Paid Only</SelectItem>
-                <SelectItem value="unpaid">Unpaid</SelectItem>
-                <SelectItem value="both">Both</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Results */}
+        {/* Grid */}
+        <section className="section-container pb-20">
           {isLoading ? (
-            <div className="flex items-center justify-center py-20">
-              <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            <div className="flex items-center justify-center py-16">
+              <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
             </div>
           ) : filtered.length === 0 ? (
             <div className="text-center py-20 text-muted-foreground">
@@ -179,7 +169,7 @@ const InternshipMarket = () => {
                         </Avatar>
                         <div className="flex-1 min-w-0">
                           <h3 className="font-semibold text-foreground truncate">{intern.full_name}</h3>
-                          <p className="text-sm text-muted-foreground">{getCategoryLabel(intern.primary_skill_category)}</p>
+                          <p className="text-sm text-muted-foreground">{CATEGORY_LABELS[intern.primary_skill_category] || intern.primary_skill_category}</p>
                           <Badge className={`mt-1 text-xs ${status.color}`}>{status.label}</Badge>
                         </div>
                       </div>
@@ -239,9 +229,22 @@ const InternshipMarket = () => {
               })}
             </div>
           )}
-        </div>
+        </section>
       </main>
+
       <Footer />
+
+      <InternshipFilterSheet
+        open={filterSheetOpen}
+        onOpenChange={setFilterSheetOpen}
+        selectedCategory={categoryFilter}
+        onCategoryChange={setCategoryFilter}
+        selectedLevel={levelFilter}
+        onLevelChange={setLevelFilter}
+        selectedPaid={paidFilter}
+        onPaidChange={setPaidFilter}
+        onClearAll={clearAllFilters}
+      />
     </div>
   );
 };
