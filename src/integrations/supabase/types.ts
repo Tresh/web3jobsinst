@@ -25,10 +25,13 @@ export type Database = {
           full_name: string
           goals: string
           id: string
+          phone_number: string | null
           reviewed_at: string | null
           reviewed_by: string | null
           skill_level: string
           status: string
+          telegram_username: string | null
+          twitter_handle: string | null
           updated_at: string
           user_id: string
           why_join: string
@@ -43,10 +46,13 @@ export type Database = {
           full_name: string
           goals: string
           id?: string
+          phone_number?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           skill_level?: string
           status?: string
+          telegram_username?: string | null
+          twitter_handle?: string | null
           updated_at?: string
           user_id: string
           why_join: string
@@ -61,10 +67,13 @@ export type Database = {
           full_name?: string
           goals?: string
           id?: string
+          phone_number?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           skill_level?: string
           status?: string
+          telegram_username?: string | null
+          twitter_handle?: string | null
           updated_at?: string
           user_id?: string
           why_join?: string

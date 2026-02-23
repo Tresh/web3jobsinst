@@ -33,6 +33,9 @@ const BootcampApply = () => {
   const [skillLevel, setSkillLevel] = useState("beginner");
   const [availabilityCommitment, setAvailabilityCommitment] = useState(false);
   const [agreedToRules, setAgreedToRules] = useState(false);
+  const [telegramUsername, setTelegramUsername] = useState("");
+  const [twitterHandle, setTwitterHandle] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   
   // Dynamic form state for custom questions and post links
   const [customAnswers, setCustomAnswers] = useState<Record<string, string>>({});
@@ -163,8 +166,11 @@ const BootcampApply = () => {
           skill_level: skillLevel,
           availability_commitment: availabilityCommitment,
           agreed_to_rules: agreedToRules,
+          telegram_username: telegramUsername.trim() || null,
+          twitter_handle: twitterHandle.trim() || null,
+          phone_number: phoneNumber.trim() || null,
           status: "pending",
-        });
+        } as any);
 
       if (error) throw error;
 
@@ -324,6 +330,38 @@ const BootcampApply = () => {
                   {profile?.email && (
                     <p className="text-xs text-muted-foreground">Email is linked to your account</p>
                   )}
+                </div>
+
+                {/* Contact Details */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="telegram">Telegram Username</Label>
+                    <Input
+                      id="telegram"
+                      value={telegramUsername}
+                      onChange={(e) => setTelegramUsername(e.target.value)}
+                      placeholder="@yourusername"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="twitter">X (Twitter) Handle</Label>
+                    <Input
+                      id="twitter"
+                      value={twitterHandle}
+                      onChange={(e) => setTwitterHandle(e.target.value)}
+                      placeholder="@yourhandle"
+                    />
+                  </div>
+                  <div className="space-y-2 md:col-span-2">
+                    <Label htmlFor="phone">Phone Number</Label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      value={phoneNumber}
+                      onChange={(e) => setPhoneNumber(e.target.value)}
+                      placeholder="+234..."
+                    />
+                  </div>
                 </div>
 
                 {/* Why Join */}
