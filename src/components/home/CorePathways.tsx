@@ -5,6 +5,7 @@ import {
   Briefcase,
   Trophy, 
   GraduationCap, 
+  Zap,
   ArrowRight
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -18,6 +19,16 @@ const pathways = [
     features: ["200+ Courses", "Digital Products", "Bootcamps"],
     cta: "Browse Courses",
     href: "/courses",
+  },
+  {
+    id: "learnfi",
+    title: "LearnFi",
+    description: "Join structured learn-to-earn programs. Complete missions, earn tokens, XP, and real opportunities.",
+    icon: Zap,
+    features: ["Learn-to-Earn", "Token Rewards", "Ecosystem Missions"],
+    cta: "Explore Programs",
+    href: "/learnfi",
+    badge: "New",
   },
   {
     id: "hire",
