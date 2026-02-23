@@ -36,7 +36,7 @@ const ProductFilterSheet = ({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-[300px] bg-background">
+      <SheetContent side="right" className="w-[300px] bg-background overflow-y-auto">
         <SheetHeader className="mb-6">
           <div className="flex items-center justify-between">
             <SheetTitle>Filters</SheetTitle>

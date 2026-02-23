@@ -44,7 +44,7 @@ const TalentFilterSheet = ({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-[300px] bg-background">
+      <SheetContent side="right" className="w-[300px] bg-background overflow-y-auto">
         <SheetHeader>
           <SheetTitle className="text-left">Filters</SheetTitle>
         </SheetHeader>

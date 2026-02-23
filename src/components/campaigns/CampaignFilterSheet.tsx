@@ -33,7 +33,7 @@ const CampaignFilterSheet = ({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-[320px] bg-background">
+      <SheetContent side="right" className="w-[320px] bg-background overflow-y-auto">
         <SheetHeader>
           <SheetTitle>Filter Campaigns</SheetTitle>
         </SheetHeader>
