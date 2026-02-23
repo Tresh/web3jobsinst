@@ -2,8 +2,9 @@ import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
-import { BookOpen, Package, Users, ArrowRight, Wallet } from "lucide-react";
+import { BookOpen, Package, Users, ArrowRight, Wallet, GraduationCap, Rocket, Briefcase, Target } from "lucide-react";
 import ComingSoonDialog from "@/components/ComingSoonDialog";
 
 const DashboardOverview = () => {
@@ -20,7 +21,7 @@ const DashboardOverview = () => {
 
   return (
     <div className="p-6 lg:p-8">
-      {/* Complete Profile Notice - Shown at top for wallet users */}
+      {/* Complete Profile Notice */}
       {isWalletUser && (
         <Card className="mb-6 border-primary/20 bg-primary/5">
           <CardHeader>
@@ -54,67 +55,75 @@ const DashboardOverview = () => {
       </div>
 
       {/* Quick Stats */}
-      <div className="grid gap-4 md:grid-cols-3 mb-8">
+      <div className="grid gap-4 grid-cols-2 md:grid-cols-4 mb-8">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Enrolled Courses
+              Courses
             </CardTitle>
             <BookOpen className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">0</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Start learning today
-            </p>
+            <p className="text-xs text-muted-foreground mt-1">Enrolled</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Listed Products
+              Products
             </CardTitle>
             <Package className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">0</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Sell your digital products
-            </p>
+            <p className="text-xs text-muted-foreground mt-1">Listed</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Talent Profile
+              Talent
             </CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">Not Set</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Get discovered by clients
-            </p>
+            <div className="text-2xl font-bold">—</div>
+            <p className="text-xs text-muted-foreground mt-1">Profile</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Bootcamps
+            </CardTitle>
+            <Rocket className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">0</div>
+            <p className="text-xs text-muted-foreground mt-1">Joined</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Quick Actions */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <h2 className="text-lg font-semibold mb-4">Quick Actions</h2>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card className="hover:shadow-md transition-shadow">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2 text-base">
               <BookOpen className="w-5 h-5 text-primary" />
               Browse Courses
             </CardTitle>
-            <CardDescription>
-              Learn Web3 development, trading, marketing, and more
+            <CardDescription className="text-sm">
+              Learn Web3, trading, marketing & more
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button asChild variant="outline" className="w-full">
+            <Button asChild variant="outline" className="w-full" size="sm">
               <Link to="/courses">
                 Explore Courses
                 <ArrowRight className="w-4 h-4 ml-2" />
@@ -124,19 +133,80 @@ const DashboardOverview = () => {
         </Card>
 
         <Card className="hover:shadow-md transition-shadow">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <GraduationCap className="w-5 h-5 text-primary" />
+              Scholarship Portal
+            </CardTitle>
+            <CardDescription className="text-sm">
+              Tasks, modules, XP & leaderboard
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild variant="outline" className="w-full" size="sm">
+              <Link to="/dashboard/scholarship">
+                Open Portal
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-md transition-shadow">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Rocket className="w-5 h-5 text-primary" />
+              Join Bootcamps
+            </CardTitle>
+            <CardDescription className="text-sm">
+              Intensive, community-driven programs
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild variant="outline" className="w-full" size="sm">
+              <Link to="/bootcamps">
+                Browse Bootcamps
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-md transition-shadow">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Briefcase className="w-5 h-5 text-primary" />
+              Internship Market
+            </CardTitle>
+            <CardDescription className="text-sm">
+              Discover internship opportunities
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild variant="outline" className="w-full" size="sm">
+              <Link to="/internships">
+                View Internships
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-md transition-shadow">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2 text-base">
               <Package className="w-5 h-5 text-primary" />
               List a Product
             </CardTitle>
-            <CardDescription>
-              Sell templates, ebooks, or other digital products
+            <CardDescription className="text-sm">
+              Sell templates, ebooks & digital goods
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Button 
               variant="outline" 
               className="w-full"
+              size="sm"
               onClick={() => handleComingSoon("List a Product - Coming Soon")}
             >
               List Product
@@ -146,19 +216,20 @@ const DashboardOverview = () => {
         </Card>
 
         <Card className="hover:shadow-md transition-shadow">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2 text-base">
               <Users className="w-5 h-5 text-primary" />
               Talent Profile
             </CardTitle>
-            <CardDescription>
-              Create your profile and get hired for Web3 jobs
+            <CardDescription className="text-sm">
+              Create your profile & get hired
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Button 
               variant="outline" 
               className="w-full"
+              size="sm"
               onClick={() => handleComingSoon("Create Talent Profile - Coming Soon")}
             >
               Create Profile
@@ -167,7 +238,6 @@ const DashboardOverview = () => {
           </CardContent>
         </Card>
       </div>
-
 
       <ComingSoonDialog
         open={comingSoonOpen}

@@ -140,10 +140,10 @@ const Bootcamps = () => {
   });
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen overflow-x-hidden">
       <UnifiedNavbar />
       
-      <main className="pt-20">
+      <main className="pt-20 px-4 sm:px-0">
         {/* Hero Section */}
         <section className="py-16 px-4 bg-gradient-to-b from-primary/10 to-transparent">
           <div className="max-w-7xl mx-auto text-center">

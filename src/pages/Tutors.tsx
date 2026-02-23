@@ -21,7 +21,7 @@ import {
 import UnifiedNavbar from "@/components/UnifiedNavbar";
 import Footer from "@/components/Footer";
 import OpportunitiesStrip from "@/components/OpportunitiesStrip";
-import TutorApplicationForm from "@/components/tutors/TutorApplicationForm";
+// TutorApplicationForm removed - Coming Soon
 
 const royaltyFeatures = [
   { icon: Zap, title: "Publish once, earn repeatedly", description: "Your courses generate income every time they're accessed" },
@@ -209,7 +209,7 @@ const Tutors = () => {
         </div>
       </section>
 
-      {/* Application Form */}
+      {/* Application Form - Coming Soon */}
       <section ref={formRef} className="py-16 md:py-24 bg-secondary">
         <div className="container mx-auto px-4 max-w-2xl">
           <div className="text-center mb-8">
@@ -217,10 +217,23 @@ const Tutors = () => {
               Apply as a Tutor
             </h2>
             <p className="text-muted-foreground">
-              Complete the form below to start your journey as a Web3 Jobs Institute tutor
+              Tutor applications will open soon. Stay tuned!
             </p>
           </div>
-          <TutorApplicationForm />
+          <Card className="border-border opacity-60">
+            <CardContent className="p-8 text-center space-y-4">
+              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+                <CheckCircle className="w-8 h-8 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold text-foreground">Coming Soon</h3>
+              <p className="text-muted-foreground">
+                We're building something great. Tutor applications will be available shortly.
+              </p>
+              <Button disabled size="lg" className="w-full max-w-sm">
+                Applications Opening Soon
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </section>
 
