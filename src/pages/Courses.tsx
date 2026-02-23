@@ -52,7 +52,7 @@ const Courses = () => {
 
   // Filter hardcoded courses (fallback)
   const filteredHardcoded = useMemo(() => {
-    if (strapiConfigured) return []; // Don't use hardcoded when Strapi is active
+    if (strapiConfigured && strapiCourses.length > 0) return []; // Don't use hardcoded when Strapi has data
     return hardcodedCourses.filter((course) => {
       const matchesSearch =
         searchQuery === "" ||
@@ -71,7 +71,7 @@ const Courses = () => {
   }, [searchQuery, selectedCategory, selectedLevel, selectedPath, strapiConfigured]);
 
   // Determine which data source to use
-  const isUsingStrapi = strapiConfigured && strapiCourses.length >= 0;
+  const isUsingStrapi = strapiConfigured && strapiCourses.length > 0;
   const displayCount = isUsingStrapi ? strapiCourses.length : filteredHardcoded.length;
 
   const handleCourseClick = (course: Course) => {
@@ -168,21 +168,6 @@ const Courses = () => {
         )}
       </section>
 
-      {/* Scholarship CTA */}
-      <section className="section-container pb-20">
-        <div className="rounded-2xl border border-border bg-card p-10 md:p-14 text-center">
-          <h2 className="text-xl md:text-2xl font-bold text-foreground mb-4">
-            Don't Know Where to Start?
-          </h2>
-          <p className="text-muted-foreground max-w-xl mx-auto mb-8">
-            Join our scholarship program and we'll guide you step by step through your Web3 journey.
-          </p>
-          <Button variant="default" size="lg" onClick={() => setScholarshipOpen(true)}>
-            Join Scholarship Program
-            <ArrowRight className="w-4 h-4" />
-          </Button>
-        </div>
-      </section>
 
       {/* Why Different */}
       <WhyDifferentSection />
@@ -194,10 +179,6 @@ const Courses = () => {
             Start Building Your Web3 Career
           </h2>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button variant="default" size="lg" onClick={() => setScholarshipOpen(true)}>
-              Join Scholarship
-              <ArrowRight className="w-4 h-4" />
-            </Button>
             <Button
               variant="outline"
               size="lg"

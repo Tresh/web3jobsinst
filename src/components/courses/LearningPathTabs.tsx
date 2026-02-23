@@ -40,11 +40,6 @@ const LearningPathTabs = ({ paths, selectedPath, onPathSelect }: LearningPathTab
               className="w-5 h-5 rounded-full object-cover"
             />
             <span className="whitespace-nowrap">{path.name}</span>
-            <span className={`text-xs ${
-              selectedPath === path.id ? "text-primary-foreground/70" : "text-muted-foreground"
-            }`}>
-              {path.courseCount}
-            </span>
           </button>
         ))}
       </div>

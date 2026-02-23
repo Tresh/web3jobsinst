@@ -11,7 +11,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import logo from "@/assets/logo.png";
+import faviconLogo from "/favicon.png";
 import ComingSoonDialog from "@/components/ComingSoonDialog";
 import { useAuth } from "@/contexts/AuthContext";
 import UserMenu from "@/components/auth/UserMenu";
@@ -74,7 +74,7 @@ const CoursesNavbar = ({
           <div className="flex items-center justify-between h-full gap-4">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 shrink-0">
-              <img src={logo} alt="Web3 Jobs Institute" className="w-8 h-8 object-contain" />
+              <img src={faviconLogo} alt="Web3 Jobs Institute" className="w-8 h-8 object-contain" />
               <span className="font-bold text-lg text-foreground hidden md:block">
                 Web3 Jobs Institute
               </span>
@@ -126,13 +126,6 @@ const CoursesNavbar = ({
                   </Link>
                 )
               ))}
-              <Button 
-                variant="default" 
-                size="sm"
-                onClick={handleScholarshipClick}
-              >
-                Apply for Scholarship
-              </Button>
               <UserMenu />
             </div>
 
@@ -185,15 +178,6 @@ const CoursesNavbar = ({
                         </Link>
                       )
                     ))}
-
-                    <Button 
-                      variant="default" 
-                      size="sm" 
-                      className="mt-4"
-                      onClick={handleScholarshipClick}
-                    >
-                      Apply for Scholarship
-                    </Button>
 
                     {/* Auth buttons for mobile - at bottom */}
                     {!user && (

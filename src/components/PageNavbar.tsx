@@ -10,7 +10,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import logo from "@/assets/logo.png";
+import faviconLogo from "/favicon.png";
 import ComingSoonDialog from "./ComingSoonDialog";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -87,7 +87,7 @@ const PageNavbar = ({
           <div className="flex items-center justify-between h-full gap-4">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 shrink-0">
-              <img src={logo} alt="Web3 Jobs Institute" className="w-8 h-8 object-contain" />
+              <img src={faviconLogo} alt="Web3 Jobs Institute" className="w-8 h-8 object-contain" />
               <span className="font-bold text-lg text-foreground hidden md:block">
                 Web3 Jobs Institute
               </span>
@@ -133,13 +133,6 @@ const PageNavbar = ({
                   {link.label}
                 </Link>
               ))}
-              <Button 
-                variant="default" 
-                size="sm"
-                onClick={handleScholarshipRoute}
-              >
-                Apply for Scholarship
-              </Button>
             </div>
 
             {/* Right side icons */}
@@ -198,16 +191,6 @@ const PageNavbar = ({
                         </Link>
                       )
                     ))}
-                    <Button 
-                      variant="default" 
-                      size="sm" 
-                      className="mt-4"
-                      onClick={() => {
-                        handleScholarshipRoute();
-                      }}
-                    >
-                      Apply for Scholarship
-                    </Button>
                   </div>
                 </SheetContent>
               </Sheet>

@@ -7,7 +7,7 @@ import WhatsHappening from "@/components/home/WhatsHappening";
 import MarketplacePreview from "@/components/home/MarketplacePreview";
 import TalentHiringSection from "@/components/home/TalentHiringSection";
 import LiveActivityFeed from "@/components/home/LiveActivityFeed";
-import ScholarshipOnramp from "@/components/home/ScholarshipOnramp";
+
 import BuildInPublicSection from "@/components/home/BuildInPublicSection";
 import CTASection from "@/components/CTASection";
 
@@ -34,8 +34,6 @@ const Index = () => {
         {/* Talent & Hiring Section */}
         <TalentHiringSection />
         
-        {/* Scholarship as Free On-ramp */}
-        <ScholarshipOnramp />
         
         {/* Community & Build in Public */}
         <BuildInPublicSection />

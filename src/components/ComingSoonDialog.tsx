@@ -39,12 +39,6 @@ const ComingSoonDialog = ({
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-3 mt-4">
-          {onScholarshipClick && (
-            <Button variant="default" onClick={handleScholarshipClick}>
-              View Scholarships
-              <ArrowRight className="w-4 h-4" />
-            </Button>
-          )}
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Close
           </Button>
