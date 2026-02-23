@@ -44,7 +44,7 @@ import DashboardScholarship from "./pages/dashboard/DashboardScholarship";
 import DashboardBootcamps from "./pages/dashboard/DashboardBootcamps";
 import ScholarshipModuleDetail from "./pages/dashboard/ScholarshipModuleDetail";
 import Scholarship from "./pages/Scholarship";
-import ScholarshipCelebration from "./pages/ScholarshipCelebration";
+// ScholarshipCelebration removed - no longer needed
 
 // Admin pages
 import AdminLayout from "@/components/admin/AdminLayout";
@@ -90,14 +90,7 @@ const App = () => (
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/scholarship/:programId" element={<Scholarship />} />
-            <Route
-              path="/scholarship/celebration"
-              element={
-                <ProtectedRoute>
-                  <ScholarshipCelebration />
-                </ProtectedRoute>
-              }
-            />
+            {/* Celebration route removed */}
             <Route path="/tutors" element={<Tutors />} />
             <Route path="/institutions" element={<Institutions />} />
             <Route path="/institutions/:slug" element={<InstitutionPortal />} />

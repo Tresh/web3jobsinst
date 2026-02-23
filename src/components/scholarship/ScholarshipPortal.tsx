@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { GraduationCap, ListTodo, Trophy, BookOpen, Bell } from "lucide-react";
+import { GraduationCap, ListTodo, Trophy, BookOpen, Bell, Gift, FolderCheck } from "lucide-react";
 import { useScholarshipPortal } from "@/hooks/useScholarshipData";
 import { PortalOverview } from "./PortalOverview";
 import { PortalTasks } from "./PortalTasks";
 import { PortalLeaderboard } from "./PortalLeaderboard";
 import { PortalModules } from "./PortalModules";
 import { PortalNotifications } from "./PortalNotifications";
+import { PortalOffers } from "./PortalOffers";
+import { PortalProofOfWork } from "./PortalProofOfWork";
 import { Loader2 } from "lucide-react";
 
 export function ScholarshipPortal() {
@@ -16,9 +18,9 @@ export function ScholarshipPortal() {
     tasks,
     submissions,
     modules,
+    moduleProgress,
     leaderboard,
     notifications,
-    dayNumber,
     totalScholars,
     userRank,
     submitTask,
@@ -30,6 +32,7 @@ export function ScholarshipPortal() {
   } = useScholarshipPortal();
 
   const unreadCount = notifications.filter((n) => !n.is_read).length;
+  const completedModulesCount = moduleProgress?.filter((p) => p.status === "completed").length || 0;
 
   if (isLoading) {
     return (
@@ -56,7 +59,7 @@ export function ScholarshipPortal() {
       </div>
 
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-flex">
+        <TabsList className="grid w-full grid-cols-7 lg:w-auto lg:inline-flex">
           <TabsTrigger value="overview" className="gap-2">
             <GraduationCap className="w-4 h-4 hidden sm:inline" />
             <span>Overview</span>
@@ -73,6 +76,14 @@ export function ScholarshipPortal() {
             <BookOpen className="w-4 h-4 hidden sm:inline" />
             <span>Modules</span>
           </TabsTrigger>
+          <TabsTrigger value="offers" className="gap-2">
+            <Gift className="w-4 h-4 hidden sm:inline" />
+            <span>Offers</span>
+          </TabsTrigger>
+          <TabsTrigger value="proof-of-work" className="gap-2">
+            <FolderCheck className="w-4 h-4 hidden sm:inline" />
+            <span>Proof of Work</span>
+          </TabsTrigger>
           <TabsTrigger value="notifications" className="gap-2 relative">
             <Bell className="w-4 h-4 hidden sm:inline" />
             <span>Alerts</span>
@@ -87,7 +98,8 @@ export function ScholarshipPortal() {
         <TabsContent value="overview">
           <PortalOverview
             application={application}
-            dayNumber={dayNumber}
+            completedModulesCount={completedModulesCount}
+            totalModulesCount={modules.length}
             totalScholars={totalScholars}
             userRank={userRank}
             tasksCount={tasks.length}
@@ -113,10 +125,18 @@ export function ScholarshipPortal() {
           <PortalModules
             modules={modules}
             getModuleStatus={getModuleStatus}
-            dayNumber={dayNumber}
+            dayNumber={0}
             onRefetch={refetch}
             programId={application.program_id}
           />
+        </TabsContent>
+
+        <TabsContent value="offers">
+          <PortalOffers />
+        </TabsContent>
+
+        <TabsContent value="proof-of-work">
+          <PortalProofOfWork />
         </TabsContent>
 
         <TabsContent value="notifications">
