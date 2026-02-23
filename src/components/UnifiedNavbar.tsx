@@ -17,7 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import logo from "@/assets/logo.png";
+import faviconLogo from "/favicon.png";
 import ComingSoonDialog from "@/components/ComingSoonDialog";
 import UserMenu from "@/components/auth/UserMenu";
 import { useAuth } from "@/contexts/AuthContext";
@@ -89,7 +89,7 @@ const UnifiedNavbar = ({
           <div className="flex items-center justify-between h-full gap-4">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-1.5 sm:gap-2 min-w-0">
-              <img src={logo} alt="Web3 Jobs Institute" className="w-7 h-7 sm:w-8 sm:h-8 object-contain shrink-0" />
+              <img src={faviconLogo} alt="Web3 Jobs Institute" className="w-7 h-7 sm:w-8 sm:h-8 object-contain shrink-0" />
               <span className="font-bold text-xs sm:text-sm md:text-base lg:text-lg text-foreground truncate">
                 Web3 Jobs Institute
               </span>
