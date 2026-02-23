@@ -23,12 +23,12 @@ interface NavLinkItem {
 const navLinks: NavLinkItem[] = [
   { label: "Home", href: "/" },
   { label: "Courses", href: "/courses" },
-  { label: "Digital Products", href: "/products" },
-  { label: "Talent Market", href: "/talent" },
-  { label: "Internships", href: "/internships" },
-  { label: "Campaigns", href: "/campaigns" },
-  { label: "About", href: "/about" },
   { label: "Bootcamps", href: "/bootcamps" },
+  { label: "LearnFi", href: "/learnfi" },
+  { label: "Digital Products", href: "/products" },
+  { label: "Internships", href: "/internships" },
+  { label: "Talent Market", href: "/talent" },
+  { label: "About", href: "/about" },
   { label: "Affiliates", comingSoon: "Affiliates Coming Soon" },
   { label: "Jobs", comingSoon: "Jobs Board Coming Soon" },
 ];
