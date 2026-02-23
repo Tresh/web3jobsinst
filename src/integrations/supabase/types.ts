@@ -848,6 +848,182 @@ export type Database = {
         }
         Relationships: []
       }
+      learnfi_mission_submissions: {
+        Row: {
+          created_at: string
+          id: string
+          mission_id: string
+          program_id: string
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          submission_text: string | null
+          submission_url: string | null
+          updated_at: string
+          user_id: string
+          xp_awarded: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          mission_id: string
+          program_id: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submission_text?: string | null
+          submission_url?: string | null
+          updated_at?: string
+          user_id: string
+          xp_awarded?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          mission_id?: string
+          program_id?: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submission_text?: string | null
+          submission_url?: string | null
+          updated_at?: string
+          user_id?: string
+          xp_awarded?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "learnfi_mission_submissions_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "learnfi_missions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "learnfi_mission_submissions_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "learnfi_programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      learnfi_missions: {
+        Row: {
+          created_at: string
+          description: string | null
+          external_link: string | null
+          id: string
+          is_published: boolean
+          mission_type: string
+          module_id: string | null
+          order_index: number
+          program_id: string
+          title: string
+          updated_at: string
+          xp_value: number
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          external_link?: string | null
+          id?: string
+          is_published?: boolean
+          mission_type?: string
+          module_id?: string | null
+          order_index?: number
+          program_id: string
+          title: string
+          updated_at?: string
+          xp_value?: number
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          external_link?: string | null
+          id?: string
+          is_published?: boolean
+          mission_type?: string
+          module_id?: string | null
+          order_index?: number
+          program_id?: string
+          title?: string
+          updated_at?: string
+          xp_value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "learnfi_missions_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "learnfi_modules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "learnfi_missions_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "learnfi_programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      learnfi_modules: {
+        Row: {
+          cover_image_url: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_published: boolean
+          order_index: number
+          program_id: string
+          title: string
+          updated_at: string
+          video_duration: string | null
+          video_url: string | null
+          xp_value: number
+        }
+        Insert: {
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_published?: boolean
+          order_index?: number
+          program_id: string
+          title: string
+          updated_at?: string
+          video_duration?: string | null
+          video_url?: string | null
+          xp_value?: number
+        }
+        Update: {
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_published?: boolean
+          order_index?: number
+          program_id?: string
+          title?: string
+          updated_at?: string
+          video_duration?: string | null
+          video_url?: string | null
+          xp_value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "learnfi_modules_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "learnfi_programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       learnfi_participants: {
         Row: {
           id: string
@@ -1924,6 +2100,17 @@ export type Database = {
         Returns: {
           rank: number
           tasks_completed: number
+          total_xp: number
+          user_avatar: string
+          user_id: string
+          user_name: string
+        }[]
+      }
+      get_learnfi_leaderboard: {
+        Args: { p_program_id: string }
+        Returns: {
+          missions_completed: number
+          rank: number
           total_xp: number
           user_avatar: string
           user_id: string

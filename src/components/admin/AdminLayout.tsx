@@ -30,6 +30,7 @@ import {
   Menu,
   Bug,
   Rocket,
+  Zap,
 } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -59,6 +60,11 @@ const adminNavItems = [
     title: "Campaigns",
     icon: Megaphone,
     href: "/admin/campaigns",
+  },
+  {
+    title: "LearnFi",
+    icon: Zap,
+    href: "/admin/learnfi",
   },
   {
     title: "Scholarships",
