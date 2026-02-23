@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { GraduationCap, ListTodo, Trophy, BookOpen, Bell, Gift, FolderCheck } from "lucide-react";
+import { GraduationCap, ListTodo, Trophy, BookOpen, Bell, Gift, FolderCheck, Briefcase } from "lucide-react";
 import { useScholarshipPortal } from "@/hooks/useScholarshipData";
 import { PortalOverview } from "./PortalOverview";
 import { PortalTasks } from "./PortalTasks";
@@ -9,6 +9,7 @@ import { PortalModules } from "./PortalModules";
 import { PortalNotifications } from "./PortalNotifications";
 import { PortalOffers } from "./PortalOffers";
 import { PortalProofOfWork } from "./PortalProofOfWork";
+import { PortalInternshipProfile } from "./PortalInternshipProfile";
 import { Loader2 } from "lucide-react";
 
 export function ScholarshipPortal() {
@@ -59,7 +60,7 @@ export function ScholarshipPortal() {
       </div>
 
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-7 lg:w-auto lg:inline-flex">
+        <TabsList className="grid w-full grid-cols-4 sm:grid-cols-8 lg:w-auto lg:inline-flex">
           <TabsTrigger value="overview" className="gap-2">
             <GraduationCap className="w-4 h-4 hidden sm:inline" />
             <span>Overview</span>
@@ -83,6 +84,10 @@ export function ScholarshipPortal() {
           <TabsTrigger value="proof-of-work" className="gap-2">
             <FolderCheck className="w-4 h-4 hidden sm:inline" />
             <span>Proof of Work</span>
+          </TabsTrigger>
+          <TabsTrigger value="internship" className="gap-2">
+            <Briefcase className="w-4 h-4 hidden sm:inline" />
+            <span>Internship</span>
           </TabsTrigger>
           <TabsTrigger value="notifications" className="gap-2 relative">
             <Bell className="w-4 h-4 hidden sm:inline" />
@@ -137,6 +142,10 @@ export function ScholarshipPortal() {
 
         <TabsContent value="proof-of-work">
           <PortalProofOfWork />
+        </TabsContent>
+
+        <TabsContent value="internship">
+          <PortalInternshipProfile application={application} />
         </TabsContent>
 
         <TabsContent value="notifications">

@@ -32,6 +32,7 @@ const mainLinks: NavLink[] = [
   { label: "Courses", href: "/courses" },
   { label: "Bootcamps", href: "/bootcamps" },
   { label: "Digital Products", href: "/products" },
+  { label: "Internship Market", href: "/internships" },
   { label: "Talent Market", href: "/talent" },
   { label: "Campaigns", href: "/campaigns" },
 ];
