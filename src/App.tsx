@@ -34,6 +34,7 @@ import BootcampCreate from "./pages/BootcampCreate";
 import BootcampApply from "./pages/BootcampApply";
 import InternshipMarket from "./pages/InternshipMarket";
 import LearnFi from "./pages/LearnFi";
+import LearnFiDetail from "./pages/LearnFiDetail";
 
 // User Dashboard
 import Dashboard from "./pages/Dashboard";
@@ -44,6 +45,7 @@ import DashboardTalent from "./pages/dashboard/DashboardTalent";
 import DashboardSettings from "./pages/dashboard/DashboardSettings";
 import DashboardScholarship from "./pages/dashboard/DashboardScholarship";
 import DashboardBootcamps from "./pages/dashboard/DashboardBootcamps";
+import DashboardLearnFi from "./pages/dashboard/DashboardLearnFi";
 import ScholarshipModuleDetail from "./pages/dashboard/ScholarshipModuleDetail";
 import Scholarship from "./pages/Scholarship";
 // ScholarshipCelebration removed - no longer needed
@@ -55,6 +57,7 @@ import AdminCourses from "./pages/admin/AdminCourses";
 import AdminProducts from "./pages/admin/AdminProducts";
 import AdminTalents from "./pages/admin/AdminTalents";
 import AdminCampaigns from "./pages/admin/AdminCampaigns";
+import AdminLearnFi from "./pages/admin/AdminLearnFi";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminRoles from "./pages/admin/AdminRoles";
 import AdminSettings from "./pages/admin/AdminSettings";
@@ -95,6 +98,7 @@ const App = () => (
             {/* Celebration route removed */}
             <Route path="/internships" element={<InternshipMarket />} />
             <Route path="/learnfi" element={<LearnFi />} />
+            <Route path="/learnfi/:id" element={<LearnFiDetail />} />
             <Route path="/tutors" element={<Tutors />} />
             <Route path="/institutions" element={<Institutions />} />
             <Route path="/institutions/:slug" element={<InstitutionPortal />} />
@@ -131,6 +135,7 @@ const App = () => (
               <Route path="scholarship" element={<DashboardScholarship />} />
               <Route path="scholarship/modules/:moduleId" element={<ScholarshipModuleDetail />} />
               <Route path="bootcamps" element={<DashboardBootcamps />} />
+              <Route path="learnfi" element={<DashboardLearnFi />} />
               <Route path="courses" element={<DashboardCourses />} />
               <Route path="products" element={<DashboardProducts />} />
               <Route path="talent" element={<DashboardTalent />} />
@@ -151,6 +156,7 @@ const App = () => (
               <Route path="products" element={<AdminProducts />} />
               <Route path="talents" element={<AdminTalents />} />
               <Route path="campaigns" element={<AdminCampaigns />} />
+              <Route path="learnfi" element={<AdminLearnFi />} />
               <Route path="users" element={<AdminUsers />} />
               <Route path="roles" element={<AdminRoles />} />
               <Route

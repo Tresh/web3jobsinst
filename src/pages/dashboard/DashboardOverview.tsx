@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
-import { BookOpen, Package, Users, ArrowRight, Wallet, GraduationCap, Rocket, Briefcase, Target } from "lucide-react";
+import { BookOpen, Package, Users, ArrowRight, Wallet, GraduationCap, Rocket, Briefcase, Target, Zap } from "lucide-react";
 import ComingSoonDialog from "@/components/ComingSoonDialog";
 
 const DashboardOverview = () => {
@@ -166,6 +166,26 @@ const DashboardOverview = () => {
             <Button asChild variant="outline" className="w-full" size="sm">
               <Link to="/bootcamps">
                 Browse Bootcamps
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-md transition-shadow">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Zap className="w-5 h-5 text-primary" />
+              LearnFi Programs
+            </CardTitle>
+            <CardDescription className="text-sm">
+              Learn, complete missions & earn rewards
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild variant="outline" className="w-full" size="sm">
+              <Link to="/learnfi">
+                Explore Programs
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Link>
             </Button>
