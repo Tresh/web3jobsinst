@@ -31,13 +31,16 @@ interface NavLink {
 const mainLinks: NavLink[] = [
   { label: "Courses", href: "/courses" },
   { label: "Bootcamps", href: "/bootcamps" },
-  { label: "LearnFi", href: "/learnfi" },
   { label: "Digital Products", href: "/products" },
-  { label: "Internships", href: "/internships" },
+];
+
+const marketLinks: NavLink[] = [
   { label: "Talent Market", href: "/talent" },
+  { label: "Internships", href: "/internships" },
 ];
 
 const opportunityLinks: NavLink[] = [
+  { label: "LearnFi", href: "/learnfi" },
   { label: "Become a Tutor", href: "/tutors" },
   { label: "Verified Institutions", href: "/institutions" },
   { label: "Affiliates", comingSoon: "Affiliates Coming Soon" },
@@ -137,6 +140,23 @@ const UnifiedNavbar = ({
                 </Link>
               ))}
 
+              {/* Market Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-150 outline-none">
+                  Market
+                  <ChevronDown className="h-4 w-4" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="center" className="bg-background border border-border">
+                  {marketLinks.map((link) => (
+                    <DropdownMenuItem key={link.label} asChild>
+                      <Link to={link.href!} className="cursor-pointer">
+                        {link.label}
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
               {/* Opportunities Dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-150 outline-none">
@@ -201,6 +221,20 @@ const UnifiedNavbar = ({
                       )}
 
                       {mainLinks.map((link) => (
+                        <Link
+                          key={link.label}
+                          to={link.href!}
+                          className="py-3 px-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-lg transition-colors duration-150"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          {link.label}
+                        </Link>
+                      ))}
+
+                      <div className="py-2 px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider mt-2">
+                        Market
+                      </div>
+                      {marketLinks.map((link) => (
                         <Link
                           key={link.label}
                           to={link.href!}
