@@ -34,9 +34,13 @@ export function useScholarshipPortal() {
     return Math.max(1, Math.min(diffDays, 30));
   };
 
+  const initialLoadDone = useRef(false);
+
   const fetchData = async () => {
     if (!user) return;
-    setIsLoading(true);
+    if (!initialLoadDone.current) {
+      setIsLoading(true);
+    }
 
     try {
       // Fetch user's approved application
@@ -113,6 +117,7 @@ export function useScholarshipPortal() {
       console.error("Error fetching scholarship data:", error);
     } finally {
       setIsLoading(false);
+      initialLoadDone.current = true;
     }
   };
 
