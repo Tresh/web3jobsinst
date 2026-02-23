@@ -848,6 +848,140 @@ export type Database = {
         }
         Relationships: []
       }
+      learnfi_participants: {
+        Row: {
+          id: string
+          joined_at: string
+          last_active_at: string | null
+          missions_completed: number
+          program_id: string
+          status: string
+          total_xp: number
+          user_id: string
+          wallet_address: string | null
+        }
+        Insert: {
+          id?: string
+          joined_at?: string
+          last_active_at?: string | null
+          missions_completed?: number
+          program_id: string
+          status?: string
+          total_xp?: number
+          user_id: string
+          wallet_address?: string | null
+        }
+        Update: {
+          id?: string
+          joined_at?: string
+          last_active_at?: string | null
+          missions_completed?: number
+          program_id?: string
+          status?: string
+          total_xp?: number
+          user_id?: string
+          wallet_address?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "learnfi_participants_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "learnfi_programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      learnfi_programs: {
+        Row: {
+          admin_notes: string | null
+          category: string
+          chain_network: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          difficulty: string
+          duration_days: number
+          id: string
+          max_participants: number | null
+          participants_count: number
+          partner_email: string | null
+          partner_name: string | null
+          project_logo_url: string | null
+          project_name: string
+          project_website: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          reward_amount: number | null
+          reward_distribution_method: string | null
+          reward_pool_size: number | null
+          reward_token_symbol: string | null
+          reward_type: string
+          status: string
+          title: string
+          token_contract_address: string | null
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          category?: string
+          chain_network?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          difficulty?: string
+          duration_days?: number
+          id?: string
+          max_participants?: number | null
+          participants_count?: number
+          partner_email?: string | null
+          partner_name?: string | null
+          project_logo_url?: string | null
+          project_name: string
+          project_website?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          reward_amount?: number | null
+          reward_distribution_method?: string | null
+          reward_pool_size?: number | null
+          reward_token_symbol?: string | null
+          reward_type?: string
+          status?: string
+          title: string
+          token_contract_address?: string | null
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          category?: string
+          chain_network?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          difficulty?: string
+          duration_days?: number
+          id?: string
+          max_participants?: number | null
+          participants_count?: number
+          partner_email?: string | null
+          partner_name?: string | null
+          project_logo_url?: string | null
+          project_name?: string
+          project_website?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          reward_amount?: number | null
+          reward_distribution_method?: string | null
+          reward_pool_size?: number | null
+          reward_token_symbol?: string | null
+          reward_type?: string
+          status?: string
+          title?: string
+          token_contract_address?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       password_reset_attempts: {
         Row: {
           attempt_count: number

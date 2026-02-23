@@ -31,10 +31,10 @@ interface NavLink {
 const mainLinks: NavLink[] = [
   { label: "Courses", href: "/courses" },
   { label: "Bootcamps", href: "/bootcamps" },
+  { label: "LearnFi", href: "/learnfi" },
   { label: "Digital Products", href: "/products" },
   { label: "Internships", href: "/internships" },
   { label: "Talent Market", href: "/talent" },
-  { label: "Campaigns", href: "/campaigns" },
 ];
 
 const opportunityLinks: NavLink[] = [
