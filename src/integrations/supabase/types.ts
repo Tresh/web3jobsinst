@@ -1079,6 +1079,9 @@ export type Database = {
           difficulty: string
           duration_days: number
           id: string
+          internship_details: string | null
+          leaderboard_tiers: Json | null
+          linked_course_id: string | null
           max_participants: number | null
           participants_count: number
           partner_email: string | null
@@ -1089,6 +1092,7 @@ export type Database = {
           reviewed_at: string | null
           reviewed_by: string | null
           reward_amount: number | null
+          reward_amount_type: string | null
           reward_distribution_method: string | null
           reward_pool_size: number | null
           reward_token_symbol: string | null
@@ -1096,6 +1100,8 @@ export type Database = {
           status: string
           title: string
           token_contract_address: string | null
+          token_is_stable: boolean | null
+          token_name: string | null
           updated_at: string
         }
         Insert: {
@@ -1108,6 +1114,9 @@ export type Database = {
           difficulty?: string
           duration_days?: number
           id?: string
+          internship_details?: string | null
+          leaderboard_tiers?: Json | null
+          linked_course_id?: string | null
           max_participants?: number | null
           participants_count?: number
           partner_email?: string | null
@@ -1118,6 +1127,7 @@ export type Database = {
           reviewed_at?: string | null
           reviewed_by?: string | null
           reward_amount?: number | null
+          reward_amount_type?: string | null
           reward_distribution_method?: string | null
           reward_pool_size?: number | null
           reward_token_symbol?: string | null
@@ -1125,6 +1135,8 @@ export type Database = {
           status?: string
           title: string
           token_contract_address?: string | null
+          token_is_stable?: boolean | null
+          token_name?: string | null
           updated_at?: string
         }
         Update: {
@@ -1137,6 +1149,9 @@ export type Database = {
           difficulty?: string
           duration_days?: number
           id?: string
+          internship_details?: string | null
+          leaderboard_tiers?: Json | null
+          linked_course_id?: string | null
           max_participants?: number | null
           participants_count?: number
           partner_email?: string | null
@@ -1147,6 +1162,7 @@ export type Database = {
           reviewed_at?: string | null
           reviewed_by?: string | null
           reward_amount?: number | null
+          reward_amount_type?: string | null
           reward_distribution_method?: string | null
           reward_pool_size?: number | null
           reward_token_symbol?: string | null
@@ -1154,6 +1170,8 @@ export type Database = {
           status?: string
           title?: string
           token_contract_address?: string | null
+          token_is_stable?: boolean | null
+          token_name?: string | null
           updated_at?: string
         }
         Relationships: []

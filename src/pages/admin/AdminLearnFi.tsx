@@ -39,6 +39,9 @@ interface LearnFiModule {
   order_index: number;
   xp_value: number;
   is_published: boolean;
+  video_url: string | null;
+  video_duration: string | null;
+  cover_image_url: string | null;
 }
 
 interface LearnFiMission {
@@ -81,7 +84,7 @@ const AdminLearnFi = () => {
   const [editingMission, setEditingMission] = useState<LearnFiMission | null>(null);
 
   // Module form
-  const [moduleForm, setModuleForm] = useState({ title: "", description: "", order_index: "0", xp_value: "0" });
+  const [moduleForm, setModuleForm] = useState({ title: "", description: "", order_index: "0", xp_value: "0", video_url: "", video_duration: "", cover_image_url: "" });
   // Mission form
   const [missionForm, setMissionForm] = useState({ title: "", description: "", xp_value: "10", order_index: "0", external_link: "", module_id: "" });
 
@@ -130,6 +133,9 @@ const AdminLearnFi = () => {
       description: moduleForm.description || null,
       order_index: parseInt(moduleForm.order_index) || 0,
       xp_value: parseInt(moduleForm.xp_value) || 0,
+      video_url: moduleForm.video_url || null,
+      video_duration: moduleForm.video_duration || null,
+      cover_image_url: moduleForm.cover_image_url || null,
       is_published: true,
     };
     if (editingModule) {
@@ -139,7 +145,7 @@ const AdminLearnFi = () => {
     }
     setModuleDialogOpen(false);
     setEditingModule(null);
-    setModuleForm({ title: "", description: "", order_index: "0", xp_value: "0" });
+    setModuleForm({ title: "", description: "", order_index: "0", xp_value: "0", video_url: "", video_duration: "", cover_image_url: "" });
     fetchProgramDetails(selectedProgram);
     toast({ title: "Saved" });
   };
@@ -223,7 +229,7 @@ const AdminLearnFi = () => {
 
           {/* Modules Tab */}
           <TabsContent value="modules" className="space-y-4">
-            <Button size="sm" onClick={() => { setEditingModule(null); setModuleForm({ title: "", description: "", order_index: String(modules.length), xp_value: "0" }); setModuleDialogOpen(true); }}>
+            <Button size="sm" onClick={() => { setEditingModule(null); setModuleForm({ title: "", description: "", order_index: String(modules.length), xp_value: "0", video_url: "", video_duration: "", cover_image_url: "" }); setModuleDialogOpen(true); }}>
               <Plus className="w-4 h-4 mr-1" /> Add Module
             </Button>
             <div className="space-y-2">
@@ -237,7 +243,7 @@ const AdminLearnFi = () => {
                     <div className="flex gap-1">
                       <Button variant="ghost" size="icon" onClick={() => {
                         setEditingModule(mod);
-                        setModuleForm({ title: mod.title, description: mod.description || "", order_index: String(mod.order_index), xp_value: String(mod.xp_value) });
+                        setModuleForm({ title: mod.title, description: mod.description || "", order_index: String(mod.order_index), xp_value: String(mod.xp_value), video_url: mod.video_url || "", video_duration: mod.video_duration || "", cover_image_url: mod.cover_image_url || "" });
                         setModuleDialogOpen(true);
                       }}><Edit className="w-4 h-4" /></Button>
                       <Button variant="ghost" size="icon" onClick={() => deleteModule(mod.id)}><Trash2 className="w-4 h-4 text-destructive" /></Button>
@@ -333,10 +339,13 @@ const AdminLearnFi = () => {
             <div className="space-y-3">
               <div><Label>Title</Label><Input value={moduleForm.title} onChange={(e) => setModuleForm(p => ({ ...p, title: e.target.value }))} /></div>
               <div><Label>Description</Label><Textarea value={moduleForm.description} onChange={(e) => setModuleForm(p => ({ ...p, description: e.target.value }))} rows={3} /></div>
+              <div><Label>Video URL (Vimeo embed)</Label><Input value={moduleForm.video_url} onChange={(e) => setModuleForm(p => ({ ...p, video_url: e.target.value }))} placeholder="https://player.vimeo.com/video/..." /></div>
               <div className="grid grid-cols-2 gap-3">
-                <div><Label>Order</Label><Input type="number" value={moduleForm.order_index} onChange={(e) => setModuleForm(p => ({ ...p, order_index: e.target.value }))} /></div>
+                <div><Label>Video Duration</Label><Input value={moduleForm.video_duration} onChange={(e) => setModuleForm(p => ({ ...p, video_duration: e.target.value }))} placeholder="e.g. 12:30" /></div>
                 <div><Label>XP Value</Label><Input type="number" value={moduleForm.xp_value} onChange={(e) => setModuleForm(p => ({ ...p, xp_value: e.target.value }))} /></div>
               </div>
+              <div><Label>Cover Image URL</Label><Input value={moduleForm.cover_image_url} onChange={(e) => setModuleForm(p => ({ ...p, cover_image_url: e.target.value }))} placeholder="https://..." /></div>
+              <div><Label>Order</Label><Input type="number" value={moduleForm.order_index} onChange={(e) => setModuleForm(p => ({ ...p, order_index: e.target.value }))} /></div>
               <Button onClick={handleSaveModule} className="w-full">Save Module</Button>
             </div>
           </DialogContent>
