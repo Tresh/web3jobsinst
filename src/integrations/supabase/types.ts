@@ -1224,6 +1224,159 @@ export type Database = {
         }
         Relationships: []
       }
+      scholarship_offers: {
+        Row: {
+          category: string
+          created_at: string
+          created_by: string | null
+          deadline: string | null
+          description: string | null
+          external_link: string | null
+          id: string
+          program_id: string | null
+          reward_type: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          deadline?: string | null
+          description?: string | null
+          external_link?: string | null
+          id?: string
+          program_id?: string | null
+          reward_type?: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          deadline?: string | null
+          description?: string | null
+          external_link?: string | null
+          id?: string
+          program_id?: string | null
+          reward_type?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scholarship_offers_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "scholarship_programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scholarship_pow_assignments: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          instructions: string | null
+          is_published: boolean
+          program_id: string | null
+          title: string
+          updated_at: string
+          xp_reward: number | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          instructions?: string | null
+          is_published?: boolean
+          program_id?: string | null
+          title: string
+          updated_at?: string
+          xp_reward?: number | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          instructions?: string | null
+          is_published?: boolean
+          program_id?: string | null
+          title?: string
+          updated_at?: string
+          xp_reward?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scholarship_pow_assignments_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "scholarship_programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scholarship_pow_submissions: {
+        Row: {
+          assignment_id: string
+          created_at: string
+          feedback: string | null
+          file_url: string | null
+          id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          submission_text: string | null
+          submission_url: string | null
+          updated_at: string
+          user_id: string
+          xp_awarded: number | null
+        }
+        Insert: {
+          assignment_id: string
+          created_at?: string
+          feedback?: string | null
+          file_url?: string | null
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submission_text?: string | null
+          submission_url?: string | null
+          updated_at?: string
+          user_id: string
+          xp_awarded?: number | null
+        }
+        Update: {
+          assignment_id?: string
+          created_at?: string
+          feedback?: string | null
+          file_url?: string | null
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submission_text?: string | null
+          submission_url?: string | null
+          updated_at?: string
+          user_id?: string
+          xp_awarded?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scholarship_pow_submissions_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "scholarship_pow_assignments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       scholarship_programs: {
         Row: {
           application_deadline: string | null

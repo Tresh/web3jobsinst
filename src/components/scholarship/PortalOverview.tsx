@@ -2,8 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Trophy, Calendar, Star, Users, Target, Zap, PartyPopper } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Trophy, BookOpen, Star, Users, Target, Zap } from "lucide-react";
 import type { ScholarshipApplication, LeaderboardEntry } from "@/types/scholarship";
 import { CountdownTimer } from "./CountdownTimer";
 import { DailyCheckInCard } from "./DailyCheckInCard";
@@ -11,7 +10,8 @@ import { ReferralCard } from "./ReferralCard";
 
 interface PortalOverviewProps {
   application: ScholarshipApplication;
-  dayNumber: number;
+  completedModulesCount: number;
+  totalModulesCount: number;
   totalScholars: number;
   userRank: LeaderboardEntry | undefined | null;
   tasksCount: number;
@@ -21,7 +21,8 @@ interface PortalOverviewProps {
 
 export function PortalOverview({
   application,
-  dayNumber,
+  completedModulesCount,
+  totalModulesCount,
   totalScholars,
   userRank,
   tasksCount,
@@ -87,16 +88,16 @@ export function PortalOverview({
           </CardContent>
         </Card>
 
-        {/* Day Progress */}
+        {/* Course Progress */}
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                <Calendar className="w-5 h-5 text-blue-500" />
+                <BookOpen className="w-5 h-5 text-blue-500" />
               </div>
               <div>
-                <p className="text-2xl font-bold">Day {dayNumber}</p>
-                <p className="text-xs text-muted-foreground">of 30</p>
+                <p className="text-2xl font-bold">{completedModulesCount} / {totalModulesCount}</p>
+                <p className="text-xs text-muted-foreground">Course Progress</p>
               </div>
             </div>
           </CardContent>

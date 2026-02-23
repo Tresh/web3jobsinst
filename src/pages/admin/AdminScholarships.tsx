@@ -52,6 +52,8 @@ import {
   ArrowUpAZ,
   ArrowDownAZ,
   Mail,
+  Gift,
+  FolderCheck,
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { format } from "date-fns";
@@ -62,7 +64,7 @@ import type {
   ScholarshipTaskSubmission,
   ScholarshipModule,
 } from "@/types/scholarship";
-import { TasksTab, OverviewTab, ReferrersTab, EmailHistoryTab } from "@/components/admin/scholarship";
+import { TasksTab, OverviewTab, ReferrersTab, EmailHistoryTab, AdminOffersTab, AdminPOWTab } from "@/components/admin/scholarship";
 import { AdminModulesTab } from "@/components/admin/scholarship/AdminModulesTab";
 import { Link2 } from "lucide-react";
 
@@ -931,6 +933,14 @@ const AdminScholarships = () => {
             <Mail className="w-4 h-4" />
             Email
           </TabsTrigger>
+          <TabsTrigger value="offers" className="gap-2">
+            <Gift className="w-4 h-4" />
+            Offers
+          </TabsTrigger>
+          <TabsTrigger value="pow" className="gap-2">
+            <FolderCheck className="w-4 h-4" />
+            Proof of Work
+          </TabsTrigger>
         </TabsList>
 
         {/* Overview Tab */}
@@ -1647,6 +1657,16 @@ const AdminScholarships = () => {
           
           {/* Email History */}
           <EmailHistoryTab />
+        </TabsContent>
+
+        {/* Offers Tab */}
+        <TabsContent value="offers">
+          <AdminOffersTab />
+        </TabsContent>
+
+        {/* Proof of Work Tab */}
+        <TabsContent value="pow">
+          <AdminPOWTab />
         </TabsContent>
       </Tabs>
     </div>
