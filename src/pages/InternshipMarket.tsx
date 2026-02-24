@@ -10,10 +10,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Briefcase, Clock, ExternalLink, Mail, MapPin, Loader2, UserPlus } from "lucide-react";
+import { Briefcase, Clock, ExternalLink, MessageSquare, MapPin, Loader2, UserPlus } from "lucide-react";
+import { useStartConversation } from "@/hooks/useMessages";
+import { useToast } from "@/hooks/use-toast";
 
 interface InternProfile {
   id: string;
+  user_id: string;
   full_name: string;
   email: string;
   telegram_username: string | null;
@@ -87,7 +90,7 @@ const InternshipMarket = () => {
         .eq("is_public", true)
         .eq("is_approved", true)
         .order("created_at", { ascending: false });
-      setInterns((data || []) as unknown as InternProfile[]);
+      setInterns((data || []).map((d: any) => ({ ...d, user_id: d.user_id })) as InternProfile[]);
       setIsLoading(false);
     };
     fetchInterns();
@@ -251,12 +254,7 @@ const InternshipMarket = () => {
                       )}
 
                       <div className="flex items-center gap-2">
-                        <Button size="sm" variant="default" asChild className="flex-1">
-                          <a href={`mailto:${intern.email}`}>
-                            <Mail className="w-3.5 h-3.5 mr-1.5" />
-                            Contact
-                          </a>
-                        </Button>
+                        <InternContactButton intern={intern} />
                         {intern.portfolio_link && (
                           <Button size="sm" variant="outline" asChild>
                             <a href={intern.portfolio_link} target="_blank" rel="noopener noreferrer">
@@ -293,6 +291,38 @@ const InternshipMarket = () => {
         onOpenChange={setWaitlistOpen}
       />
     </div>
+  );
+};
+
+const InternContactButton = ({ intern }: { intern: InternProfile }) => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { startConversation } = useStartConversation();
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
+
+  const handleContact = async () => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+    if (user.id === intern.user_id) {
+      toast({ title: "That's you!", description: "You can't message yourself." });
+      return;
+    }
+    setLoading(true);
+    const convoId = await startConversation(intern.user_id);
+    setLoading(false);
+    if (convoId) {
+      navigate("/dashboard/messages");
+    }
+  };
+
+  return (
+    <Button size="sm" variant="default" className="flex-1" onClick={handleContact} disabled={loading}>
+      <MessageSquare className="w-3.5 h-3.5 mr-1.5" />
+      {loading ? "Starting..." : "Contact"}
+    </Button>
   );
 };
 
