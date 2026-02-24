@@ -16,7 +16,9 @@ import {
   Rocket,
   Zap,
   Briefcase,
+  MessageSquare,
 } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 import OnboardingFlow from "@/components/onboarding/OnboardingFlow";
 
@@ -24,6 +26,7 @@ const navItems = [
   { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
   { label: "Scholarship", href: "/dashboard/scholarship", icon: GraduationCap },
   { label: "Internship", href: "/dashboard/internship", icon: Briefcase },
+  { label: "Messages", href: "/dashboard/messages", icon: MessageSquare },
   { label: "Bootcamps", href: "/dashboard/bootcamps", icon: Rocket },
   { label: "LearnFi", href: "/dashboard/learnfi", icon: Zap },
   { label: "My Courses", href: "/dashboard/courses", icon: BookOpen },
@@ -118,11 +121,12 @@ const Dashboard = () => {
         {/* User Info */}
         <div className="p-4 border-b border-border">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center">
-              <span className="text-sm font-bold text-primary-foreground">
+            <Avatar className="h-10 w-10">
+              <AvatarImage src={profile?.avatar_url || undefined} />
+              <AvatarFallback className="bg-primary text-primary-foreground text-sm font-bold">
                 {getInitial()}
-              </span>
-            </div>
+              </AvatarFallback>
+            </Avatar>
             <div className="flex-1 min-w-0">
               <p className="font-medium truncate">
                 {profile?.full_name || "User"}

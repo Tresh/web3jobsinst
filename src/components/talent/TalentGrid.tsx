@@ -1,9 +1,13 @@
 import { useState, useMemo, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { ChevronLeft, ChevronRight, Star, Briefcase } from "lucide-react";
+import { ChevronLeft, ChevronRight, Star, Briefcase, MessageSquare } from "lucide-react";
 import { type TalentProfileWithUser, TALENT_CATEGORIES } from "@/hooks/useTalentProfile";
+import { useAuth } from "@/contexts/AuthContext";
+import { useStartConversation } from "@/hooks/useMessages";
+import { useToast } from "@/hooks/use-toast";
 
 const ITEMS_PER_PAGE = 8;
 
@@ -276,15 +280,45 @@ const TalentDetailModal = ({ talent, onClose }: TalentDetailModalProps) => {
 
         {/* Actions */}
         <div className="flex gap-3">
-          <Button className="flex-1" onClick={() => window.open(`mailto:contact@example.com?subject=Hiring ${talent.full_name}`)}>
-            Contact
-          </Button>
+          <ContactButton talent={talent} />
           <Button variant="outline" onClick={onClose}>
             Close
           </Button>
         </div>
       </div>
     </div>
+  );
+};
+
+const ContactButton = ({ talent }: { talent: TalentProfileWithUser }) => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { startConversation } = useStartConversation();
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
+
+  const handleContact = async () => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+    if (user.id === talent.user_id) {
+      toast({ title: "That's you!", description: "You can't message yourself." });
+      return;
+    }
+    setLoading(true);
+    const convoId = await startConversation(talent.user_id);
+    setLoading(false);
+    if (convoId) {
+      navigate("/dashboard/messages");
+    }
+  };
+
+  return (
+    <Button className="flex-1" onClick={handleContact} disabled={loading}>
+      <MessageSquare className="w-4 h-4 mr-2" />
+      {loading ? "Starting..." : "Contact"}
+    </Button>
   );
 };
 
