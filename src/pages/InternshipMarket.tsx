@@ -23,6 +23,7 @@ interface InternProfile {
   twitter_handle: string | null;
   portfolio_link: string | null;
   profile_photo_url: string | null;
+  avatar_url: string | null;
   primary_skill_category: string;
   skill_level: string;
   tools_known: string[];
@@ -90,7 +91,29 @@ const InternshipMarket = () => {
         .eq("is_public", true)
         .eq("is_approved", true)
         .order("created_at", { ascending: false });
-      setInterns((data || []).map((d: any) => ({ ...d, user_id: d.user_id })) as InternProfile[]);
+
+      if (!data || data.length === 0) {
+        setInterns([]);
+        setIsLoading(false);
+        return;
+      }
+
+      // Fetch avatar_url from profiles table
+      const userIds = data.map((d: any) => d.user_id);
+      const { data: profilesData } = await supabase
+        .from("profiles")
+        .select("user_id, avatar_url")
+        .in("user_id", userIds);
+
+      const merged = data.map((d: any) => {
+        const userProfile = profilesData?.find((p) => p.user_id === d.user_id);
+        return {
+          ...d,
+          avatar_url: userProfile?.avatar_url || null,
+        };
+      }) as InternProfile[];
+
+      setInterns(merged);
       setIsLoading(false);
     };
     fetchInterns();
@@ -207,7 +230,7 @@ const InternshipMarket = () => {
                     <CardContent className="p-6">
                       <div className="flex items-start gap-4 mb-4">
                         <Avatar className="w-14 h-14 border-2 border-primary/20">
-                          <AvatarImage src={intern.profile_photo_url || undefined} />
+                          <AvatarImage src={intern.avatar_url || intern.profile_photo_url || undefined} />
                           <AvatarFallback className="bg-primary/10 text-primary font-semibold">
                             {intern.full_name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
                           </AvatarFallback>
