@@ -1,27 +1,14 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { 
-  ArrowRight, 
-  Globe, 
-  TrendingUp, 
-  Award, 
-  Users, 
-  Briefcase, 
-  Star, 
-  Mic, 
-  BookOpen,
-  DollarSign,
-  BarChart,
-  Zap,
-  Search,
-  CreditCard,
-  CheckCircle
+  ArrowRight, Globe, TrendingUp, Award, Users, Briefcase, Star, Mic, BookOpen,
+  DollarSign, BarChart, Zap, Search, CreditCard
 } from "lucide-react";
 import UnifiedNavbar from "@/components/UnifiedNavbar";
 import Footer from "@/components/Footer";
 import OpportunitiesStrip from "@/components/OpportunitiesStrip";
-// TutorApplicationForm removed - Coming Soon
+import TutorFormDialog from "@/components/TutorFormDialog";
 
 const royaltyFeatures = [
   { icon: Zap, title: "Publish once, earn repeatedly", description: "Your courses generate income every time they're accessed" },
@@ -34,18 +21,8 @@ const royaltyFeatures = [
 ];
 
 const targetAudience = [
-  "Web3 professionals",
-  "Developers",
-  "Designers",
-  "Marketers",
-  "Traders",
-  "Analysts",
-  "DAO operators",
-  "Community managers",
-  "Growth strategists",
-  "Researchers",
-  "Founders",
-  "Freelancers",
+  "Web3 professionals", "Developers", "Designers", "Marketers", "Traders", "Analysts",
+  "DAO operators", "Community managers", "Growth strategists", "Researchers", "Founders", "Freelancers",
 ];
 
 const howItWorks = [
@@ -68,10 +45,7 @@ const benefits = [
 
 const Tutors = () => {
   const formRef = useRef<HTMLDivElement>(null);
-
-  const scrollToForm = () => {
-    formRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  const [formOpen, setFormOpen] = useState(false);
 
   const scrollToHowItWorks = () => {
     document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" });
@@ -92,7 +66,7 @@ const Tutors = () => {
             Publish courses, reach a global audience, and earn recurring royalties.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" onClick={scrollToForm}>
+            <Button size="lg" onClick={() => setFormOpen(true)}>
               Apply as a Tutor
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
@@ -107,13 +81,8 @@ const Tutors = () => {
       <section className="py-16 md:py-24 bg-secondary">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="text-center mb-12">
-            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
-              Royalty-Based Income, Not One-Time Payments
-            </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Earn recurring income whenever your courses are accessed, enrolled in, or bundled. 
-              Build passive income while helping others learn.
-            </p>
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">Royalty-Based Income, Not One-Time Payments</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">Earn recurring income whenever your courses are accessed, enrolled in, or bundled.</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {royaltyFeatures.map((feature) => (
@@ -135,21 +104,12 @@ const Tutors = () => {
       <section className="py-16 md:py-24">
         <div className="container mx-auto px-4 max-w-4xl">
           <div className="text-center mb-12">
-            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
-              Who This Is For
-            </h2>
-            <p className="text-muted-foreground">
-              We're looking for experienced professionals ready to share their knowledge
-            </p>
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">Who This Is For</h2>
+            <p className="text-muted-foreground">We're looking for experienced professionals ready to share their knowledge</p>
           </div>
           <div className="flex flex-wrap justify-center gap-3">
             {targetAudience.map((audience) => (
-              <span
-                key={audience}
-                className="px-4 py-2 bg-secondary text-foreground rounded-full text-sm font-medium"
-              >
-                {audience}
-              </span>
+              <span key={audience} className="px-4 py-2 bg-secondary text-foreground rounded-full text-sm font-medium">{audience}</span>
             ))}
           </div>
         </div>
@@ -159,23 +119,15 @@ const Tutors = () => {
       <section id="how-it-works" className="py-16 md:py-24 bg-secondary">
         <div className="container mx-auto px-4 max-w-4xl">
           <div className="text-center mb-12">
-            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
-              How It Works
-            </h2>
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">How It Works</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {howItWorks.map((item, index) => (
-              <div key={item.step} className="relative">
-                <div className="text-center">
-                  <div className="w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center mx-auto mb-4 text-lg font-bold">
-                    {item.step}
-                  </div>
-                  <h3 className="font-semibold text-foreground mb-2">{item.title}</h3>
-                  <p className="text-sm text-muted-foreground">{item.description}</p>
-                </div>
-                {index < howItWorks.length - 1 && (
-                  <div className="hidden md:block absolute top-6 left-[60%] w-[80%] h-[2px] bg-border" />
-                )}
+              <div key={item.step} className="relative text-center">
+                <div className="w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center mx-auto mb-4 text-lg font-bold">{item.step}</div>
+                <h3 className="font-semibold text-foreground mb-2">{item.title}</h3>
+                <p className="text-sm text-muted-foreground">{item.description}</p>
+                {index < howItWorks.length - 1 && <div className="hidden md:block absolute top-6 left-[60%] w-[80%] h-[2px] bg-border" />}
               </div>
             ))}
           </div>
@@ -186,12 +138,8 @@ const Tutors = () => {
       <section className="py-16 md:py-24">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="text-center mb-12">
-            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
-              Tutor Benefits
-            </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              More than just royalties — join a platform designed to elevate your career
-            </p>
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">Tutor Benefits</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">More than just royalties — join a platform designed to elevate your career</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {benefits.map((benefit) => (
@@ -209,36 +157,21 @@ const Tutors = () => {
         </div>
       </section>
 
-      {/* Application Form - Coming Soon */}
+      {/* CTA Section */}
       <section ref={formRef} className="py-16 md:py-24 bg-secondary">
-        <div className="container mx-auto px-4 max-w-2xl">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
-              Apply as a Tutor
-            </h2>
-            <p className="text-muted-foreground">
-              Tutor applications will open soon. Stay tuned!
-            </p>
-          </div>
-          <Card className="border-border opacity-60">
-            <CardContent className="p-8 text-center space-y-4">
-              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
-                <CheckCircle className="w-8 h-8 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold text-foreground">Coming Soon</h3>
-              <p className="text-muted-foreground">
-                We're building something great. Tutor applications will be available shortly.
-              </p>
-              <Button disabled size="lg" className="w-full max-w-sm">
-                Applications Opening Soon
-              </Button>
-            </CardContent>
-          </Card>
+        <div className="container mx-auto px-4 max-w-2xl text-center">
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">Ready to Start Teaching?</h2>
+          <p className="text-muted-foreground mb-8">Submit your application and join our growing network of expert tutors.</p>
+          <Button size="lg" onClick={() => setFormOpen(true)}>
+            Apply Now <ArrowRight className="w-4 h-4 ml-2" />
+          </Button>
         </div>
       </section>
 
       <OpportunitiesStrip />
       <Footer />
+
+      <TutorFormDialog open={formOpen} onOpenChange={setFormOpen} />
     </div>
   );
 };

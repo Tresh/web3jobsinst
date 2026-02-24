@@ -5,6 +5,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowRight, BookOpen, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface TutorFormDialogProps {
   open: boolean;
@@ -25,9 +27,7 @@ interface FormData {
 const getStoredFormData = (): FormData => {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      return JSON.parse(stored);
-    }
+    if (stored) return JSON.parse(stored);
   } catch (e) {
     console.error("Error reading form data from localStorage:", e);
   }
@@ -35,29 +35,20 @@ const getStoredFormData = (): FormData => {
 };
 
 const saveFormData = (data: FormData) => {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  } catch (e) {
-    console.error("Error saving form data to localStorage:", e);
-  }
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch {}
 };
 
 const clearFormData = () => {
-  try {
-    localStorage.removeItem(STORAGE_KEY);
-  } catch (e) {
-    console.error("Error clearing form data from localStorage:", e);
-  }
+  try { localStorage.removeItem(STORAGE_KEY); } catch {}
 };
 
 const TutorForm = ({ onSuccess }: { onSuccess: () => void }) => {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [formData, setFormData] = React.useState<FormData>(getStoredFormData);
   const { toast } = useToast();
+  const { user } = useAuth();
 
-  React.useEffect(() => {
-    saveFormData(formData);
-  }, [formData]);
+  React.useEffect(() => { saveFormData(formData); }, [formData]);
 
   const handleChange = (field: keyof FormData) => (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -68,14 +59,28 @@ const TutorForm = ({ onSuccess }: { onSuccess: () => void }) => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
+
+    const { error } = await supabase.from("tutor_applications").insert({
+      user_id: user?.id || null,
+      full_name: formData.name,
+      email: formData.email,
+      expertise: formData.expertise,
+      experience: formData.experience,
+      portfolio_url: formData.portfolio || null,
+      pitch: formData.pitch,
+    });
+
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+      setIsSubmitting(false);
+      return;
+    }
+
     toast({
       title: "Application Submitted!",
       description: "We'll review your application and get back to you within 48 hours.",
     });
-    
+
     clearFormData();
     setIsSubmitting(false);
     onSuccess();
@@ -85,34 +90,15 @@ const TutorForm = ({ onSuccess }: { onSuccess: () => void }) => {
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-2">
         <Label htmlFor="tutor-name">Full Name</Label>
-        <Input 
-          id="tutor-name" 
-          placeholder="Enter your full name" 
-          required 
-          value={formData.name}
-          onChange={handleChange("name")}
-        />
+        <Input id="tutor-name" placeholder="Enter your full name" required value={formData.name} onChange={handleChange("name")} />
       </div>
       <div className="space-y-2">
         <Label htmlFor="tutor-email">Email Address</Label>
-        <Input 
-          id="tutor-email" 
-          type="email" 
-          placeholder="Enter your email" 
-          required 
-          value={formData.email}
-          onChange={handleChange("email")}
-        />
+        <Input id="tutor-email" type="email" placeholder="Enter your email" required value={formData.email} onChange={handleChange("email")} />
       </div>
       <div className="space-y-2">
         <Label htmlFor="expertise">Area of Expertise</Label>
-        <select 
-          id="expertise" 
-          className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
-          required
-          value={formData.expertise}
-          onChange={handleChange("expertise")}
-        >
+        <select id="expertise" className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm" required value={formData.expertise} onChange={handleChange("expertise")}>
           <option value="">Select your expertise</option>
           <option value="development">Web3 Development</option>
           <option value="trading">Trading & DeFi</option>
@@ -125,13 +111,7 @@ const TutorForm = ({ onSuccess }: { onSuccess: () => void }) => {
       </div>
       <div className="space-y-2">
         <Label htmlFor="experience">Years of Experience</Label>
-        <select 
-          id="experience" 
-          className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
-          required
-          value={formData.experience}
-          onChange={handleChange("experience")}
-        >
+        <select id="experience" className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm" required value={formData.experience} onChange={handleChange("experience")}>
           <option value="">Select experience</option>
           <option value="1-2">1-2 years</option>
           <option value="3-5">3-5 years</option>
@@ -140,24 +120,11 @@ const TutorForm = ({ onSuccess }: { onSuccess: () => void }) => {
       </div>
       <div className="space-y-2">
         <Label htmlFor="portfolio">Portfolio / LinkedIn URL</Label>
-        <Input 
-          id="portfolio" 
-          type="url" 
-          placeholder="https://..." 
-          value={formData.portfolio}
-          onChange={handleChange("portfolio")}
-        />
+        <Input id="portfolio" type="url" placeholder="https://..." value={formData.portfolio} onChange={handleChange("portfolio")} />
       </div>
       <div className="space-y-2">
         <Label htmlFor="pitch">Why do you want to teach? (Brief pitch)</Label>
-        <Textarea 
-          id="pitch" 
-          placeholder="Tell us about your teaching style and what you'd like to teach..." 
-          required 
-          rows={4}
-          value={formData.pitch}
-          onChange={handleChange("pitch")}
-        />
+        <Textarea id="pitch" placeholder="Tell us about your teaching style and what you'd like to teach..." required rows={4} value={formData.pitch} onChange={handleChange("pitch")} />
       </div>
       <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
         {isSubmitting ? "Submitting..." : "Submit Application"}
@@ -172,7 +139,6 @@ const TutorFormDialog = ({ open, onOpenChange }: TutorFormDialogProps) => {
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-background">
-      {/* Header with close button */}
       <div className="sticky top-0 z-10 flex items-center justify-between p-4 border-b border-secondary bg-background">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
@@ -180,53 +146,28 @@ const TutorFormDialog = ({ open, onOpenChange }: TutorFormDialogProps) => {
           </div>
           <span className="font-semibold text-foreground">Become a Tutor</span>
         </div>
-        <button
-          onClick={() => onOpenChange(false)}
-          className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-secondary transition-colors"
-          aria-label="Close form"
-        >
+        <button onClick={() => onOpenChange(false)} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-secondary transition-colors" aria-label="Close form">
           <X className="w-5 h-5 text-foreground" />
         </button>
       </div>
-
-      {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-md mx-auto px-4 py-8 md:py-12">
-          {/* Header content */}
           <div className="text-center mb-8">
             <div className="mx-auto mb-4 w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
               <BookOpen className="w-8 h-8 text-primary" />
             </div>
-            <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
-              Become a Tutor
-            </h1>
-            <p className="text-muted-foreground mb-4">
-              Share your expertise and earn royalties on every course sale.
-            </p>
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-3">Become a Tutor</h1>
+            <p className="text-muted-foreground mb-4">Share your expertise and earn royalties on every course sale.</p>
             <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 text-left">
               <h3 className="font-semibold text-foreground text-sm mb-2">💰 Earn Royalties</h3>
-              <p className="text-sm text-muted-foreground">
-                Get a percentage of every sale from courses you create. Build passive income while helping others learn.
-              </p>
+              <p className="text-sm text-muted-foreground">Get a percentage of every sale from courses you create. Build passive income while helping others learn.</p>
             </div>
           </div>
-
-          {/* Form */}
-          <TutorForm onSuccess={() => {
-            onOpenChange(false);
-          }} />
-
-          {/* Legal links */}
+          <TutorForm onSuccess={() => onOpenChange(false)} />
           <p className="text-xs text-muted-foreground text-center mt-6">
-            By applying, you agree to our{" "}
-            <a href="/terms" className="text-primary hover:underline">Terms of Service</a>
-            {" "}and{" "}
-            <a href="/privacy" className="text-primary hover:underline">Privacy Policy</a>.
+            By applying, you agree to our <a href="/terms" className="text-primary hover:underline">Terms of Service</a> and <a href="/privacy" className="text-primary hover:underline">Privacy Policy</a>.
           </p>
-
-          <p className="text-xs text-muted-foreground text-center mt-2">
-            Your progress is automatically saved. You can close and return anytime.
-          </p>
+          <p className="text-xs text-muted-foreground text-center mt-2">Your progress is automatically saved. You can close and return anytime.</p>
         </div>
       </div>
     </div>

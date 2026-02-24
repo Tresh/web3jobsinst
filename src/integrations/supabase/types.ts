@@ -2032,6 +2032,57 @@ export type Database = {
         }
         Relationships: []
       }
+      tutor_applications: {
+        Row: {
+          admin_notes: string | null
+          created_at: string
+          email: string
+          experience: string
+          expertise: string
+          full_name: string
+          id: string
+          pitch: string
+          portfolio_url: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string
+          email: string
+          experience: string
+          expertise: string
+          full_name: string
+          id?: string
+          pitch: string
+          portfolio_url?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string
+          email?: string
+          experience?: string
+          expertise?: string
+          full_name?: string
+          id?: string
+          pitch?: string
+          portfolio_url?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
