@@ -183,7 +183,6 @@ const App = () => (
               <Route path="bootcamps/:id" element={<AdminBootcampManage />} />
               <Route path="tutors" element={<AdminTutors />} />
               <Route path="settings" element={<AdminSettings />} />
-              <Route path="settings" element={<AdminSettings />} />
             </Route>
 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
