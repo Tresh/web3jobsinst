@@ -85,7 +85,7 @@ const LearnFiPartnerForm = ({ open, onOpenChange }: LearnFiPartnerFormProps) => 
   const { user, profile } = useAuth();
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [courses, setCourses] = useState<{ id: string; title: string }[]>([]);
+  const [submitted, setSubmitted] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
   const [form, setForm] = useState({
