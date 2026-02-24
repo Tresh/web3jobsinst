@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Briefcase, Save, CheckCircle } from "lucide-react";
+import { Loader2, Briefcase, Save, CheckCircle, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const SKILL_CATEGORIES = [
@@ -65,6 +65,8 @@ export function PortalInternshipProfile({ application }: Props) {
   const [isLoading, setIsLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
+  const [customSkillInput, setCustomSkillInput] = useState("");
+
   const [form, setForm] = useState({
     full_name: application.full_name || "",
     email: application.email || "",
@@ -72,6 +74,7 @@ export function PortalInternshipProfile({ application }: Props) {
     twitter_handle: application.twitter_handle || "",
     portfolio_link: "",
     primary_skill_category: "general",
+    selected_skills: ["general"] as string[],
     skill_level: "beginner",
     tools_known: [] as string[],
     experience_description: "",
@@ -94,6 +97,7 @@ export function PortalInternshipProfile({ application }: Props) {
       if (data) {
         const p = data as unknown as InternProfile;
         setProfile(p);
+        const skills = p.primary_skill_category ? p.primary_skill_category.split(",").map(s => s.trim()) : ["general"];
         setForm({
           full_name: p.full_name,
           email: p.email,
@@ -101,6 +105,7 @@ export function PortalInternshipProfile({ application }: Props) {
           twitter_handle: p.twitter_handle || "",
           portfolio_link: p.portfolio_link || "",
           primary_skill_category: p.primary_skill_category,
+          selected_skills: skills,
           skill_level: p.skill_level,
           tools_known: p.tools_known || [],
           experience_description: p.experience_description || "",
@@ -140,7 +145,7 @@ export function PortalInternshipProfile({ application }: Props) {
       telegram_username: form.telegram_username || null,
       twitter_handle: form.twitter_handle || null,
       portfolio_link: form.portfolio_link || null,
-      primary_skill_category: form.primary_skill_category,
+      primary_skill_category: form.selected_skills.join(", "),
       skill_level: form.skill_level,
       tools_known: form.tools_known,
       experience_description: form.experience_description || null,
@@ -248,16 +253,79 @@ export function PortalInternshipProfile({ application }: Props) {
           <div>
             <h3 className="text-sm font-semibold text-foreground mb-3">Skills</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Primary Skill Category</Label>
-                <Select value={form.primary_skill_category} onValueChange={(v) => setForm({ ...form, primary_skill_category: v })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {SKILL_CATEGORIES.map((c) => (
-                      <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+              <div className="space-y-2 md:col-span-2">
+                <Label>Skills (select multiple)</Label>
+                <div className="flex flex-wrap gap-2">
+                  {SKILL_CATEGORIES.map((c) => (
+                    <Badge
+                      key={c.value}
+                      variant={form.selected_skills.includes(c.value) ? "default" : "outline"}
+                      className="cursor-pointer transition-colors"
+                      onClick={() => {
+                        setForm((prev) => ({
+                          ...prev,
+                          selected_skills: prev.selected_skills.includes(c.value)
+                            ? prev.selected_skills.filter((s) => s !== c.value)
+                            : [...prev.selected_skills, c.value],
+                        }));
+                      }}
+                    >
+                      {form.selected_skills.includes(c.value) && <CheckCircle className="w-3 h-3 mr-1" />}
+                      {c.label}
+                    </Badge>
+                  ))}
+                  {form.selected_skills
+                    .filter((s) => !SKILL_CATEGORIES.some((c) => c.value === s))
+                    .map((custom) => (
+                      <Badge
+                        key={custom}
+                        variant="default"
+                        className="cursor-pointer transition-colors"
+                        onClick={() => {
+                          setForm((prev) => ({
+                            ...prev,
+                            selected_skills: prev.selected_skills.filter((s) => s !== custom),
+                          }));
+                        }}
+                      >
+                        <CheckCircle className="w-3 h-3 mr-1" />
+                        {custom}
+                        <X className="w-3 h-3 ml-1" />
+                      </Badge>
                     ))}
-                  </SelectContent>
-                </Select>
+                </div>
+                <div className="flex gap-2 mt-2">
+                  <Input
+                    placeholder="Add custom skill..."
+                    value={customSkillInput}
+                    onChange={(e) => setCustomSkillInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        const val = customSkillInput.trim();
+                        if (val && !form.selected_skills.includes(val)) {
+                          setForm((prev) => ({ ...prev, selected_skills: [...prev.selected_skills, val] }));
+                          setCustomSkillInput("");
+                        }
+                      }
+                    }}
+                    className="max-w-xs"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const val = customSkillInput.trim();
+                      if (val && !form.selected_skills.includes(val)) {
+                        setForm((prev) => ({ ...prev, selected_skills: [...prev.selected_skills, val] }));
+                        setCustomSkillInput("");
+                      }
+                    }}
+                  >
+                    Add
+                  </Button>
+                </div>
               </div>
               <div className="space-y-2">
                 <Label>Skill Level</Label>
