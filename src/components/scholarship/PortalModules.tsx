@@ -14,14 +14,21 @@ interface PortalModulesProps {
   dayNumber: number;
   onRefetch?: () => void;
   programId?: string;
+  userTotalXp?: number;
 }
 
-export function PortalModules({ modules, getModuleStatus, dayNumber, onRefetch, programId }: PortalModulesProps) {
+export function PortalModules({ modules, getModuleStatus, dayNumber, onRefetch, programId, userTotalXp = 0 }: PortalModulesProps) {
   const navigate = useNavigate();
   const { introModule, isLoading: introLoading } = useIntroModule(programId);
   const { isVideoCompleted } = useModule0Progress();
 
   const getUnlockInfo = (module: ScholarshipModule) => {
+    // Check XP threshold first
+    const threshold = module.xp_threshold || 0;
+    if (threshold > 0 && userTotalXp < threshold) {
+      return `Requires ${threshold} XP to unlock (you have ${userTotalXp} XP)`;
+    }
+
     const unlockType = module.unlock_type;
     
     if (unlockType === "day") {
@@ -37,6 +44,16 @@ export function PortalModules({ modules, getModuleStatus, dayNumber, onRefetch, 
       return "Will be unlocked by admin";
     }
     return null;
+  };
+
+  // Compute effective status considering XP threshold
+  const getEffectiveStatus = (module: ScholarshipModule) => {
+    const baseStatus = getModuleStatus(module.id);
+    const threshold = module.xp_threshold || 0;
+    if (threshold > 0 && userTotalXp < threshold && baseStatus !== "completed") {
+      return "locked";
+    }
+    return baseStatus;
   };
 
   // Count completed modules (including intro if completed)
@@ -95,7 +112,7 @@ export function PortalModules({ modules, getModuleStatus, dayNumber, onRefetch, 
 
         {/* Dynamic Modules as Rows */}
         {modules.map((module, index) => {
-          const status = getModuleStatus(module.id);
+          const status = getEffectiveStatus(module);
           const unlockInfo = getUnlockInfo(module);
 
           return (

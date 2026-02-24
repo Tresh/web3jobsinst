@@ -130,6 +130,12 @@ export default function ScholarshipModuleDetail() {
     // Intro module is never locked
     if (module.order_index === -1) return false;
     
+    // Check XP threshold
+    const threshold = module.xp_threshold || 0;
+    if (threshold > 0 && (application?.total_xp || 0) < threshold) {
+      return true;
+    }
+    
     const unlockType = module.unlock_type;
     
     if (unlockType === "day") {
@@ -142,10 +148,16 @@ export default function ScholarshipModuleDetail() {
       return true;
     }
     return false;
-  }, [module, dayNumber]);
+  }, [module, dayNumber, application?.total_xp]);
 
   const getUnlockMessage = () => {
     if (!module) return "This module is locked";
+    
+    // Check XP threshold first
+    const threshold = module.xp_threshold || 0;
+    if (threshold > 0 && (application?.total_xp || 0) < threshold) {
+      return `This module requires ${threshold} XP to unlock. You currently have ${application?.total_xp || 0} XP.`;
+    }
     
     switch (module.unlock_type) {
       case "day":
