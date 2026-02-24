@@ -113,12 +113,6 @@ const LearnFiPartnerForm = ({ open, onOpenChange }: LearnFiPartnerFormProps) => 
     linked_course_id: "",
   });
 
-  // Fetch user's courses (from strapi or local data — using a simple approach)
-  useEffect(() => {
-    // For now, we don't have a user-specific course table, so leave empty
-    // This can be enhanced when tutors have uploaded courses
-    setCourses([]);
-  }, [user]);
 
   const handleChange = (key: string, value: string) => {
     setForm((prev) => ({ ...prev, [key]: value }));
