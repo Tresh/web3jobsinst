@@ -87,6 +87,7 @@ export interface ScholarshipModule {
   video_url: string | null;
   video_duration: string | null;
   xp_value: number;
+  xp_threshold: number;
   created_at: string;
   updated_at: string;
 }

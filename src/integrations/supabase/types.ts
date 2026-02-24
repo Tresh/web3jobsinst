@@ -1600,6 +1600,7 @@ export type Database = {
           updated_at: string
           video_duration: string | null
           video_url: string | null
+          xp_threshold: number
           xp_value: number | null
         }
         Insert: {
@@ -1617,6 +1618,7 @@ export type Database = {
           updated_at?: string
           video_duration?: string | null
           video_url?: string | null
+          xp_threshold?: number
           xp_value?: number | null
         }
         Update: {
@@ -1634,6 +1636,7 @@ export type Database = {
           updated_at?: string
           video_duration?: string | null
           video_url?: string | null
+          xp_threshold?: number
           xp_value?: number | null
         }
         Relationships: [

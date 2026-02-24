@@ -44,6 +44,7 @@ import {
   Eye,
   Clock,
   Zap,
+  Lock,
 } from "lucide-react";
 import type { ScholarshipProgram, ScholarshipModule } from "@/types/scholarship";
 
@@ -72,6 +73,7 @@ export function AdminModulesTab({ programs, modules, isLoading, onRefetch }: Adm
     cover_image_url: "",
     video_duration: "",
     xp_value: "0",
+    xp_threshold: "0",
     unlock_type: "day" as "day" | "task" | "manual",
     unlock_day: "",
     order_index: "0",
@@ -86,6 +88,7 @@ export function AdminModulesTab({ programs, modules, isLoading, onRefetch }: Adm
       cover_image_url: "",
       video_duration: "",
       xp_value: "0",
+      xp_threshold: "0",
       unlock_type: "day",
       unlock_day: "",
       order_index: "0",
@@ -102,6 +105,7 @@ export function AdminModulesTab({ programs, modules, isLoading, onRefetch }: Adm
       cover_image_url: module.cover_image_url || "",
       video_duration: module.video_duration || "",
       xp_value: String(module.xp_value || 0),
+      xp_threshold: String(module.xp_threshold || 0),
       unlock_type: module.unlock_type as "day" | "task" | "manual",
       unlock_day: module.unlock_day ? String(module.unlock_day) : "",
       order_index: String(module.order_index || 0),
@@ -154,6 +158,7 @@ export function AdminModulesTab({ programs, modules, isLoading, onRefetch }: Adm
         cover_image_url: formData.cover_image_url || null,
         video_duration: formData.video_duration || null,
         xp_value: parseInt(formData.xp_value) || 0,
+        xp_threshold: parseInt(formData.xp_threshold) || 0,
         unlock_type: formData.unlock_type,
         unlock_day: formData.unlock_day ? parseInt(formData.unlock_day) : null,
         order_index: parseInt(formData.order_index) || 0,
@@ -191,6 +196,7 @@ export function AdminModulesTab({ programs, modules, isLoading, onRefetch }: Adm
           cover_image_url: formData.cover_image_url || null,
           video_duration: formData.video_duration || null,
           xp_value: parseInt(formData.xp_value) || 0,
+          xp_threshold: parseInt(formData.xp_threshold) || 0,
           unlock_type: formData.unlock_type,
           unlock_day: formData.unlock_day ? parseInt(formData.unlock_day) : null,
           order_index: parseInt(formData.order_index) || 0,
@@ -375,6 +381,31 @@ export function AdminModulesTab({ programs, modules, isLoading, onRefetch }: Adm
         </div>
 
         <div>
+          <Label htmlFor="xp_threshold">XP Threshold (Gate)</Label>
+          <Select
+            value={formData.xp_threshold}
+            onValueChange={(value) => setFormData(prev => ({ ...prev, xp_threshold: value }))}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="0">No XP Required (0)</SelectItem>
+              <SelectItem value="50">50 XP</SelectItem>
+              <SelectItem value="100">100 XP</SelectItem>
+              <SelectItem value="200">200 XP</SelectItem>
+              <SelectItem value="300">300 XP</SelectItem>
+              <SelectItem value="500">500 XP</SelectItem>
+              <SelectItem value="750">750 XP</SelectItem>
+              <SelectItem value="1000">1000 XP</SelectItem>
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-muted-foreground mt-1">
+            Students need this much XP to see this module
+          </p>
+        </div>
+
+        <div>
           <Label htmlFor="unlock_type">Unlock Rule</Label>
           <Select
             value={formData.unlock_type}
@@ -511,8 +542,9 @@ export function AdminModulesTab({ programs, modules, isLoading, onRefetch }: Adm
                 <TableHead>Module</TableHead>
                 <TableHead>Program</TableHead>
                 <TableHead className="text-center">XP</TableHead>
+                <TableHead className="text-center">XP Gate</TableHead>
                 <TableHead className="text-center">Duration</TableHead>
-                <TableHead className="text-center">Published</TableHead>
+                <TableHead className="text-center">Live</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -558,6 +590,16 @@ export function AdminModulesTab({ programs, modules, isLoading, onRefetch }: Adm
                         <Zap className="w-3 h-3 mr-1" />
                         {module.xp_value || 0}
                       </Badge>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {(module.xp_threshold || 0) > 0 ? (
+                        <Badge variant="secondary" className="gap-1">
+                          <Lock className="w-3 h-3" />
+                          {module.xp_threshold} XP
+                        </Badge>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">None</span>
+                      )}
                     </TableCell>
                     <TableCell className="text-center">
                       {module.video_duration ? (

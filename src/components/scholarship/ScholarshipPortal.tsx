@@ -133,6 +133,7 @@ export function ScholarshipPortal() {
             dayNumber={0}
             onRefetch={refetch}
             programId={application.program_id}
+            userTotalXp={application.total_xp || 0}
           />
         </TabsContent>
 

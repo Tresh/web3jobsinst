@@ -1,6 +1,13 @@
 ## Pending Changelog Entries
 ## (Will be published to the Changelog page when ready)
 
+### 2026-02-24 — Module Go Live & XP Gating
+- Added "Go Live" toggle (is_published switch) directly in admin Modules table for instant publish/unpublish
+- Added XP Threshold gating system: each module can require 0-1000 XP before unlocking for students
+- XP Gate column visible in admin Modules table showing threshold per module
+- Student-facing module list and detail page now respect XP threshold — modules lock automatically if student XP is below threshold
+- XP threshold configurable via dropdown in module create/edit forms (0, 50, 100, 200, 300, 500, 750, 1000)
+
 ### 2026-02-24 — Email & LearnFi Improvements
 - Email broadcast now supports 4 send modes: All Scholars, All Users, Individual (with user search), and Bulk (search + paste emails)
 - LearnFi program form: "Link to Existing Course" field now has autocomplete dropdown matching platform courses by name, or paste a Course ID directly
