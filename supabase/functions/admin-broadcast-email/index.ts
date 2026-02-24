@@ -8,9 +8,12 @@ const corsHeaders = {
 };
 
 interface BroadcastRequest {
-  audience: "scholars" | "all_users";
+  audience: "scholars" | "all_users" | "individual" | "bulk";
   subject: string;
   body: string;
+  recipient_email?: string;
+  recipient_name?: string;
+  recipients?: { email: string; name?: string }[];
 }
 
 interface EmailPayload {
@@ -67,7 +70,7 @@ const handler = async (req: Request): Promise<Response> => {
       sentByUserId = user?.id || null;
     }
 
-    const { audience, subject, body }: BroadcastRequest = await req.json();
+    const { audience, subject, body, recipient_email, recipient_name, recipients }: BroadcastRequest = await req.json();
     console.log("Request:", { audience, subject: subject?.substring(0, 50) });
 
     if (!subject || !body) {
@@ -79,12 +82,27 @@ const handler = async (req: Request): Promise<Response> => {
 
     let rawRecipients: { email: string; full_name: string | null }[] = [];
 
-    if (audience === "scholars") {
+    if (audience === "individual") {
+      if (!recipient_email) {
+        return new Response(
+          JSON.stringify({ success: false, error: "Recipient email is required" }),
+          { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        );
+      }
+      rawRecipients = [{ email: recipient_email, full_name: recipient_name || null }];
+    } else if (audience === "bulk") {
+      if (!recipients || recipients.length === 0) {
+        return new Response(
+          JSON.stringify({ success: false, error: "Recipients list is required for bulk sends" }),
+          { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        );
+      }
+      rawRecipients = recipients.map(r => ({ email: r.email, full_name: r.name || null }));
+    } else if (audience === "scholars") {
       const { data: scholars, error } = await supabase
         .from("scholarship_applications")
         .select("email, full_name")
         .eq("status", "approved");
-
       if (error) throw error;
       rawRecipients = scholars || [];
     } else if (audience === "all_users") {
@@ -92,7 +110,6 @@ const handler = async (req: Request): Promise<Response> => {
         .from("profiles")
         .select("email, full_name")
         .not("email", "is", null);
-
       if (error) throw error;
       rawRecipients = users || [];
     } else {
