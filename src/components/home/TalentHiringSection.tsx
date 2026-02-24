@@ -147,7 +147,7 @@ const TalentHiringSection = () => {
                     {talent.skills.map((skill) => (
                       <span 
                         key={skill}
-                        className="text-[10px] px-2 py-0.5 border border-border text-muted-foreground rounded"
+                        className="text-[10px] px-2 py-0.5 bg-secondary text-muted-foreground rounded"
                       >
                         {skill}
                       </span>

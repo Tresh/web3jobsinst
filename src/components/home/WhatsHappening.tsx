@@ -117,7 +117,7 @@ const WhatsHappening = () => {
                   <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
                     <item.icon className="w-5 h-5 text-primary" />
                   </div>
-                  <Badge variant="outline" className="text-[10px] gap-1.5">
+                  <Badge variant="secondary" className="text-[10px] gap-1.5">
                     <span className={`w-1.5 h-1.5 rounded-full ${item.statusColor}`} />
                     {item.status}
                   </Badge>
@@ -155,7 +155,7 @@ const WhatsHappening = () => {
                     {item.topPerformers.map((performer) => (
                       <div key={performer.rank} className="flex items-center justify-between text-xs">
                         <div className="flex items-center gap-2">
-                          <span className="w-5 h-5 rounded-full border border-border flex items-center justify-center text-[10px] font-bold text-primary">
+                          <span className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary">
                             {performer.rank}
                           </span>
                           <span className="text-muted-foreground">{performer.name}</span>
@@ -169,7 +169,7 @@ const WhatsHappening = () => {
                 {item.modules && (
                   <div className="space-y-2 mb-4">
                     {item.modules.map((module) => (
-                      <div key={module.title} className="flex items-center justify-between text-xs border border-border rounded-lg px-3 py-2">
+                      <div key={module.title} className="flex items-center justify-between text-xs bg-secondary rounded-lg px-3 py-2">
                         <span className="text-foreground">{module.title}</span>
                         <span className="text-primary font-medium">{module.xp}</span>
                       </div>

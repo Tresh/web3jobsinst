@@ -129,7 +129,7 @@ const LiveActivityFeed = () => {
                 opacity: 1 - (index * 0.1),
               }}
             >
-              <div className="w-7 h-7 rounded-full border border-border flex items-center justify-center flex-shrink-0">
+              <div className="w-7 h-7 rounded-full bg-secondary flex items-center justify-center flex-shrink-0">
                 {activity.icon}
               </div>
               <div className="flex-1 min-w-0">
