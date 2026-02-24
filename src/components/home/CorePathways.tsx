@@ -78,10 +78,10 @@ const CorePathways = () => {
     <section className="py-16 md:py-24">
       <div className="section-container">
         <div className="text-center mb-12">
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
             Your Path Into the Ecosystem
           </h2>
-          <p className="text-white/60 max-w-2xl mx-auto">
+          <p className="text-muted-foreground max-w-2xl mx-auto">
             Four clear pathways to learn, earn, and grow in the decentralized economy
           </p>
         </div>
@@ -91,7 +91,7 @@ const CorePathways = () => {
             <Card
               key={pathway.id}
               onClick={() => handleClick(pathway)}
-              className="cursor-pointer group bg-white/5 border-white/10 hover:border-primary/30 transition-all duration-200 relative overflow-hidden"
+              className="cursor-pointer group bg-card border-border hover:border-primary/30 hover:shadow-card-hover transition-all duration-200 relative overflow-hidden"
             >
               <CardContent className="p-6 relative">
                 {/* Badge */}
@@ -102,17 +102,17 @@ const CorePathways = () => {
                 )}
 
                 {/* Icon */}
-                <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center mb-4 group-hover:bg-primary/30 transition-colors">
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
                   <pathway.icon className="w-6 h-6 text-primary" />
                 </div>
 
                 {/* Title */}
-                <h3 className="text-lg font-semibold text-white mb-2">
+                <h3 className="text-lg font-semibold text-foreground mb-2">
                   {pathway.title}
                 </h3>
 
                 {/* Description */}
-                <p className="text-sm text-white/60 mb-4">
+                <p className="text-sm text-muted-foreground mb-4">
                   {pathway.description}
                 </p>
 
@@ -121,7 +121,7 @@ const CorePathways = () => {
                   {pathway.features.map((feature) => (
                     <span 
                       key={feature}
-                      className="text-[10px] px-2 py-1 bg-white/10 text-white/70 rounded"
+                      className="text-[10px] px-2 py-1 bg-secondary text-muted-foreground rounded"
                     >
                       {feature}
                     </span>

@@ -109,15 +109,15 @@ const WhatsHappening = () => {
             <Card
               key={item.id}
               onClick={() => handleClick(item)}
-              className="cursor-pointer group bg-white/5 border-white/10 hover:border-primary/30 transition-all duration-200"
+              className="cursor-pointer group bg-card border-border hover:border-primary/30 hover:shadow-card-hover transition-all duration-200"
             >
               <CardContent className="p-5">
                 {/* Header */}
                 <div className="flex items-start justify-between mb-3">
-                  <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
                     <item.icon className="w-5 h-5 text-primary" />
                   </div>
-                  <Badge variant="secondary" className="text-[10px] gap-1.5 bg-white/10 text-foreground border-0">
+                  <Badge variant="secondary" className="text-[10px] gap-1.5">
                     <span className={`w-1.5 h-1.5 rounded-full ${item.statusColor}`} />
                     {item.status}
                   </Badge>
@@ -155,10 +155,10 @@ const WhatsHappening = () => {
                     {item.topPerformers.map((performer) => (
                       <div key={performer.rank} className="flex items-center justify-between text-xs">
                         <div className="flex items-center gap-2">
-                          <span className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center text-[10px] font-bold text-primary">
+                          <span className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary">
                             {performer.rank}
                           </span>
-                          <span className="text-foreground/70">{performer.name}</span>
+                          <span className="text-muted-foreground">{performer.name}</span>
                         </div>
                         <span className="font-medium text-primary">{performer.xp}</span>
                       </div>
@@ -169,7 +169,7 @@ const WhatsHappening = () => {
                 {item.modules && (
                   <div className="space-y-2 mb-4">
                     {item.modules.map((module) => (
-                      <div key={module.title} className="flex items-center justify-between text-xs bg-white/5 rounded-lg px-3 py-2">
+                      <div key={module.title} className="flex items-center justify-between text-xs bg-secondary rounded-lg px-3 py-2">
                         <span className="text-foreground">{module.title}</span>
                         <span className="text-primary font-medium">{module.xp}</span>
                       </div>
