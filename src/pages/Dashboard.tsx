@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useProfilePhotoUpload } from "@/hooks/useProfilePhotoUpload";
 import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard,
@@ -17,6 +18,8 @@ import {
   Zap,
   Briefcase,
   MessageSquare,
+  Camera,
+  Loader2,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
@@ -36,11 +39,28 @@ const navItems = [
 ];
 
 const Dashboard = () => {
-  const { user, profile, signOut, isLoading } = useAuth();
+  const { user, profile, signOut, isLoading, refetchProfile } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { uploadPhoto, uploading } = useProfilePhotoUpload(user?.id);
+  const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url || "");
+
+  useEffect(() => {
+    if (profile?.avatar_url) setAvatarUrl(profile.avatar_url);
+  }, [profile?.avatar_url]);
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const url = await uploadPhoto(file);
+    if (url) {
+      setAvatarUrl(url);
+      await refetchProfile();
+    }
+  };
 
   useEffect(() => {
     // Show onboarding if profile exists but onboarding not completed
@@ -121,12 +141,33 @@ const Dashboard = () => {
         {/* User Info */}
         <div className="p-4 border-b border-border">
           <div className="flex items-center gap-3">
-            <Avatar className="h-10 w-10">
-              <AvatarImage src={profile?.avatar_url || undefined} />
-              <AvatarFallback className="bg-primary text-primary-foreground text-sm font-bold">
-                {getInitial()}
-              </AvatarFallback>
-            </Avatar>
+            <div className="relative">
+              <Avatar className="h-10 w-10">
+                <AvatarImage src={avatarUrl || undefined} />
+                <AvatarFallback className="bg-primary text-primary-foreground text-sm font-bold">
+                  {getInitial()}
+                </AvatarFallback>
+              </Avatar>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoUpload}
+                className="hidden"
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="absolute -bottom-1 -right-1 p-1 bg-primary text-primary-foreground rounded-full hover:bg-primary/90 transition-colors disabled:opacity-50"
+              >
+                {uploading ? (
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                ) : (
+                  <Camera className="w-3 h-3" />
+                )}
+              </button>
+            </div>
             <div className="flex-1 min-w-0">
               <p className="font-medium truncate">
                 {profile?.full_name || "User"}
