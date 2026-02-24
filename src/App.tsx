@@ -47,6 +47,7 @@ import DashboardSettings from "./pages/dashboard/DashboardSettings";
 import DashboardScholarship from "./pages/dashboard/DashboardScholarship";
 import DashboardBootcamps from "./pages/dashboard/DashboardBootcamps";
 import DashboardLearnFi from "./pages/dashboard/DashboardLearnFi";
+import DashboardInternship from "./pages/dashboard/DashboardInternship";
 import ScholarshipModuleDetail from "./pages/dashboard/ScholarshipModuleDetail";
 import Scholarship from "./pages/Scholarship";
 // ScholarshipCelebration removed - no longer needed
@@ -140,6 +141,7 @@ const App = () => (
               <Route path="scholarship" element={<DashboardScholarship />} />
               <Route path="scholarship/modules/:moduleId" element={<ScholarshipModuleDetail />} />
               <Route path="bootcamps" element={<DashboardBootcamps />} />
+              <Route path="internship" element={<DashboardInternship />} />
               <Route path="learnfi" element={<DashboardLearnFi />} />
               <Route path="courses" element={<DashboardCourses />} />
               <Route path="products" element={<DashboardProducts />} />

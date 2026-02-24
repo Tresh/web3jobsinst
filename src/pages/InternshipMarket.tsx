@@ -1,13 +1,16 @@
 import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import PageNavbar from "@/components/PageNavbar";
 import Footer from "@/components/Footer";
 import InternshipFilterSheet from "@/components/internships/InternshipFilterSheet";
+import InternshipWaitlistDialog from "@/components/internships/InternshipWaitlistDialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Briefcase, Clock, ExternalLink, Mail, MapPin, Loader2 } from "lucide-react";
+import { Briefcase, Clock, ExternalLink, Mail, MapPin, Loader2, UserPlus } from "lucide-react";
 
 interface InternProfile {
   id: string;
@@ -50,6 +53,8 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
 };
 
 const InternshipMarket = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [interns, setInterns] = useState<InternProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -57,6 +62,22 @@ const InternshipMarket = () => {
   const [levelFilter, setLevelFilter] = useState("all");
   const [paidFilter, setPaidFilter] = useState("all");
   const [filterSheetOpen, setFilterSheetOpen] = useState(false);
+  const [waitlistOpen, setWaitlistOpen] = useState(false);
+  const [alreadyOnWaitlist, setAlreadyOnWaitlist] = useState(false);
+
+  // Check if user is already on waitlist
+  useEffect(() => {
+    const checkWaitlist = async () => {
+      if (!user?.id) return;
+      const { data } = await supabase
+        .from("internship_waitlist")
+        .select("id")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      setAlreadyOnWaitlist(!!data);
+    };
+    checkWaitlist();
+  }, [user?.id, waitlistOpen]);
 
   useEffect(() => {
     const fetchInterns = async () => {
@@ -125,6 +146,27 @@ const InternshipMarket = () => {
           <p className="text-sm md:text-base text-muted-foreground">
             Discover skilled interns from our scholarship program. Filter by skill, level, and availability.
           </p>
+          <div className="mt-4">
+            {alreadyOnWaitlist ? (
+              <Badge className="bg-primary/10 text-primary border-primary/20 text-sm py-1.5 px-4">
+                <Clock className="w-4 h-4 mr-1.5" />
+                You're on the waitlist — Pending Approval
+              </Badge>
+            ) : (
+              <Button
+                onClick={() => {
+                  if (!user) {
+                    navigate("/signup");
+                  } else {
+                    setWaitlistOpen(true);
+                  }
+                }}
+              >
+                <UserPlus className="w-4 h-4 mr-2" />
+                Join Internship Waitlist
+              </Button>
+            )}
+          </div>
         </section>
 
         {/* Results info */}
@@ -244,6 +286,11 @@ const InternshipMarket = () => {
         selectedPaid={paidFilter}
         onPaidChange={setPaidFilter}
         onClearAll={clearAllFilters}
+      />
+
+      <InternshipWaitlistDialog
+        open={waitlistOpen}
+        onOpenChange={setWaitlistOpen}
       />
     </div>
   );
