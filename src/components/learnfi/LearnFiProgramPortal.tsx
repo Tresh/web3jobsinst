@@ -18,6 +18,7 @@ import { Link } from "react-router-dom";
 
 interface LearnFiProgramPortalProps {
   programId: string;
+  isCreator?: boolean;
 }
 
 interface Program {
@@ -86,7 +87,7 @@ interface Participation {
 
 const REWARD_LABELS: Record<string, string> = { token: "Token", paid: "Paid", xp: "XP", internship: "Internship" };
 
-export default function LearnFiProgramPortal({ programId }: LearnFiProgramPortalProps) {
+export default function LearnFiProgramPortal({ programId, isCreator = false }: LearnFiProgramPortalProps) {
   const { user } = useAuth();
   const [program, setProgram] = useState<Program | null>(null);
   const [modules, setModules] = useState<Module[]>([]);
