@@ -60,7 +60,7 @@ export function ScholarshipPortal() {
       </div>
 
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="flex w-full overflow-x-auto scrollbar-hide lg:w-auto lg:inline-flex">
+        <TabsList className="flex w-full overflow-x-auto scrollbar-hide justify-start lg:w-auto lg:inline-flex lg:justify-center">
           <TabsTrigger value="overview" className="gap-2">
             <GraduationCap className="w-4 h-4 hidden sm:inline" />
             <span>Overview</span>

@@ -1,5 +1,3 @@
-
-
 # Fix: Modules Not Showing as Available for Students
 
 ## Problem Identified
