@@ -78,7 +78,7 @@ export interface ScholarshipModule {
   title: string;
   description: string | null;
   order_index: number;
-  unlock_type: "day" | "task" | "manual";
+  unlock_type: "day" | "task" | "manual" | "immediate";
   unlock_day: number | null;
   unlock_task_id: string | null;
   is_published: boolean;

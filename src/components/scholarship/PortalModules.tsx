@@ -31,6 +31,9 @@ export function PortalModules({ modules, getModuleStatus, dayNumber, onRefetch, 
 
     const unlockType = module.unlock_type;
     
+    if (unlockType === "immediate") {
+      return null; // Always available
+    }
     if (unlockType === "day") {
       if (module.unlock_day && dayNumber < module.unlock_day) {
         return `Unlocks on Day ${module.unlock_day}`;
