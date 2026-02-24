@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { courses as platformCourses } from "@/data/coursesData";
 import { useNavigate } from "react-router-dom";
 import {
   Dialog,
@@ -29,11 +30,61 @@ interface LeaderboardTier {
   amount: number;
 }
 
+// Course autocomplete sub-component
+const CourseAutocomplete = ({ value, onChange }: { value: string; onChange: (v: string) => void }) => {
+  const [query, setQuery] = useState("");
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  const filtered = useMemo(() => {
+    if (!query || query.length < 1) return [];
+    const q = query.toLowerCase();
+    return platformCourses.filter(c => c.title.toLowerCase().includes(q)).slice(0, 8);
+  }, [query]);
+
+  const selectedCourse = platformCourses.find(c => c.id === value);
+
+  return (
+    <div className="relative">
+      <Input
+        value={selectedCourse ? selectedCourse.title : value}
+        onChange={(e) => {
+          const v = e.target.value;
+          onChange(v);
+          setQuery(v);
+          setShowDropdown(true);
+        }}
+        onFocus={() => { if (query.length > 0) setShowDropdown(true); }}
+        onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
+        placeholder="Type course name or paste ID..."
+      />
+      {showDropdown && filtered.length > 0 && (
+        <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-background border border-border rounded-lg shadow-lg max-h-48 overflow-y-auto">
+          {filtered.map((c) => (
+            <button
+              key={c.id}
+              type="button"
+              className="w-full text-left px-3 py-2 hover:bg-secondary text-sm"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                onChange(c.id);
+                setQuery(c.title);
+                setShowDropdown(false);
+              }}
+            >
+              <span className="font-medium">{c.title}</span>
+              <span className="text-xs text-muted-foreground ml-2">({c.id})</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const LearnFiPartnerForm = ({ open, onOpenChange }: LearnFiPartnerFormProps) => {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [courses, setCourses] = useState<{ id: string; title: string }[]>([]);
   const [submitted, setSubmitted] = useState(false);
 
   const [form, setForm] = useState({
@@ -62,12 +113,6 @@ const LearnFiPartnerForm = ({ open, onOpenChange }: LearnFiPartnerFormProps) => 
     linked_course_id: "",
   });
 
-  // Fetch user's courses (from strapi or local data — using a simple approach)
-  useEffect(() => {
-    // For now, we don't have a user-specific course table, so leave empty
-    // This can be enhanced when tutors have uploaded courses
-    setCourses([]);
-  }, [user]);
 
   const handleChange = (key: string, value: string) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -278,18 +323,11 @@ const LearnFiPartnerForm = ({ open, onOpenChange }: LearnFiPartnerFormProps) => 
           {/* Link to existing course (optional) */}
           <div className="space-y-2">
             <Label>Link to Existing Course (optional)</Label>
-            {courses.length > 0 ? (
-              <Select value={form.linked_course_id || "none"} onValueChange={(v) => handleChange("linked_course_id", v === "none" ? "" : v)}>
-                <SelectTrigger><SelectValue placeholder="Select a course" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">None</SelectItem>
-                  {courses.map((c) => <SelectItem key={c.id} value={c.id}>{c.title}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            ) : (
-              <Input value={form.linked_course_id} onChange={(e) => handleChange("linked_course_id", e.target.value)} placeholder="Course name or ID (optional)" />
-            )}
-            <p className="text-xs text-muted-foreground">If your course is already on the platform, link it here.</p>
+            <CourseAutocomplete
+              value={form.linked_course_id}
+              onChange={(v) => handleChange("linked_course_id", v)}
+            />
+            <p className="text-xs text-muted-foreground">Type a course name to search, or paste a Course ID directly.</p>
           </div>
 
           {/* Category & Difficulty */}

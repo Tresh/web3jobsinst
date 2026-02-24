@@ -111,10 +111,19 @@ const AdminScholarships = () => {
   const [isCreatingModule, setIsCreatingModule] = useState(false);
   
   // Email broadcast states
-  const [emailAudience, setEmailAudience] = useState<"scholars" | "all_users">("scholars");
+  const [emailAudience, setEmailAudience] = useState<"scholars" | "all_users" | "individual" | "bulk">("scholars");
   const [emailSubject, setEmailSubject] = useState("");
   const [emailBody, setEmailBody] = useState("");
   const [isSendingEmail, setIsSendingEmail] = useState(false);
+  // Individual send
+  const [individualEmail, setIndividualEmail] = useState("");
+  const [individualName, setIndividualName] = useState("");
+  const [userSearchQuery, setUserSearchQuery] = useState("");
+  const [userSearchResults, setUserSearchResults] = useState<{ email: string; full_name: string | null }[]>([]);
+  const [isSearchingUsers, setIsSearchingUsers] = useState(false);
+  // Bulk send
+  const [bulkRecipients, setBulkRecipients] = useState<{ email: string; name?: string }[]>([]);
+  const [bulkEmailInput, setBulkEmailInput] = useState("");
   
   const [newProgram, setNewProgram] = useState({
     title: "",
@@ -675,6 +684,42 @@ const AdminScholarships = () => {
     }
   };
 
+  // Search users by name or email
+  const handleUserSearch = async (query: string) => {
+    setUserSearchQuery(query);
+    if (query.length < 2) {
+      setUserSearchResults([]);
+      return;
+    }
+    setIsSearchingUsers(true);
+    try {
+      const { data } = await supabase
+        .from("profiles")
+        .select("email, full_name")
+        .not("email", "is", null)
+        .or(`full_name.ilike.%${query}%,email.ilike.%${query}%`)
+        .limit(10);
+      setUserSearchResults(data || []);
+    } catch { setUserSearchResults([]); }
+    finally { setIsSearchingUsers(false); }
+  };
+
+  const addBulkRecipient = (email: string, name?: string) => {
+    const trimmed = email.trim();
+    if (!trimmed || bulkRecipients.some(r => r.email === trimmed)) return;
+    setBulkRecipients(prev => [...prev, { email: trimmed, name }]);
+  };
+
+  const removeBulkRecipient = (email: string) => {
+    setBulkRecipients(prev => prev.filter(r => r.email !== email));
+  };
+
+  const handleAddBulkFromInput = () => {
+    const emails = bulkEmailInput.split(/[,;\n]+/).map(e => e.trim()).filter(Boolean);
+    emails.forEach(e => addBulkRecipient(e));
+    setBulkEmailInput("");
+  };
+
   // Send broadcast email handler
   const handleSendBroadcastEmail = async () => {
     if (!emailSubject.trim() || !emailBody.trim()) {
@@ -682,14 +727,31 @@ const AdminScholarships = () => {
       return;
     }
 
+    const payload: Record<string, unknown> = {
+      audience: emailAudience,
+      subject: emailSubject,
+      body: emailBody,
+    };
+
+    if (emailAudience === "individual") {
+      if (!individualEmail.trim()) {
+        toast({ title: "Missing email", description: "Enter recipient email", variant: "destructive" });
+        return;
+      }
+      payload.recipient_email = individualEmail.trim();
+      payload.recipient_name = individualName.trim() || undefined;
+    } else if (emailAudience === "bulk") {
+      if (bulkRecipients.length === 0) {
+        toast({ title: "No recipients", description: "Add at least one recipient", variant: "destructive" });
+        return;
+      }
+      payload.recipients = bulkRecipients;
+    }
+
     setIsSendingEmail(true);
     try {
       const { data, error } = await supabase.functions.invoke("admin-broadcast-email", {
-        body: {
-          audience: emailAudience,
-          subject: emailSubject,
-          body: emailBody,
-        },
+        body: payload,
       });
 
       if (error) throw error;
@@ -699,9 +761,11 @@ const AdminScholarships = () => {
         description: `Sent to ${data.emailsSent} recipient(s)`,
       });
 
-      // Clear form
       setEmailSubject("");
       setEmailBody("");
+      setIndividualEmail("");
+      setIndividualName("");
+      setBulkRecipients([]);
     } catch (err) {
       console.error("Failed to send broadcast email:", err);
       toast({ title: "Error", description: "Failed to send broadcast email", variant: "destructive" });
@@ -1605,25 +1669,133 @@ const AdminScholarships = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Mail className="w-5 h-5" />
-                Send Broadcast Email
+                Send Email
               </CardTitle>
               <CardDescription>
-                Send a custom email to all scholars or all platform users
+                Send to groups, individual users, or a custom list
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label>Audience</Label>
-                <Select value={emailAudience} onValueChange={(v: "scholars" | "all_users") => setEmailAudience(v)}>
+                <Label>Send To</Label>
+                <Select value={emailAudience} onValueChange={(v: "scholars" | "all_users" | "individual" | "bulk") => setEmailAudience(v)}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="scholars">All Scholars (approved applicants)</SelectItem>
+                  <SelectContent className="bg-background border-border z-50">
+                    <SelectItem value="scholars">All Scholars (approved)</SelectItem>
                     <SelectItem value="all_users">All Platform Users</SelectItem>
+                    <SelectItem value="individual">Individual User</SelectItem>
+                    <SelectItem value="bulk">Bulk (Multiple Users)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
+
+              {/* Individual recipient picker */}
+              {emailAudience === "individual" && (
+                <div className="space-y-3 bg-secondary/30 rounded-lg p-4">
+                  <Label>Search User or Enter Email</Label>
+                  <div className="relative">
+                    <Input
+                      value={userSearchQuery}
+                      onChange={(e) => handleUserSearch(e.target.value)}
+                      placeholder="Search by name or email..."
+                    />
+                    {userSearchResults.length > 0 && (
+                      <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-background border border-border rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                        {userSearchResults.map((u) => (
+                          <button
+                            key={u.email}
+                            type="button"
+                            className="w-full text-left px-3 py-2 hover:bg-secondary text-sm flex justify-between"
+                            onClick={() => {
+                              setIndividualEmail(u.email);
+                              setIndividualName(u.full_name || "");
+                              setUserSearchQuery("");
+                              setUserSearchResults([]);
+                            }}
+                          >
+                            <span className="font-medium">{u.full_name || "—"}</span>
+                            <span className="text-muted-foreground">{u.email}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <Label className="text-xs">Email *</Label>
+                      <Input value={individualEmail} onChange={(e) => setIndividualEmail(e.target.value)} placeholder="user@example.com" />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Name (optional)</Label>
+                      <Input value={individualName} onChange={(e) => setIndividualName(e.target.value)} placeholder="John Doe" />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Bulk recipient picker */}
+              {emailAudience === "bulk" && (
+                <div className="space-y-3 bg-secondary/30 rounded-lg p-4">
+                  <Label>Add Recipients</Label>
+                  {/* User search */}
+                  <div className="relative">
+                    <Input
+                      value={userSearchQuery}
+                      onChange={(e) => handleUserSearch(e.target.value)}
+                      placeholder="Search users by name or email..."
+                    />
+                    {userSearchResults.length > 0 && (
+                      <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-background border border-border rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                        {userSearchResults.map((u) => (
+                          <button
+                            key={u.email}
+                            type="button"
+                            className="w-full text-left px-3 py-2 hover:bg-secondary text-sm flex justify-between"
+                            onClick={() => {
+                              addBulkRecipient(u.email, u.full_name || undefined);
+                              setUserSearchQuery("");
+                              setUserSearchResults([]);
+                            }}
+                          >
+                            <span className="font-medium">{u.full_name || "—"}</span>
+                            <span className="text-muted-foreground">{u.email}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  {/* Direct email input */}
+                  <div className="flex gap-2">
+                    <Textarea
+                      value={bulkEmailInput}
+                      onChange={(e) => setBulkEmailInput(e.target.value)}
+                      placeholder="Paste emails (comma, semicolon, or newline separated)"
+                      rows={2}
+                      className="flex-1"
+                    />
+                    <Button type="button" variant="outline" size="sm" onClick={handleAddBulkFromInput} className="shrink-0 self-end">
+                      Add
+                    </Button>
+                  </div>
+                  {/* Recipient list */}
+                  {bulkRecipients.length > 0 && (
+                    <div className="space-y-1 max-h-40 overflow-y-auto">
+                      <Label className="text-xs">{bulkRecipients.length} recipient(s)</Label>
+                      <div className="flex flex-wrap gap-1.5">
+                        {bulkRecipients.map((r) => (
+                          <Badge key={r.email} variant="secondary" className="gap-1 text-xs">
+                            {r.name ? `${r.name} (${r.email})` : r.email}
+                            <button type="button" onClick={() => removeBulkRecipient(r.email)} className="ml-1 hover:text-destructive">×</button>
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div className="space-y-2">
                 <Label>Subject</Label>
                 <Input
