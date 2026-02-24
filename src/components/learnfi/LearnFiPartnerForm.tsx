@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { courses as platformCourses } from "@/data/coursesData";
 import { useNavigate } from "react-router-dom";
 import {
   Dialog,
@@ -278,18 +279,11 @@ const LearnFiPartnerForm = ({ open, onOpenChange }: LearnFiPartnerFormProps) => 
           {/* Link to existing course (optional) */}
           <div className="space-y-2">
             <Label>Link to Existing Course (optional)</Label>
-            {courses.length > 0 ? (
-              <Select value={form.linked_course_id || "none"} onValueChange={(v) => handleChange("linked_course_id", v === "none" ? "" : v)}>
-                <SelectTrigger><SelectValue placeholder="Select a course" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">None</SelectItem>
-                  {courses.map((c) => <SelectItem key={c.id} value={c.id}>{c.title}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            ) : (
-              <Input value={form.linked_course_id} onChange={(e) => handleChange("linked_course_id", e.target.value)} placeholder="Course name or ID (optional)" />
-            )}
-            <p className="text-xs text-muted-foreground">If your course is already on the platform, link it here.</p>
+            <CourseAutocomplete
+              value={form.linked_course_id}
+              onChange={(v) => handleChange("linked_course_id", v)}
+            />
+            <p className="text-xs text-muted-foreground">Type a course name to search, or paste a Course ID directly.</p>
           </div>
 
           {/* Category & Difficulty */}
