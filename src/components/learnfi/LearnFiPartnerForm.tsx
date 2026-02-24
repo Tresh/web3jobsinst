@@ -24,7 +24,8 @@ interface LearnFiPartnerFormProps {
 }
 
 interface LeaderboardTier {
-  rank: number;
+  rank_from: number;
+  rank_to: number;
   amount: number;
 }
 
@@ -54,7 +55,7 @@ const LearnFiPartnerForm = ({ open, onOpenChange }: LearnFiPartnerFormProps) => 
     token_contract_address: "",
     reward_token_symbol: "",
     chain_network: "",
-    leaderboard_tiers: [{ rank: 1, amount: 0 }] as LeaderboardTier[],
+    leaderboard_tiers: [{ rank_from: 1, rank_to: 1, amount: 0 }] as LeaderboardTier[],
     // Internship fields
     internship_details: "",
     // Course linking
@@ -73,30 +74,56 @@ const LearnFiPartnerForm = ({ open, onOpenChange }: LearnFiPartnerFormProps) => 
   };
 
   const addTier = () => {
-    const nextRank = form.leaderboard_tiers.length + 1;
+    const lastTier = form.leaderboard_tiers[form.leaderboard_tiers.length - 1];
+    const nextFrom = lastTier ? lastTier.rank_to + 1 : 1;
     setForm((prev) => ({
       ...prev,
-      leaderboard_tiers: [...prev.leaderboard_tiers, { rank: nextRank, amount: 0 }],
+      leaderboard_tiers: [...prev.leaderboard_tiers, { rank_from: nextFrom, rank_to: nextFrom, amount: 0 }],
     }));
   };
 
   const removeTier = (index: number) => {
     if (form.leaderboard_tiers.length <= 1) return;
-    setForm((prev) => ({
-      ...prev,
-      leaderboard_tiers: prev.leaderboard_tiers
-        .filter((_, i) => i !== index)
-        .map((t, i) => ({ ...t, rank: i + 1 })),
-    }));
+    setForm((prev) => {
+      const filtered = prev.leaderboard_tiers.filter((_, i) => i !== index);
+      const resequenced: LeaderboardTier[] = [];
+      for (let i = 0; i < filtered.length; i++) {
+        const newFrom = i === 0 ? 1 : resequenced[i - 1].rank_to + 1;
+        const newTo = Math.max(newFrom, i === 0 ? filtered[i].rank_to : newFrom + (filtered[i].rank_to - filtered[i].rank_from));
+        resequenced.push({ ...filtered[i], rank_from: newFrom, rank_to: newTo });
+      }
+      return { ...prev, leaderboard_tiers: resequenced };
+    });
   };
 
-  const updateTier = (index: number, amount: number) => {
-    setForm((prev) => ({
-      ...prev,
-      leaderboard_tiers: prev.leaderboard_tiers.map((t, i) =>
-        i === index ? { ...t, amount } : t
-      ),
-    }));
+  const updateTier = (index: number, field: "rank_to" | "amount", value: number) => {
+    setForm((prev) => {
+      const updated = prev.leaderboard_tiers.map((t, i) => {
+        if (i !== index) return t;
+        if (field === "rank_to") return { ...t, rank_to: Math.max(t.rank_from, value) };
+        return { ...t, amount: value };
+      });
+      // Re-sequence subsequent tiers' rank_from based on previous rank_to
+      for (let i = 1; i < updated.length; i++) {
+        const newFrom = updated[i - 1].rank_to + 1;
+        if (updated[i].rank_from !== newFrom) {
+          updated[i] = { ...updated[i], rank_from: newFrom, rank_to: Math.max(newFrom, updated[i].rank_to) };
+        }
+      }
+      return { ...prev, leaderboard_tiers: updated };
+    });
+  };
+
+  const getTotalCoveredRanks = () => {
+    if (form.leaderboard_tiers.length === 0) return 0;
+    return form.leaderboard_tiers[form.leaderboard_tiers.length - 1].rank_to;
+  };
+
+  const getTotalTokens = () => {
+    return form.leaderboard_tiers.reduce((sum, tier) => {
+      const count = tier.rank_to - tier.rank_from + 1;
+      return sum + (count * tier.amount);
+    }, 0);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -112,8 +139,8 @@ const LearnFiPartnerForm = ({ open, onOpenChange }: LearnFiPartnerFormProps) => 
       return;
     }
 
-    if (form.reward_type === "token" && form.leaderboard_tiers.length < 10) {
-      toast({ title: "Minimum 10 tiers", description: "Token rewards require at least 10 leaderboard tiers.", variant: "destructive" });
+    if (form.reward_type === "token" && getTotalCoveredRanks() < 10) {
+      toast({ title: "Minimum 10 positions", description: "Token rewards must cover at least 10 leaderboard positions.", variant: "destructive" });
       return;
     }
 
@@ -394,23 +421,37 @@ const LearnFiPartnerForm = ({ open, onOpenChange }: LearnFiPartnerFormProps) => 
               {/* Leaderboard Tiers */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <Label>Leaderboard Reward Tiers (min 10)</Label>
+                  <Label>Leaderboard Reward Tiers (min 10 positions)</Label>
                   <Button type="button" size="sm" variant="outline" onClick={addTier} className="gap-1">
-                    <Plus className="w-3 h-3" /> Add
+                    <Plus className="w-3 h-3" /> Add Tier
                   </Button>
                 </div>
-                <div className="space-y-2 max-h-[200px] overflow-y-auto">
+                <div className="space-y-2 max-h-[260px] overflow-y-auto">
                   {form.leaderboard_tiers.map((tier, i) => (
                     <div key={i} className="flex items-center gap-2">
-                      <Badge variant="secondary" className="shrink-0 w-10 justify-center">#{tier.rank}</Badge>
+                      <Badge variant="secondary" className="shrink-0 min-w-[56px] justify-center text-xs">
+                        {tier.rank_from === tier.rank_to ? `#${tier.rank_from}` : `#${tier.rank_from}-${tier.rank_to}`}
+                      </Badge>
+                      {tier.rank_from === tier.rank_to ? null : (
+                        <span className="text-xs text-muted-foreground shrink-0">to</span>
+                      )}
+                      <Input
+                        type="number"
+                        value={tier.rank_to || ""}
+                        onChange={(e) => updateTier(i, "rank_to", parseInt(e.target.value) || tier.rank_from)}
+                        placeholder="End rank"
+                        className="w-20 shrink-0"
+                        min={tier.rank_from}
+                      />
                       <Input
                         type="number"
                         value={tier.amount || ""}
-                        onChange={(e) => updateTier(i, parseFloat(e.target.value) || 0)}
-                        placeholder="Amount"
+                        onChange={(e) => updateTier(i, "amount", parseFloat(e.target.value) || 0)}
+                        placeholder="Amount each"
                         className="flex-1"
                         min={0}
                       />
+                      <span className="text-xs text-muted-foreground shrink-0">{form.reward_token_symbol || "tokens"}</span>
                       {form.leaderboard_tiers.length > 1 && (
                         <Button type="button" size="icon" variant="ghost" onClick={() => removeTier(i)} className="shrink-0 h-8 w-8">
                           <Trash2 className="w-3.5 h-3.5 text-muted-foreground" />
@@ -419,9 +460,17 @@ const LearnFiPartnerForm = ({ open, onOpenChange }: LearnFiPartnerFormProps) => 
                     </div>
                   ))}
                 </div>
-                {form.leaderboard_tiers.length < 10 && (
-                  <p className="text-xs text-destructive">Minimum 10 tiers required ({10 - form.leaderboard_tiers.length} more needed)</p>
-                )}
+                <div className="flex items-center justify-between text-xs pt-1">
+                  <span className="text-muted-foreground">
+                    Covers {getTotalCoveredRanks()} position{getTotalCoveredRanks() !== 1 ? "s" : ""}
+                    {getTotalCoveredRanks() < 10 && (
+                      <span className="text-destructive ml-1">(need at least 10)</span>
+                    )}
+                  </span>
+                  <span className="font-medium text-foreground">
+                    Total: {getTotalTokens()} {form.reward_token_symbol || "tokens"}
+                  </span>
+                </div>
               </div>
             </div>
           )}
