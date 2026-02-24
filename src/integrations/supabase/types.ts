@@ -848,6 +848,53 @@ export type Database = {
         }
         Relationships: []
       }
+      learnfi_edit_requests: {
+        Row: {
+          admin_notes: string | null
+          created_at: string
+          id: string
+          program_id: string
+          reason: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string
+          id?: string
+          program_id: string
+          reason: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string
+          id?: string
+          program_id?: string
+          reason?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "learnfi_edit_requests_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "learnfi_programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       learnfi_mission_submissions: {
         Row: {
           created_at: string
@@ -1078,6 +1125,7 @@ export type Database = {
           description: string | null
           difficulty: string
           duration_days: number
+          edit_allowed: boolean | null
           id: string
           internship_details: string | null
           leaderboard_tiers: Json | null
@@ -1113,6 +1161,7 @@ export type Database = {
           description?: string | null
           difficulty?: string
           duration_days?: number
+          edit_allowed?: boolean | null
           id?: string
           internship_details?: string | null
           leaderboard_tiers?: Json | null
@@ -1148,6 +1197,7 @@ export type Database = {
           description?: string | null
           difficulty?: string
           duration_days?: number
+          edit_allowed?: boolean | null
           id?: string
           internship_details?: string | null
           leaderboard_tiers?: Json | null

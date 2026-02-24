@@ -67,6 +67,7 @@ import AdminBugReports from "./pages/admin/AdminBugReports";
 import AdminBootcamps from "./pages/admin/AdminBootcamps";
 import AdminBootcampManage from "./pages/admin/AdminBootcampManage";
 import AdminTutors from "./pages/admin/AdminTutors";
+import AdminUserProfile from "./pages/admin/AdminUserProfile";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -159,6 +160,7 @@ const App = () => (
               <Route path="campaigns" element={<AdminCampaigns />} />
               <Route path="learnfi" element={<AdminLearnFi />} />
               <Route path="users" element={<AdminUsers />} />
+              <Route path="users/:userId" element={<AdminUserProfile />} />
               <Route path="roles" element={<AdminRoles />} />
               <Route
                 path="scholarships"
