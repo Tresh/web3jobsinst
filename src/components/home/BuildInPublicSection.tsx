@@ -50,7 +50,7 @@ const BuildInPublicSection = () => {
   ];
 
   return (
-    <section className="py-16 md:py-24">
+    <section className="py-20 md:py-28">
       <div className="section-container">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left - Content */}
@@ -84,20 +84,20 @@ const BuildInPublicSection = () => {
             {/* Features */}
             <div className="space-y-3 mb-8">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                  <Twitter className="w-4 h-4 text-blue-500" />
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Twitter className="w-4 h-4 text-primary" />
                 </div>
                 <span className="text-sm text-foreground">Share progress on Twitter/X</span>
               </div>
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center">
-                  <Users className="w-4 h-4 text-purple-500" />
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Users className="w-4 h-4 text-primary" />
                 </div>
                 <span className="text-sm text-foreground">Join our Telegram community</span>
               </div>
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center">
-                  <MessageSquare className="w-4 h-4 text-green-500" />
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <MessageSquare className="w-4 h-4 text-primary" />
                 </div>
                 <span className="text-sm text-foreground">Engage in bootcamp discussions</span>
               </div>
@@ -115,8 +115,8 @@ const BuildInPublicSection = () => {
               <Card key={tweet.id} className="bg-card border-border hover:border-primary/30 hover:shadow-card-hover transition-colors">
                 <CardContent className="p-4">
                   <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center flex-shrink-0">
-                      <Twitter className="w-5 h-5 text-blue-500" />
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <Twitter className="w-5 h-5 text-primary" />
                     </div>
                     <div className="flex-1">
                       <div className="font-semibold text-sm text-foreground mb-1">

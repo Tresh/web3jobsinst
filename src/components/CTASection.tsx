@@ -20,9 +20,9 @@ const CTASection = () => {
 
   return (
     <>
-      <section className="py-16 md:py-24">
+      <section className="py-20 md:py-28">
         <div className="section-container">
-          <div className="rounded-xl bg-primary/10 border border-primary/20 p-8 md:p-12 lg:p-16">
+          <div className="rounded-xl bg-primary/10 border border-primary/20 p-10 md:p-16 lg:p-20">
             <div className="text-center max-w-2xl mx-auto">
               <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-6 text-balance">
                 Start Your Web3 Career the Right Way

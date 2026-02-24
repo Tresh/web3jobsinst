@@ -55,7 +55,7 @@ const MarketplacePreview = () => {
   }, []);
 
   return (
-    <section className="py-16 md:py-24">
+    <section className="py-20 md:py-28">
       <div className="section-container">
         <div className="text-center mb-12">
           <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
@@ -114,7 +114,7 @@ const MarketplacePreview = () => {
                     </div>
                     <div className="flex items-center justify-between text-xs text-muted-foreground">
                       <span className="flex items-center gap-1"><Users className="w-3 h-3" /> {program.participants_count} participants</span>
-                      <Badge className="bg-green-500/10 text-green-600 border-green-500/20 text-[10px]">Live</Badge>
+                      <Badge className="bg-primary/10 text-primary border-primary/20 text-[10px]">Live</Badge>
                     </div>
                   </CardContent>
                 </Card>
@@ -127,8 +127,8 @@ const MarketplacePreview = () => {
         <div className="mb-12">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                <BookOpen className="w-5 h-5 text-blue-500" />
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                <BookOpen className="w-5 h-5 text-primary" />
               </div>
               <h3 className="text-lg font-semibold text-foreground">Featured Courses</h3>
             </div>
@@ -165,8 +165,8 @@ const MarketplacePreview = () => {
         <div className="mb-12">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center">
-                <Package className="w-5 h-5 text-green-500" />
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Package className="w-5 h-5 text-primary" />
               </div>
               <h3 className="text-lg font-semibold text-foreground">Digital Products</h3>
             </div>
@@ -195,8 +195,8 @@ const MarketplacePreview = () => {
         <div>
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center">
-                <Rocket className="w-5 h-5 text-purple-500" />
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Rocket className="w-5 h-5 text-primary" />
               </div>
               <h3 className="text-lg font-semibold text-foreground">Active Bootcamps</h3>
             </div>
@@ -209,7 +209,7 @@ const MarketplacePreview = () => {
               <Card key={bootcamp.id} className="cursor-pointer bg-card border-border hover:border-primary/30 hover:shadow-card-hover transition-all group">
                 <CardContent className="p-5">
                   <div className="flex items-start justify-between mb-3">
-                    <Badge variant="secondary" className={`text-[10px] border-0 ${bootcamp.status === 'Active' ? 'bg-green-500/10 text-green-600' : 'bg-blue-500/10 text-blue-600'}`}>
+                    <Badge variant="secondary" className={`text-[10px] border-0 ${bootcamp.status === 'Active' ? 'bg-primary/10 text-primary' : 'bg-secondary text-muted-foreground'}`}>
                       {bootcamp.status}
                     </Badge>
                     <div className="flex items-center gap-1 text-xs text-muted-foreground"><Users className="w-3 h-3" />{bootcamp.participants} joined</div>
