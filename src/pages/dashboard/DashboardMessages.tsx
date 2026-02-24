@@ -1,12 +1,14 @@
 import { useState, useRef, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useConversations, useChat, type Conversation } from "@/hooks/useMessages";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MessageSquare, Send, ArrowLeft, Loader2 } from "lucide-react";
+import { MessageSquare, Send, ArrowLeft, Loader2, CreditCard } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import ComingSoonDialog from "@/components/ComingSoonDialog";
 
 const DashboardMessages = () => {
   const { user } = useAuth();
@@ -42,7 +44,8 @@ const DashboardMessages = () => {
             </div>
           ) : (
             conversations.map((convo) => {
-              const initials = (convo.other_user?.full_name || "?")
+              const name = convo.other_user?.full_name || "Unknown";
+              const initials = name
                 .split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
               return (
                 <button
@@ -62,7 +65,7 @@ const DashboardMessages = () => {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
                       <p className="font-medium text-sm truncate">
-                        {convo.other_user?.full_name || "User"}
+                        {name}
                       </p>
                       <span className="text-xs text-muted-foreground">
                         {format(new Date(convo.last_message_at), "MMM d")}
@@ -117,6 +120,7 @@ interface ChatPanelProps {
 const ChatPanel = ({ conversation, onBack, currentUserId }: ChatPanelProps) => {
   const { messages, loading, sendMessage } = useChat(conversation.id);
   const [input, setInput] = useState("");
+  const [payComingSoon, setPayComingSoon] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -130,7 +134,9 @@ const ChatPanel = ({ conversation, onBack, currentUserId }: ChatPanelProps) => {
     await sendMessage(text);
   };
 
-  const initials = (conversation.other_user?.full_name || "?")
+  const otherUser = conversation.other_user;
+  const name = otherUser?.full_name || "Unknown";
+  const initials = name
     .split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
 
   return (
@@ -140,13 +146,25 @@ const ChatPanel = ({ conversation, onBack, currentUserId }: ChatPanelProps) => {
         <Button variant="ghost" size="icon" className="md:hidden" onClick={onBack}>
           <ArrowLeft className="w-5 h-5" />
         </Button>
-        <Avatar className="w-9 h-9">
-          <AvatarImage src={conversation.other_user?.avatar_url || undefined} />
-          <AvatarFallback className="bg-primary/10 text-primary text-sm">
-            {initials}
-          </AvatarFallback>
-        </Avatar>
-        <p className="font-semibold">{conversation.other_user?.full_name || "User"}</p>
+        <Link to="/talents" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+          <Avatar className="w-9 h-9">
+            <AvatarImage src={otherUser?.avatar_url || undefined} />
+            <AvatarFallback className="bg-primary/10 text-primary text-sm">
+              {initials}
+            </AvatarFallback>
+          </Avatar>
+          <p className="font-semibold hover:text-primary transition-colors">{name}</p>
+        </Link>
+        <div className="flex-1" />
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => setPayComingSoon(true)}
+          className="gap-2"
+        >
+          <CreditCard className="w-4 h-4" />
+          Pay for Service
+        </Button>
       </div>
 
       {/* Messages */}
@@ -197,6 +215,12 @@ const ChatPanel = ({ conversation, onBack, currentUserId }: ChatPanelProps) => {
           </Button>
         </form>
       </div>
+
+      <ComingSoonDialog
+        open={payComingSoon}
+        onOpenChange={setPayComingSoon}
+        title="Pay for Service — Coming Soon"
+      />
     </>
   );
 };

@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
-import { BookOpen, Package, Users, ArrowRight, Wallet, GraduationCap, Rocket, Briefcase, Target, Zap } from "lucide-react";
+import { BookOpen, Package, Users, ArrowRight, Wallet, GraduationCap, Rocket, Briefcase, Target, Zap, DollarSign } from "lucide-react";
 import ComingSoonDialog from "@/components/ComingSoonDialog";
 
 const DashboardOverview = () => {
@@ -98,13 +98,44 @@ const DashboardOverview = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Bootcamps
+              Earnings
             </CardTitle>
-            <Rocket className="h-4 w-4 text-muted-foreground" />
+            <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
-            <p className="text-xs text-muted-foreground mt-1">Joined</p>
+            <div className="text-2xl font-bold">$0.00</div>
+            <p className="text-xs text-muted-foreground mt-1">Total earned</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Earnings Overview */}
+      <div className="mb-8">
+        <h2 className="text-lg font-semibold mb-4">Earnings</h2>
+        <Card>
+          <CardContent className="p-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              <div className="text-center p-4 rounded-lg bg-secondary/50">
+                <DollarSign className="w-6 h-6 mx-auto mb-2 text-primary" />
+                <p className="text-2xl font-bold">$0.00</p>
+                <p className="text-xs text-muted-foreground mt-1">Available Balance</p>
+              </div>
+              <div className="text-center p-4 rounded-lg bg-secondary/50">
+                <DollarSign className="w-6 h-6 mx-auto mb-2 text-muted-foreground" />
+                <p className="text-2xl font-bold">$0.00</p>
+                <p className="text-xs text-muted-foreground mt-1">Pending</p>
+              </div>
+              <div className="text-center p-4 rounded-lg bg-secondary/50">
+                <DollarSign className="w-6 h-6 mx-auto mb-2 text-muted-foreground" />
+                <p className="text-2xl font-bold">$0.00</p>
+                <p className="text-xs text-muted-foreground mt-1">Total Withdrawn</p>
+              </div>
+            </div>
+            <div className="mt-4 text-center">
+              <Button variant="outline" size="sm" onClick={() => handleComingSoon("Withdraw Earnings — Coming Soon")}>
+                Withdraw Earnings
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
