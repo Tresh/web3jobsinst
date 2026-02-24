@@ -74,7 +74,7 @@ export function AdminModulesTab({ programs, modules, isLoading, onRefetch }: Adm
     video_duration: "",
     xp_value: "0",
     xp_threshold: "0",
-    unlock_type: "day" as "day" | "task" | "manual",
+    unlock_type: "day" as "day" | "task" | "manual" | "immediate",
     unlock_day: "",
     order_index: "0",
   });
@@ -89,7 +89,7 @@ export function AdminModulesTab({ programs, modules, isLoading, onRefetch }: Adm
       video_duration: "",
       xp_value: "0",
       xp_threshold: "0",
-      unlock_type: "day",
+      unlock_type: "immediate",
       unlock_day: "",
       order_index: "0",
     });
@@ -106,7 +106,7 @@ export function AdminModulesTab({ programs, modules, isLoading, onRefetch }: Adm
       video_duration: module.video_duration || "",
       xp_value: String(module.xp_value || 0),
       xp_threshold: String(module.xp_threshold || 0),
-      unlock_type: module.unlock_type as "day" | "task" | "manual",
+      unlock_type: module.unlock_type as "day" | "task" | "manual" | "immediate",
       unlock_day: module.unlock_day ? String(module.unlock_day) : "",
       order_index: String(module.order_index || 0),
     });
@@ -409,7 +409,7 @@ export function AdminModulesTab({ programs, modules, isLoading, onRefetch }: Adm
           <Label htmlFor="unlock_type">Unlock Rule</Label>
           <Select
             value={formData.unlock_type}
-            onValueChange={(value: "day" | "task" | "manual") => 
+            onValueChange={(value: "day" | "task" | "manual" | "immediate") => 
               setFormData(prev => ({ ...prev, unlock_type: value }))
             }
           >
@@ -417,6 +417,7 @@ export function AdminModulesTab({ programs, modules, isLoading, onRefetch }: Adm
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="immediate">🟢 Go Live (Immediate)</SelectItem>
               <SelectItem value="day">Unlock after X days</SelectItem>
               <SelectItem value="task">Unlock after task completion</SelectItem>
               <SelectItem value="manual">Manual unlock only</SelectItem>

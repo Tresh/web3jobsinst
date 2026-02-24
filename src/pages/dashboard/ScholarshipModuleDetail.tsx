@@ -127,7 +127,6 @@ export default function ScholarshipModuleDetail() {
   // Check if module is locked
   const isLocked = useCallback(() => {
     if (!module) return true;
-    // Intro module is never locked
     if (module.order_index === -1) return false;
     
     // Check XP threshold
@@ -138,15 +137,12 @@ export default function ScholarshipModuleDetail() {
     
     const unlockType = module.unlock_type;
     
+    if (unlockType === "immediate") return false;
     if (unlockType === "day") {
       return module.unlock_day ? dayNumber < module.unlock_day : false;
     }
-    if (unlockType === "task") {
-      return false;
-    }
-    if (unlockType === "manual") {
-      return true;
-    }
+    if (unlockType === "task") return false;
+    if (unlockType === "manual") return true;
     return false;
   }, [module, dayNumber, application?.total_xp]);
 
