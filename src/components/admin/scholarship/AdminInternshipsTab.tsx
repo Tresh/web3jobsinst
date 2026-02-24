@@ -115,6 +115,12 @@ export function AdminInternshipsTab() {
     setSaving(false);
   };
 
+  const handleQuickApprove = async (id: string) => {
+    await supabase.from("internship_profiles").update({ is_approved: true, is_public: true }).eq("id", id);
+    toast({ title: "Profile approved and published to market" });
+    fetchProfiles();
+  };
+
   const handleRemoveFromMarket = async (id: string) => {
     await supabase.from("internship_profiles").update({ is_public: false }).eq("id", id);
     toast({ title: "Removed from public listing" });
@@ -205,6 +211,11 @@ export function AdminInternshipsTab() {
                     {format(new Date(p.created_at), "MMM d, yyyy")}
                   </TableCell>
                   <TableCell className="text-right space-x-1">
+                    {!p.is_approved && (
+                      <Button size="sm" variant="default" onClick={() => handleQuickApprove(p.id)}>
+                        <CheckCircle className="w-3 h-3 mr-1" /> Approve
+                      </Button>
+                    )}
                     <Button size="sm" variant="outline" onClick={() => openDetail(p)}>
                       <Eye className="w-3 h-3 mr-1" /> View
                     </Button>
