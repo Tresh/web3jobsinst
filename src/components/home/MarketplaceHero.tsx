@@ -57,7 +57,7 @@ const MarketplaceHero = () => {
         </div>
 
         {/* Stats Strip — flat, bold, separated by dividers */}
-        <div className="mt-16 flex items-center justify-center divide-x divide-border max-w-3xl mx-auto">
+        <div className="mt-16 flex items-center justify-center divide-x divide-border max-w-3xl mx-auto px-4">
           <StatItem 
             value={`${((stats?.totalSignups || 2109) / 1000).toFixed(1)}K+`}
             label="Total Signups"
@@ -86,7 +86,7 @@ interface StatItemProps {
 }
 
 const StatItem = ({ value, label }: StatItemProps) => (
-  <div className="flex-1 text-center px-4 py-2">
+  <div className="flex-1 text-center px-6 py-2">
     <div className="text-3xl md:text-4xl font-extrabold text-foreground tracking-tight">{value}</div>
     <div className="text-xs text-muted-foreground mt-1 tracking-wide">{label}</div>
   </div>

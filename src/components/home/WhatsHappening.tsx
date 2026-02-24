@@ -22,7 +22,7 @@ const WhatsHappening = () => {
       type: "Scholarship",
       title: "Web3 Jobs Institute Scholarship",
       status: "Now Live",
-      statusColor: "bg-green-500",
+      statusColor: "bg-primary",
       description: `Join ${(stats?.activeScholars || 1193).toLocaleString()}+ scholars building proof of work`,
       icon: GraduationCap,
       href: "/dashboard/scholarship",
@@ -37,7 +37,7 @@ const WhatsHappening = () => {
       type: "Bootcamps",
       title: "Cohort-Based Learning",
       status: `${stats?.activeBootcamps || 3} Active`,
-      statusColor: "bg-blue-500",
+      statusColor: "bg-primary",
       description: "Intensive programs with live mentorship",
       icon: Rocket,
       href: "/bootcamps",
@@ -51,7 +51,7 @@ const WhatsHappening = () => {
       type: "Leaderboard",
       title: "Top Performers This Week",
       status: "Live",
-      statusColor: "bg-amber-500",
+      statusColor: "bg-primary",
       description: "Ranked by XP earned and tasks completed",
       icon: Trophy,
       href: "/dashboard/scholarship",
@@ -67,7 +67,7 @@ const WhatsHappening = () => {
       type: "New Content",
       title: "Latest Modules Added",
       status: "Updated",
-      statusColor: "bg-purple-500",
+      statusColor: "bg-primary",
       description: "Fresh learning content available now",
       icon: BookOpen,
       href: "/courses",
@@ -87,7 +87,7 @@ const WhatsHappening = () => {
   };
 
   return (
-    <section className="py-16 md:py-20">
+    <section className="py-20 md:py-28">
       <div className="section-container">
         <div className="flex items-center justify-between mb-8">
           <div>
