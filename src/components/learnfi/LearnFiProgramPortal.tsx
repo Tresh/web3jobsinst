@@ -436,7 +436,11 @@ export default function LearnFiProgramPortal({ programId, isCreator = false }: L
                       <div className="space-y-1">
                         {(program.leaderboard_tiers as any[]).map((tier: any, i: number) => (
                           <div key={i} className="flex items-center justify-between text-sm">
-                            <span className="text-muted-foreground">#{tier.rank}</span>
+                            <span className="text-muted-foreground">
+                              {tier.rank_from === tier.rank_to || !tier.rank_to
+                                ? `#${tier.rank_from || tier.rank}`
+                                : `#${tier.rank_from} - #${tier.rank_to}`}
+                            </span>
                             <span className="font-medium text-foreground">{tier.amount} {program.reward_token_symbol || ""}</span>
                           </div>
                         ))}

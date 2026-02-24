@@ -143,14 +143,14 @@ const Bootcamps = () => {
     <div className="min-h-screen overflow-x-hidden">
       <UnifiedNavbar />
       
-      <main className="pt-20 px-4 sm:px-0">
+      <main className="pt-[72px]">
         {/* Hero Section */}
-        <section className="py-16 px-4 bg-gradient-to-b from-primary/10 to-transparent">
-          <div className="max-w-7xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">
+        <section className="py-10 md:py-16 bg-gradient-to-b from-primary/10 to-transparent">
+          <div className="section-container text-center">
+            <h1 className="text-3xl md:text-4xl font-bold mb-3">
               Web3 Bootcamps
             </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
+            <p className="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto mb-6">
               Join intensive, community-driven bootcamps designed to accelerate your journey 
               in Web3. Complete daily tasks, earn XP, and learn from industry experts.
             </p>
@@ -167,8 +167,7 @@ const Bootcamps = () => {
         </section>
 
         {/* Filters Section */}
-        <section className="py-8 px-4 border-b border-border">
-          <div className="max-w-7xl mx-auto">
+        <section className="section-container py-6 border-b border-border">
             <div className="flex flex-col md:flex-row gap-4">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -201,12 +200,10 @@ const Bootcamps = () => {
                 </SelectContent>
               </Select>
             </div>
-          </div>
         </section>
 
         {/* Bootcamps Grid */}
-        <section className="py-12 px-4">
-          <div className="max-w-7xl mx-auto">
+        <section className="section-container py-8">
             {loading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[...Array(6)].map((_, i) => (
@@ -246,7 +243,6 @@ const Bootcamps = () => {
                 ))}
               </div>
             )}
-          </div>
         </section>
       </main>
 
