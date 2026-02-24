@@ -69,7 +69,7 @@ const TalentHiringSection = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left Side - Content */}
           <div>
-            <Badge variant="secondary" className="bg-white/10 text-foreground border-white/20 mb-4">
+            <Badge variant="secondary" className="mb-4">
               Talent Marketplace
             </Badge>
             
@@ -87,7 +87,7 @@ const TalentHiringSection = () => {
             <div className="space-y-4 mb-8">
               {hiringFeatures.map((feature) => (
                 <div key={feature.title} className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center flex-shrink-0">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
                     <feature.icon className="w-4 h-4 text-primary" />
                   </div>
                   <div>
@@ -103,7 +103,6 @@ const TalentHiringSection = () => {
               <Button 
                 size="lg"
                 onClick={() => navigate("/talent")}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground"
               >
                 Browse Talent
                 <ArrowRight className="w-4 h-4 ml-2" />
@@ -112,7 +111,6 @@ const TalentHiringSection = () => {
                 size="lg"
                 variant="outline"
                 onClick={() => navigate("/talent")}
-                className="border-white/20 text-foreground hover:bg-white/5"
               >
                 List as Talent
               </Button>
@@ -122,11 +120,11 @@ const TalentHiringSection = () => {
           {/* Right Side - Talent Cards */}
           <div className="space-y-3">
             {talentProfiles.map((talent) => (
-              <Card key={talent.id} className="bg-white/5 border-white/10 hover:bg-white/10 transition-colors cursor-pointer">
+              <Card key={talent.id} className="bg-card border-border hover:shadow-card-hover transition-colors cursor-pointer">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                         <UserCheck className="w-5 h-5 text-primary" />
                       </div>
                       <div>
@@ -149,7 +147,7 @@ const TalentHiringSection = () => {
                     {talent.skills.map((skill) => (
                       <span 
                         key={skill}
-                        className="text-[10px] px-2 py-0.5 bg-white/10 text-foreground/80 rounded"
+                        className="text-[10px] px-2 py-0.5 bg-secondary text-muted-foreground rounded"
                       >
                         {skill}
                       </span>
@@ -161,7 +159,7 @@ const TalentHiringSection = () => {
 
             <Button 
               variant="ghost" 
-              className="w-full text-muted-foreground hover:text-foreground hover:bg-white/5"
+              className="w-full text-muted-foreground hover:text-foreground hover:bg-secondary"
               onClick={() => navigate("/talent")}
             >
               View All Talent

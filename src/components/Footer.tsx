@@ -56,7 +56,7 @@ const Footer = () => {
 
   return (
     <>
-      <footer className="border-t border-white/10">
+      <footer className="border-t border-border">
         <div className="section-container py-12 md:py-16">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
             {/* Logo & Description */}
@@ -150,7 +150,7 @@ const Footer = () => {
             </div>
           </div>
 
-          <div className="border-t border-white/10 mt-12 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="border-t border-border mt-12 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-sm text-muted-foreground">
               © {currentYear} Web3 Jobs Institute. All rights reserved.
             </p>

@@ -57,7 +57,7 @@ const MarketplaceHero = () => {
               size="default" 
               variant="outline"
               onClick={() => navigate("/products")}
-              className="w-full sm:w-auto h-11 px-6 text-sm font-medium border-border/60 text-foreground hover:bg-card hover:border-primary/40 transition-all"
+              className="w-full sm:w-auto h-11 px-6 text-sm font-medium border-border text-foreground hover:bg-secondary transition-all"
             >
               Explore Products
             </Button>
@@ -65,7 +65,6 @@ const MarketplaceHero = () => {
 
           {/* Secondary CTAs */}
           <div className="flex flex-wrap items-center justify-center gap-3 text-xs">
-...
           </div>
         </div>
 
@@ -104,12 +103,12 @@ interface StatCardProps {
 }
 
 const StatCard = ({ icon, value, label }: StatCardProps) => (
-  <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-center backdrop-blur-sm transition-all hover:bg-white/10 hover:border-white/20">
+  <div className="bg-card border border-border rounded-xl p-4 text-center transition-all hover:shadow-card-hover">
     <div className="flex items-center justify-center mb-1.5">
       {icon}
     </div>
-    <div className="text-lg md:text-xl font-bold text-white tracking-tight">{value}</div>
-    <div className="text-[10px] uppercase tracking-wider text-white/60 mt-0.5">{label}</div>
+    <div className="text-lg md:text-xl font-bold text-foreground tracking-tight">{value}</div>
+    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mt-0.5">{label}</div>
   </div>
 );
 

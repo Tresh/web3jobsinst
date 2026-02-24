@@ -55,7 +55,7 @@ const BuildInPublicSection = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left - Content */}
           <div>
-            <Badge variant="secondary" className="mb-4 bg-white/10 text-foreground border-0">
+            <Badge variant="secondary" className="mb-4">
               Build In Public
             </Badge>
             
@@ -84,26 +84,26 @@ const BuildInPublicSection = () => {
             {/* Features */}
             <div className="space-y-3 mb-8">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
-                  <Twitter className="w-4 h-4 text-blue-400" />
+                <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                  <Twitter className="w-4 h-4 text-blue-500" />
                 </div>
                 <span className="text-sm text-foreground">Share progress on Twitter/X</span>
               </div>
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center">
-                  <Users className="w-4 h-4 text-purple-400" />
+                <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                  <Users className="w-4 h-4 text-purple-500" />
                 </div>
                 <span className="text-sm text-foreground">Join our Telegram community</span>
               </div>
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-green-500/20 flex items-center justify-center">
-                  <MessageSquare className="w-4 h-4 text-green-400" />
+                <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center">
+                  <MessageSquare className="w-4 h-4 text-green-500" />
                 </div>
                 <span className="text-sm text-foreground">Engage in bootcamp discussions</span>
               </div>
             </div>
 
-            <Button variant="outline" onClick={() => window.open("https://twitter.com/Web3JobsInst", "_blank")} className="border-white/20 text-foreground hover:bg-white/5">
+            <Button variant="outline" onClick={() => window.open("https://twitter.com/Web3JobsInst", "_blank")}>
               Follow on Twitter
               <ExternalLink className="w-4 h-4 ml-2" />
             </Button>
@@ -112,17 +112,17 @@ const BuildInPublicSection = () => {
           {/* Right - Social Proof */}
           <div className="space-y-4">
             {communityHighlights.map((tweet) => (
-              <Card key={tweet.id} className="bg-white/5 border-white/10 hover:border-primary/30 transition-colors">
+              <Card key={tweet.id} className="bg-card border-border hover:border-primary/30 hover:shadow-card-hover transition-colors">
                 <CardContent className="p-4">
                   <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0">
-                      <Twitter className="w-5 h-5 text-blue-400" />
+                    <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center flex-shrink-0">
+                      <Twitter className="w-5 h-5 text-blue-500" />
                     </div>
                     <div className="flex-1">
                       <div className="font-semibold text-sm text-foreground mb-1">
                         {tweet.author}
                       </div>
-                      <p className="text-sm text-foreground/70 mb-3">
+                      <p className="text-sm text-muted-foreground mb-3">
                         {tweet.content}
                       </p>
                       <div className="flex items-center gap-4 text-xs text-muted-foreground">

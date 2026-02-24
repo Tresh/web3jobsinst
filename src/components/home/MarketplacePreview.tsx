@@ -71,7 +71,7 @@ const MarketplacePreview = () => {
           <div className="mb-12">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
                   <Zap className="w-5 h-5 text-primary" />
                 </div>
                 <div>
@@ -79,7 +79,7 @@ const MarketplacePreview = () => {
                   <p className="text-xs text-muted-foreground">Learn-to-earn ecosystem missions</p>
                 </div>
               </div>
-              <Button variant="ghost" size="sm" onClick={() => navigate("/learnfi")} className="gap-1 text-muted-foreground hover:text-foreground hover:bg-white/5">
+              <Button variant="ghost" size="sm" onClick={() => navigate("/learnfi")} className="gap-1 text-muted-foreground hover:text-foreground hover:bg-secondary">
                 View All <ArrowRight className="w-4 h-4" />
               </Button>
             </div>
@@ -89,7 +89,7 @@ const MarketplacePreview = () => {
                 <Card
                   key={program.id}
                   onClick={() => navigate(`/learnfi/${program.id}`)}
-                  className="cursor-pointer bg-white/5 border-white/10 hover:border-primary/30 transition-all group"
+                  className="cursor-pointer bg-card border-border hover:border-primary/30 hover:shadow-card-hover transition-all group"
                 >
                   <CardContent className="p-5">
                     <div className="flex items-start gap-3 mb-3">
@@ -106,15 +106,15 @@ const MarketplacePreview = () => {
                       </div>
                     </div>
                     <div className="flex flex-wrap gap-2 mb-3">
-                      <Badge variant="secondary" className="text-[10px] capitalize bg-white/10 text-foreground/70 border-0">{program.category}</Badge>
-                      <Badge variant="secondary" className="text-[10px] bg-primary/20 text-primary border-0">
+                      <Badge variant="secondary" className="text-[10px] capitalize">{program.category}</Badge>
+                      <Badge variant="secondary" className="text-[10px] bg-primary/10 text-primary border-0">
                         {REWARD_LABELS[program.reward_type] || program.reward_type}
                         {program.reward_token_symbol && ` · ${program.reward_token_symbol}`}
                       </Badge>
                     </div>
                     <div className="flex items-center justify-between text-xs text-muted-foreground">
                       <span className="flex items-center gap-1"><Users className="w-3 h-3" /> {program.participants_count} participants</span>
-                      <Badge className="bg-green-500/10 text-green-400 border-green-500/20 text-[10px]">Live</Badge>
+                      <Badge className="bg-green-500/10 text-green-600 border-green-500/20 text-[10px]">Live</Badge>
                     </div>
                   </CardContent>
                 </Card>
@@ -127,28 +127,28 @@ const MarketplacePreview = () => {
         <div className="mb-12">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
-                <BookOpen className="w-5 h-5 text-blue-400" />
+              <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                <BookOpen className="w-5 h-5 text-blue-500" />
               </div>
               <h3 className="text-lg font-semibold text-foreground">Featured Courses</h3>
             </div>
-            <Button variant="ghost" size="sm" onClick={() => navigate("/courses")} className="gap-1 text-muted-foreground hover:text-foreground hover:bg-white/5">
+            <Button variant="ghost" size="sm" onClick={() => navigate("/courses")} className="gap-1 text-muted-foreground hover:text-foreground hover:bg-secondary">
               View All <ArrowRight className="w-4 h-4" />
             </Button>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {featuredCourses.map((course) => (
-              <Card key={course.id} className="cursor-pointer bg-white/5 border-white/10 hover:border-primary/30 transition-all group overflow-hidden">
-                <div className="aspect-video bg-white/5 relative">
+              <Card key={course.id} className="cursor-pointer bg-card border-border hover:border-primary/30 hover:shadow-card-hover transition-all group overflow-hidden">
+                <div className="aspect-video bg-secondary relative">
                   <img src={course.image} alt={course.title} className="w-full h-full object-cover opacity-30" />
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <Badge variant="secondary" className="bg-white/10 text-foreground border-0">Coming Soon</Badge>
+                    <Badge variant="secondary">Coming Soon</Badge>
                   </div>
                 </div>
                 <CardContent className="p-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <Badge variant="secondary" className="text-[10px] bg-white/10 text-foreground/70 border-0">{course.category}</Badge>
-                    <Badge variant="secondary" className="text-[10px] bg-white/10 text-foreground/70 border-0">{course.level}</Badge>
+                    <Badge variant="secondary" className="text-[10px]">{course.category}</Badge>
+                    <Badge variant="secondary" className="text-[10px]">{course.level}</Badge>
                   </div>
                   <h4 className="font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">{course.title}</h4>
                   <div className="flex items-center justify-between text-sm">
@@ -165,20 +165,20 @@ const MarketplacePreview = () => {
         <div className="mb-12">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
-                <Package className="w-5 h-5 text-green-400" />
+              <div className="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center">
+                <Package className="w-5 h-5 text-green-500" />
               </div>
               <h3 className="text-lg font-semibold text-foreground">Digital Products</h3>
             </div>
-            <Button variant="ghost" size="sm" onClick={() => navigate("/products")} className="gap-1 text-muted-foreground hover:text-foreground hover:bg-white/5">
+            <Button variant="ghost" size="sm" onClick={() => navigate("/products")} className="gap-1 text-muted-foreground hover:text-foreground hover:bg-secondary">
               View All <ArrowRight className="w-4 h-4" />
             </Button>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {featuredProducts.map((product) => (
-              <Card key={product.id} className="cursor-pointer bg-white/5 border-white/10 hover:border-primary/30 transition-all group">
+              <Card key={product.id} className="cursor-pointer bg-card border-border hover:border-primary/30 hover:shadow-card-hover transition-all group">
                 <CardContent className="p-4">
-                  <Badge variant="secondary" className="text-[10px] mb-3 bg-white/10 text-foreground/70 border-0">{product.category}</Badge>
+                  <Badge variant="secondary" className="text-[10px] mb-3">{product.category}</Badge>
                   <h4 className="font-semibold text-foreground mb-1 group-hover:text-primary transition-colors">{product.title}</h4>
                   <p className="text-xs text-muted-foreground mb-3">by {product.creator}</p>
                   <div className="flex items-center justify-between text-sm">
@@ -195,21 +195,21 @@ const MarketplacePreview = () => {
         <div>
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
-                <Rocket className="w-5 h-5 text-purple-400" />
+              <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                <Rocket className="w-5 h-5 text-purple-500" />
               </div>
               <h3 className="text-lg font-semibold text-foreground">Active Bootcamps</h3>
             </div>
-            <Button variant="ghost" size="sm" onClick={() => navigate("/bootcamps")} className="gap-1 text-muted-foreground hover:text-foreground hover:bg-white/5">
+            <Button variant="ghost" size="sm" onClick={() => navigate("/bootcamps")} className="gap-1 text-muted-foreground hover:text-foreground hover:bg-secondary">
               View All <ArrowRight className="w-4 h-4" />
             </Button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {featuredBootcamps.map((bootcamp) => (
-              <Card key={bootcamp.id} className="cursor-pointer bg-white/5 border-white/10 hover:border-primary/30 transition-all group">
+              <Card key={bootcamp.id} className="cursor-pointer bg-card border-border hover:border-primary/30 hover:shadow-card-hover transition-all group">
                 <CardContent className="p-5">
                   <div className="flex items-start justify-between mb-3">
-                    <Badge variant="secondary" className={`text-[10px] border-0 ${bootcamp.status === 'Active' ? 'bg-green-500/20 text-green-400' : 'bg-blue-500/20 text-blue-400'}`}>
+                    <Badge variant="secondary" className={`text-[10px] border-0 ${bootcamp.status === 'Active' ? 'bg-green-500/10 text-green-600' : 'bg-blue-500/10 text-blue-600'}`}>
                       {bootcamp.status}
                     </Badge>
                     <div className="flex items-center gap-1 text-xs text-muted-foreground"><Users className="w-3 h-3" />{bootcamp.participants} joined</div>
@@ -218,7 +218,7 @@ const MarketplacePreview = () => {
                   <p className="text-xs text-muted-foreground mb-3">Hosted by {bootcamp.host}</p>
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-muted-foreground">{bootcamp.duration}</span>
-                    <Button size="sm" variant="outline" className="h-7 text-xs border-white/20 text-foreground hover:bg-white/10">Join Now</Button>
+                    <Button size="sm" variant="outline" className="h-7 text-xs">Join Now</Button>
                   </div>
                 </CardContent>
               </Card>

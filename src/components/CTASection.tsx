@@ -45,7 +45,7 @@ const CTASection = () => {
                 <Button 
                   variant="ghost" 
                   size="lg" 
-                  className="w-full sm:w-auto text-foreground hover:bg-white/5 hover:text-foreground"
+                  className="w-full sm:w-auto text-foreground hover:bg-secondary hover:text-foreground"
                   onClick={() => setComingSoonOpen(true)}
                 >
                   Explore Programs

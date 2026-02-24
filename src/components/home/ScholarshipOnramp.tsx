@@ -60,7 +60,7 @@ const ScholarshipOnramp = () => {
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="text-center mb-12">
-            <Badge variant="secondary" className="mb-4 bg-white/10 text-foreground border-0">
+            <Badge variant="secondary" className="mb-4">
               Free Entry Point
             </Badge>
             <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
@@ -76,7 +76,7 @@ const ScholarshipOnramp = () => {
           {/* Steps */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
             {steps.map((step, index) => (
-              <Card key={step.step} className="relative bg-white/5 border-white/10">
+              <Card key={step.step} className="relative bg-card border-border">
                 <CardContent className="p-5">
                   {/* Step Number */}
                   <div className="absolute -top-3 -left-3 w-7 h-7 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center">
@@ -84,7 +84,7 @@ const ScholarshipOnramp = () => {
                   </div>
                   
                   {/* Icon */}
-                  <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center mb-3">
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-3">
                     <step.icon className="w-5 h-5 text-primary" />
                   </div>
                   
@@ -98,7 +98,7 @@ const ScholarshipOnramp = () => {
 
                   {/* Connector Line */}
                   {index < steps.length - 1 && (
-                    <div className="hidden lg:block absolute top-1/2 -right-2 w-4 border-t-2 border-dashed border-white/20" />
+                    <div className="hidden lg:block absolute top-1/2 -right-2 w-4 border-t-2 border-dashed border-border" />
                   )}
                 </CardContent>
               </Card>
@@ -106,7 +106,7 @@ const ScholarshipOnramp = () => {
           </div>
 
           {/* Stats & CTA */}
-          <Card className="bg-primary/10 border-primary/20">
+          <Card className="bg-primary/5 border-primary/20">
             <CardContent className="p-6 md:p-8">
               <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                 {/* Stats */}
