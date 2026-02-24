@@ -31,6 +31,7 @@ import {
   Bug,
   Rocket,
   Zap,
+  FileText,
 } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -80,6 +81,11 @@ const adminNavItems = [
     title: "Tutors",
     icon: BookOpen,
     href: "/admin/tutors",
+  },
+  {
+    title: "Changelog",
+    icon: FileText,
+    href: "/admin/changelog",
   },
 ];
 

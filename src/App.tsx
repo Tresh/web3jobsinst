@@ -69,6 +69,7 @@ import AdminBootcamps from "./pages/admin/AdminBootcamps";
 import AdminBootcampManage from "./pages/admin/AdminBootcampManage";
 import AdminTutors from "./pages/admin/AdminTutors";
 import AdminUserProfile from "./pages/admin/AdminUserProfile";
+import AdminChangelog from "./pages/admin/AdminChangelog";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -184,6 +185,7 @@ const App = () => (
               <Route path="bootcamps" element={<AdminBootcamps />} />
               <Route path="bootcamps/:id" element={<AdminBootcampManage />} />
               <Route path="tutors" element={<AdminTutors />} />
+              <Route path="changelog" element={<AdminChangelog />} />
               <Route path="settings" element={<AdminSettings />} />
             </Route>
 
