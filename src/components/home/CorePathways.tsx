@@ -121,7 +121,7 @@ const CorePathways = () => {
                   {pathway.features.map((feature) => (
                     <span 
                       key={feature}
-                      className="text-[10px] px-2 py-1 bg-secondary text-muted-foreground rounded"
+                      className="text-[10px] px-2 py-1 border border-border text-muted-foreground rounded"
                     >
                       {feature}
                     </span>
