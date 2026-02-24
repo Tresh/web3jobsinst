@@ -120,14 +120,14 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     // Filter out invalid emails
-    const recipients = rawRecipients.filter(r => isValidEmail(r.email));
-    const skippedCount = rawRecipients.length - recipients.length;
+    const validRecipients = rawRecipients.filter(r => isValidEmail(r.email));
+    const skippedCount = rawRecipients.length - validRecipients.length;
     
     console.log(`Total raw recipients: ${rawRecipients.length}`);
-    console.log(`Valid recipients: ${recipients.length}`);
+    console.log(`Valid recipients: ${validRecipients.length}`);
     console.log(`Skipped (invalid email): ${skippedCount}`);
 
-    if (recipients.length === 0) {
+    if (validRecipients.length === 0) {
       return new Response(
         JSON.stringify({ 
           success: true, 
@@ -147,8 +147,8 @@ const handler = async (req: Request): Promise<Response> => {
         subject,
         body_preview: bodyPreview,
         audience,
-        total_recipients: recipients.length,
-        queued_count: recipients.length,
+        total_recipients: validRecipients.length,
+        queued_count: validRecipients.length,
         sending_count: 0,
         delivered_count: 0,
         failed_count: 0,
@@ -167,7 +167,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Create delivery records for all valid recipients
     if (campaignId) {
-      const deliveryRecords = recipients.map((r) => ({
+      const deliveryRecords = validRecipients.map((r) => ({
         campaign_id: campaignId,
         recipient_email: r.email.trim(),
         recipient_name: r.full_name,
@@ -205,12 +205,12 @@ const handler = async (req: Request): Promise<Response> => {
     const errors: string[] = [];
 
     // Process in batches using Resend Batch API
-    const totalBatches = Math.ceil(recipients.length / BATCH_SIZE);
-    console.log(`Processing ${recipients.length} emails in ${totalBatches} batches`);
+    const totalBatches = Math.ceil(validRecipients.length / BATCH_SIZE);
+    console.log(`Processing ${validRecipients.length} emails in ${totalBatches} batches`);
 
     for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
       const start = batchIndex * BATCH_SIZE;
-      const batch = recipients.slice(start, start + BATCH_SIZE);
+      const batch = validRecipients.slice(start, start + BATCH_SIZE);
       
       console.log(`Batch ${batchIndex + 1}/${totalBatches}: ${batch.length} emails`);
 
@@ -297,7 +297,7 @@ const handler = async (req: Request): Promise<Response> => {
         await supabase
           .from("email_campaigns")
           .update({
-            queued_count: Math.max(0, recipients.length - start - batch.length),
+            queued_count: Math.max(0, validRecipients.length - start - batch.length),
             delivered_count: emailsSent,
             failed_count: emailsFailed,
           })
@@ -342,7 +342,7 @@ const handler = async (req: Request): Promise<Response> => {
         message: `Broadcast email sent to ${emailsSent} recipients`,
         emailsSent,
         emailsFailed,
-        totalRecipients: recipients.length,
+        totalRecipients: validRecipients.length,
         skippedInvalidEmails: skippedCount,
         campaignId,
         errors: errors.length > 0 ? errors.slice(0, 10) : undefined
