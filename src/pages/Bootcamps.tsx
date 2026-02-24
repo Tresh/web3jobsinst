@@ -147,9 +147,6 @@ const Bootcamps = () => {
         {/* Hero Section */}
         <section className="py-16 px-4 bg-gradient-to-b from-primary/10 to-transparent">
           <div className="max-w-7xl mx-auto text-center">
-            <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
-              Transform Your Skills
-            </Badge>
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
               Web3 Bootcamps
             </h1>
