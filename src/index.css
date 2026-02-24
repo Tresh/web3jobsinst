@@ -2,118 +2,67 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 @layer base {
   :root {
     /* ═══════════════════════════════════════════════════════════════════
-       DARK LUXURY PALETTE — Rich blacks, warm undertones, refined orange
+       PREMIUM LIGHT PALETTE — Warm off-white, charcoal text, orange accent
        ═══════════════════════════════════════════════════════════════════ */
-    --background: 0 0% 3%;          /* Near-true black for luxury depth */
-    --background-secondary: 0 0% 5%;
-    --foreground: 40 10% 96%;       /* Warm off-white for elegance */
+    --background: 40 20% 97%;           /* #F9F8F6 warm off-white */
+    --background-secondary: 40 14% 96%; /* #F5F5F3 */
+    --foreground: 0 0% 13%;             /* #222222 deep charcoal */
 
-    --card: 0 0% 6%;                /* Subtle lift from background */
-    --card-foreground: 40 10% 96%;
+    --card: 0 0% 100%;                  /* Pure white cards */
+    --card-foreground: 0 0% 13%;
 
-    --popover: 0 0% 8%;
-    --popover-foreground: 40 10% 96%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 13%;
 
-    /* Premium Orange: refined, less saturated for luxury feel */
-    --primary: 24 95% 53%;          /* Warm amber-orange */
+    /* Brand Orange — refined accent */
+    --primary: 24 95% 53%;              /* Warm amber-orange */
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 24 100% 60%;
+    --primary-hover: 24 100% 46%;
 
-    --secondary: 0 0% 10%;
-    --secondary-foreground: 40 10% 96%;
+    --secondary: 40 10% 95%;            /* #F2F2F0 soft neutral */
+    --secondary-foreground: 0 0% 13%;
 
-    --muted: 0 0% 14%;
-    --muted-foreground: 0 0% 55%;
+    --muted: 40 10% 93%;
+    --muted-foreground: 0 0% 45%;
 
     --accent: 24 95% 53%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 0 0% 14%;
-    --input: 0 0% 14%;
-    --ring: 24 95% 53%;
-
-    --radius: 0.75rem;
-
-    /* Luxury shadows — deeper, more dramatic */
-    --shadow-sm: 0 1px 3px 0 hsl(0 0% 0% / 0.4);
-    --shadow-card: 0 4px 20px hsl(0 0% 0% / 0.5);
-    --shadow-card-hover: 0 8px 32px hsl(0 0% 0% / 0.6);
-
-    --sidebar-background: 0 0% 4%;
-    --sidebar-foreground: 40 10% 96%;
-    --sidebar-primary: 24 95% 53%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 10%;
-    --sidebar-accent-foreground: 40 10% 96%;
-    --sidebar-border: 0 0% 14%;
-    --sidebar-ring: 24 95% 53%;
-
-    /* ═══════════════════════════════════════════════════════════════════
-       LUXURY BRAND CANVAS — Concentrated orange glow at top, fading to black
-       ═══════════════════════════════════════════════════════════════════ */
-    --gradient-hero: radial-gradient(
-      ellipse 100% 40% at 50% 0%,
-      hsla(20 100% 45% / 0.35) 0%,
-      hsla(20 90% 30% / 0.15) 40%,
-      hsla(0 0% 0% / 1) 70%
-    );
-
-    /* No vignette needed - clean fade to black */
-    --canvas-vignette: none;
-
-    /* Premium accent gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(24 95% 53%), hsl(30 100% 60%));
-    --gradient-primary-hover: linear-gradient(135deg, hsl(24 100% 58%), hsl(30 100% 65%));
-  }
-
-  /* Light mode override (if ever needed) */
-  .light {
-    --background: 0 0% 100%;
-    --background-secondary: 229 25% 97%;
-    --foreground: 0 0% 0%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 0%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 0%;
-
-    --primary: 18 100% 50%;
-    --primary-foreground: 0 0% 100%;
-    --primary-hover: 18 100% 62%;
-
-    --secondary: 229 25% 97%;
-    --secondary-foreground: 0 0% 0%;
-
-    --muted: 229 25% 97%;
-    --muted-foreground: 0 0% 45%;
-
-    --accent: 18 100% 50%;
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 229 25% 90%;
-    --input: 229 25% 90%;
-    --ring: 18 100% 50%;
+    --border: 0 0% 90%;                /* #E5E5E5 soft dividers */
+    --input: 0 0% 90%;
+    --ring: 24 95% 53%;
 
-    --sidebar-background: 229 25% 97%;
-    --sidebar-foreground: 0 0% 0%;
-    --sidebar-primary: 18 100% 50%;
+    --radius: 0.625rem;
+
+    /* Clean, subtle shadows */
+    --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.04);
+    --shadow-card: 0 1px 3px hsl(0 0% 0% / 0.06), 0 1px 2px hsl(0 0% 0% / 0.04);
+    --shadow-card-hover: 0 4px 12px hsl(0 0% 0% / 0.08), 0 2px 4px hsl(0 0% 0% / 0.04);
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 0 0% 13%;
+    --sidebar-primary: 24 95% 53%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 229 25% 97%;
-    --sidebar-accent-foreground: 0 0% 0%;
-    --sidebar-border: 229 25% 90%;
-    --sidebar-ring: 18 100% 50%;
+    --sidebar-accent: 40 10% 95%;
+    --sidebar-accent-foreground: 0 0% 13%;
+    --sidebar-border: 0 0% 92%;
+    --sidebar-ring: 24 95% 53%;
+
+    /* No hero gradient — clean solid background */
+    --gradient-hero: none;
+    --canvas-vignette: none;
+
+    /* Accent gradients (subtle, for buttons only) */
+    --gradient-primary: linear-gradient(135deg, hsl(24 95% 53%), hsl(28 100% 56%));
+    --gradient-primary-hover: linear-gradient(135deg, hsl(24 100% 46%), hsl(28 100% 50%));
   }
 }
 
@@ -128,12 +77,9 @@
 
   body {
     @apply text-foreground antialiased;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
     overscroll-behavior-x: none;
-    background-color: hsl(0 0% 0%);
-    background-image: var(--gradient-hero);
-    background-attachment: fixed;
-    background-repeat: no-repeat;
+    background-color: hsl(var(--background));
     min-height: 100vh;
     /* PWA safe area support */
     padding-top: env(safe-area-inset-top);
@@ -142,34 +88,11 @@
     padding-right: env(safe-area-inset-right);
   }
 
-  /* Mobile/iOS: avoid scroll lock/jank caused by fixed background attachment */
-  @media (max-width: 768px) {
-    body {
-      background-attachment: scroll;
-    }
-  }
-
-  @supports (-webkit-touch-callout: none) {
-    body {
-      background-attachment: scroll;
-    }
-  }
-
-  body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: -1;
-    background: var(--canvas-vignette);
-  }
-
-  /* PWA Header Safe Area - applies to fixed headers */
+  /* PWA Header Safe Area */
   .pwa-safe-header {
     padding-top: calc(env(safe-area-inset-top, 0px) + 12px);
   }
 
-  /* Main content offset for PWA mode */
   .pwa-safe-content {
     padding-top: env(safe-area-inset-top, 0px);
   }
@@ -204,7 +127,7 @@
   }
 
   .badge-accent {
-    @apply inline-flex items-center px-3 py-1 text-xs font-medium rounded-md bg-primary/20 text-primary border border-primary/30;
+    @apply inline-flex items-center px-3 py-1 text-xs font-medium rounded-md bg-primary/10 text-primary border border-primary/20;
   }
 
   /* Gradient button variant */
@@ -216,7 +139,7 @@
 
   .btn-gradient:hover {
     background: var(--gradient-primary-hover);
-    @apply shadow-lg;
+    @apply shadow-md;
   }
 }
 
