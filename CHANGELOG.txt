@@ -1,0 +1,24 @@
+## Pending Changelog Entries
+## (Will be published to the Changelog page when ready)
+
+### 2026-02-24 — Email & LearnFi Improvements
+- Email broadcast now supports 4 send modes: All Scholars, All Users, Individual (with user search), and Bulk (search + paste emails)
+- LearnFi program form: "Link to Existing Course" field now has autocomplete dropdown matching platform courses by name, or paste a Course ID directly
+
+### 2026-02-24 — Admin & User Workflow Overhaul
+- LearnFi edit request workflow: users request edit access, admins approve, users edit, admin re-approves
+- Enhanced Admin Dashboard with real-time metrics, "Needs Attention" bar, and recent activity feed
+- Admin User Profile page (/admin/users/:userId) showing full activity across Scholarships, Bootcamps, LearnFi, Tutors, Internships
+- UserHoverCards across admin for quick user context
+
+### 2026-02-24 — Tutor Applications
+- "Apply as Tutor" form now submits to Supabase (replaces Coming Soon)
+- Admin Tutors management page with status filtering, search, review/approve workflow
+
+### Earlier — Platform Foundation
+- Scholarship portal with daily check-ins, modules, referrals, XP system
+- Bootcamp system with applications, tasks, community chat, voice rooms, leaderboard
+- LearnFi Learn-to-Earn hub with program creation, modules, missions, token/paid/internship rewards
+- Course infrastructure with Strapi CMS integration and Vimeo playback
+- Admin broadcast email system with Resend batch API and delivery tracking
+- Bug report system, role-based access control, onboarding flow

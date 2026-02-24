@@ -21,6 +21,7 @@ import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import WJIReferralTerms from "./pages/terms/WJIReferralTerms";
 import NotFound from "./pages/NotFound";
+import Changelog from "./pages/Changelog";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -92,6 +93,7 @@ const App = () => (
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/terms/wji-referral-program" element={<WJIReferralTerms />} />
+            <Route path="/changelog" element={<Changelog />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
