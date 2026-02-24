@@ -28,7 +28,7 @@ export default function ScholarshipModuleDetail() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [videoStarted, setVideoStarted] = useState(false);
-  const [showCompletionPrompt, setShowCompletionPrompt] = useState(false);
+  // showCompletionPrompt removed - XP auto-awards on video end
 
   // Fetch module data
   const { data: module, isLoading: moduleLoading } = useQuery({
@@ -202,31 +202,20 @@ export default function ScholarshipModuleDetail() {
   };
 
   const handleVideoEnd = useCallback(async () => {
-    if (isCompleted) return;
-    setShowCompletionPrompt(true);
-  }, [isCompleted]);
-
-  const handleConfirmCompletion = async () => {
+    if (isCompleted || isAwarding) return;
+    // Auto-award XP when video finishes
     if (isIntroModule) {
       const result = await markVideoCompleted();
-      if (result.success) {
-        if (!result.alreadyCompleted) {
-          toast.success(`Module Complete! +${module?.xp_value || 100} XP awarded 🎉`);
-        }
-        setShowCompletionPrompt(false);
-      } else {
-        toast.error("Failed to record completion. Please try again.");
+      if (result.success && !result.alreadyCompleted) {
+        toast.success(`Module Complete! +${module?.xp_value || 100} XP awarded 🎉`);
       }
     } else {
       const result = await markModuleCompleted();
       if (result.success) {
         toast.success(`Module Complete! +${module?.xp_value} XP awarded 🎉`);
-        setShowCompletionPrompt(false);
-      } else {
-        toast.error("Failed to record completion. Please try again.");
       }
     }
-  };
+  }, [isCompleted, isAwarding, isIntroModule, markVideoCompleted, markModuleCompleted, module?.xp_value]);
 
   // Listen for Vimeo player events
   const handleIframeMessage = useCallback((event: MessageEvent) => {
@@ -370,38 +359,26 @@ export default function ScholarshipModuleDetail() {
               </div>
             </div>
 
-            {/* Completion Prompt */}
-            {showCompletionPrompt && !isCompleted && (
-              <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 flex items-center justify-between">
+            {/* Awarding indicator */}
+            {isAwarding && !isCompleted && (
+              <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 flex items-center gap-3">
+                <Loader2 className="w-5 h-5 animate-spin text-primary" />
                 <div>
-                  <p className="font-medium">Video Complete!</p>
-                  <p className="text-sm text-muted-foreground">Click to confirm and receive your XP reward.</p>
+                  <p className="font-medium">Awarding XP...</p>
+                  <p className="text-sm text-muted-foreground">Please wait while we record your completion.</p>
                 </div>
-                <Button onClick={handleConfirmCompletion} disabled={isAwarding}>
-                  {isAwarding ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Awarding XP...
-                    </>
-                  ) : (
-                    <>
-                      <CheckCircle className="w-4 h-4 mr-2" />
-                      Claim {module.xp_value} XP
-                    </>
-                  )}
-                </Button>
               </div>
             )}
 
-            {/* Manual Completion Button */}
-            {!isCompleted && videoStarted && !showCompletionPrompt && (
+            {/* Manual fallback - only if video started but end event wasn't captured */}
+            {!isCompleted && videoStarted && !isAwarding && (
               <Button 
                 variant="outline" 
                 className="w-full"
-                onClick={() => setShowCompletionPrompt(true)}
+                onClick={() => handleVideoEnd()}
               >
                 <CheckCircle className="w-4 h-4 mr-2" />
-                I've finished watching - Claim XP
+                I've finished watching - Complete Module
               </Button>
             )}
           </div>
