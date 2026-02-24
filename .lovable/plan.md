@@ -1,84 +1,59 @@
 
 
-# Strapi + Vimeo Frontend Integration Plan
+# Fix: Modules Not Showing as Available for Students
 
-## Current State
+## Problem Identified
 
-The integration is **80% built**. The Strapi API client, types, React Query hooks, VimeoPlayer component, CourseDetailPage, and LessonPlayerPage all exist and are well-structured. However, the system is currently non-functional because:
+There are two issues preventing "Go Live (Immediate)" modules from appearing available to students:
 
-1. **No Strapi credentials are configured** (missing `VITE_STRAPI_API_URL` and `VITE_STRAPI_API_TOKEN`)
-2. **The Courses listing page still uses hardcoded data** instead of fetching from Strapi
-3. A broken import in `src/lib/strapi.ts` (imports transform functions as types)
+1. **`getModuleStatus` always defaults to "locked"**: The function in `useScholarshipData.ts` (line 221-224) only checks if a `scholarship_module_progress` record exists. If there's no progress record (i.e., the student hasn't started the module yet), it returns `"locked"` regardless of the module's `unlock_type`. This means even "immediate" modules appear locked.
 
-## What Will Be Done
+2. **Missing `xp_threshold` in the query**: The modules query (line 83) explicitly lists columns but does not include `xp_threshold`, so the XP-gating logic in `PortalModules` silently fails.
 
-### 1. Fix broken import in `src/lib/strapi.ts`
+## Solution
 
-The file currently imports `transformCourse`, `transformModule`, `transformLesson` inside a `type` import, but these are runtime functions used only as type references. This import is unused and will be cleaned up to prevent build issues.
+### 1. Update the modules query to include `xp_threshold`
+**File:** `src/hooks/useScholarshipData.ts` (line 83)
+- Add `xp_threshold` to the select column list.
 
-### 2. Connect the Courses listing page to Strapi
+### 2. Fix `getModuleStatus` to consider unlock rules
+**File:** `src/hooks/useScholarshipData.ts` (lines 221-224)
+- Rewrite `getModuleStatus` to check the module's `unlock_type`, `unlock_day`, and the student's current day number.
+- If a module has `unlock_type = "immediate"`, return `"available"` (not `"locked"`).
+- If `unlock_type = "day"` and the student has reached that day, return `"available"`.
+- If there's a completed progress record, return `"completed"`.
+- Otherwise, return `"locked"`.
 
-The `/courses` page (`src/pages/Courses.tsx`) currently renders from `src/data/coursesData.ts` (hardcoded array of ~40+ courses). This will be upgraded to:
+This requires the function to accept the module object (not just the ID), or to look up the module from the modules list.
 
-- Use `useStrapiCourses()` hook to fetch live data from Strapi when configured
-- **Fall back to hardcoded data** when Strapi is not configured (preserves current behavior)
-- Navigate to `/courses/:slug` (the existing CourseDetailPage) instead of showing "Coming Soon" dialog
-- Remove the blurred "Coming Soon" overlay for Strapi-sourced courses
+### Technical Details
 
-### 3. Update CourseGrid to support both data sources
+**`useScholarshipData.ts` changes:**
 
-The `CourseGrid` component currently only accepts the hardcoded `Course` type from `coursesData.ts`. It will be updated to also render Strapi-sourced courses with proper thumbnails and clickable links to the detail page.
+```
+// Line 83 - Add xp_threshold to select
+.select("id, program_id, title, description, order_index, unlock_type, unlock_day, unlock_task_id, is_published, cover_image_url, video_url, video_duration, xp_value, xp_threshold, created_at, updated_at")
 
-### 4. Environment variables guidance
+// Lines 221-224 - Rewrite getModuleStatus
+const getModuleStatus = (moduleId: string): "locked" | "available" | "completed" => {
+  const progress = moduleProgress.find((p) => p.module_id === moduleId);
+  if (progress?.status === "completed") return "completed";
 
-Since `VITE_STRAPI_API_URL` and `VITE_STRAPI_API_TOKEN` are **public/publishable** keys (they're read-only API tokens embedded in the frontend bundle), they will be added directly to the codebase as environment references. You will need to provide:
+  const mod = modules.find((m) => m.id === moduleId);
+  if (!mod) return "locked";
 
-- Your Strapi instance URL (e.g., `https://your-app.strapiapp.com`)
-- A read-only API token generated from Strapi Admin > Settings > API Tokens
+  const dayNumber = getDayNumber();
 
-## Files to Be Modified
+  if (mod.unlock_type === "immediate") return "available";
+  if (mod.unlock_type === "day" && mod.unlock_day && dayNumber >= mod.unlock_day) return "available";
 
-| File | Change |
-|------|--------|
-| `src/lib/strapi.ts` | Fix broken type-only import of transform functions |
-| `src/pages/Courses.tsx` | Add Strapi data fetching with fallback to hardcoded data; route to detail page for live courses |
-| `src/components/courses/CourseGrid.tsx` | Support rendering Strapi-sourced courses (with cover images, no "Coming Soon" overlay, clickable to detail page) |
-
-## Files NOT Modified
-
-All other existing features remain untouched: scholarship system, bootcamp system, admin dashboards, auth flows, dashboard pages, etc.
-
-## Technical Details
-
-### Data Flow
-```text
-Strapi CMS (content)  -->  src/lib/strapi.ts (API client)
-                            --> src/hooks/useStrapiCourses.ts (React Query)
-                                --> src/pages/Courses.tsx (listing)
-                                --> src/pages/courses/CourseDetailPage.tsx (detail)
-                                --> src/pages/courses/LessonPlayerPage.tsx (player)
-
-Vimeo (video hosting)  -->  vimeoVideoId stored in Strapi lesson
-                            --> VimeoPlayer component renders iframe embed
+  // For "task" and "manual" types, remain locked unless progress exists
+  return "locked";
+};
 ```
 
-### Access Control Logic (already implemented)
-- `lesson.accessLevel === 'free'` or `lesson.isPreview === true` -- playback allowed
-- Otherwise -- locked UI shown with "Enroll to access" message
-- Enrollment check is stubbed with TODO comments for future backend integration
+### Files to Edit
+- `src/hooks/useScholarshipData.ts` -- add `xp_threshold` to query and fix `getModuleStatus` logic
 
-## Remaining Steps After This Implementation
-
-1. **Add Strapi credentials** -- You must provide your Strapi URL and read-only API token
-2. **Enrollment system** -- Backend logic to track paid course enrollments (Supabase)
-3. **Progress tracking** -- Save lesson watch progress to Supabase (TODOs already in code)
-4. **Tutor dashboard** -- Admin interface for content creators to manage their courses
-5. **Authentication-gated content** -- Wire up Supabase auth to check enrollment before unlocking paid lessons
-
-## Assumptions
-
-- Strapi is deployed and accessible with the content types (Course, Module, Lesson) already created
-- The `@vimeo/player` npm package is NOT needed since the existing VimeoPlayer component uses iframe embeds (lighter, works without additional dependencies)
-- `axios` is NOT needed since native `fetch` is already used in the Strapi client
-- Hardcoded course data is preserved as fallback for when Strapi is not yet connected
+No new files or database changes needed.
 
