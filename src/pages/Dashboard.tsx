@@ -15,6 +15,7 @@ import {
   GraduationCap,
   Rocket,
   Zap,
+  Briefcase,
 } from "lucide-react";
 
 import OnboardingFlow from "@/components/onboarding/OnboardingFlow";
@@ -22,6 +23,7 @@ import OnboardingFlow from "@/components/onboarding/OnboardingFlow";
 const navItems = [
   { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
   { label: "Scholarship", href: "/dashboard/scholarship", icon: GraduationCap },
+  { label: "Internship", href: "/dashboard/internship", icon: Briefcase },
   { label: "Bootcamps", href: "/dashboard/bootcamps", icon: Rocket },
   { label: "LearnFi", href: "/dashboard/learnfi", icon: Zap },
   { label: "My Courses", href: "/dashboard/courses", icon: BookOpen },

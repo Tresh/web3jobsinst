@@ -884,6 +884,57 @@ export type Database = {
         }
         Relationships: []
       }
+      internship_waitlist: {
+        Row: {
+          admin_notes: string | null
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          retweet_link: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          tag_proof_link: string | null
+          telegram_username: string | null
+          twitter_handle: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          retweet_link?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          tag_proof_link?: string | null
+          telegram_username?: string | null
+          twitter_handle?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          retweet_link?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          tag_proof_link?: string | null
+          telegram_username?: string | null
+          twitter_handle?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       learnfi_edit_requests: {
         Row: {
           admin_notes: string | null
@@ -1286,6 +1337,27 @@ export type Database = {
           id?: string
           last_attempt_at?: string
           locked_until?: string | null
+        }
+        Relationships: []
+      }
+      platform_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: string
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value: string
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: string
         }
         Relationships: []
       }
