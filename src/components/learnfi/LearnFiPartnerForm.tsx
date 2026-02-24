@@ -30,6 +30,57 @@ interface LeaderboardTier {
   amount: number;
 }
 
+// Course autocomplete sub-component
+const CourseAutocomplete = ({ value, onChange }: { value: string; onChange: (v: string) => void }) => {
+  const [query, setQuery] = useState("");
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  const filtered = useMemo(() => {
+    if (!query || query.length < 1) return [];
+    const q = query.toLowerCase();
+    return platformCourses.filter(c => c.title.toLowerCase().includes(q)).slice(0, 8);
+  }, [query]);
+
+  const selectedCourse = platformCourses.find(c => c.id === value);
+
+  return (
+    <div className="relative">
+      <Input
+        value={selectedCourse ? selectedCourse.title : value}
+        onChange={(e) => {
+          const v = e.target.value;
+          onChange(v);
+          setQuery(v);
+          setShowDropdown(true);
+        }}
+        onFocus={() => { if (query.length > 0) setShowDropdown(true); }}
+        onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
+        placeholder="Type course name or paste ID..."
+      />
+      {showDropdown && filtered.length > 0 && (
+        <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-background border border-border rounded-lg shadow-lg max-h-48 overflow-y-auto">
+          {filtered.map((c) => (
+            <button
+              key={c.id}
+              type="button"
+              className="w-full text-left px-3 py-2 hover:bg-secondary text-sm"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                onChange(c.id);
+                setQuery(c.title);
+                setShowDropdown(false);
+              }}
+            >
+              <span className="font-medium">{c.title}</span>
+              <span className="text-xs text-muted-foreground ml-2">({c.id})</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const LearnFiPartnerForm = ({ open, onOpenChange }: LearnFiPartnerFormProps) => {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
