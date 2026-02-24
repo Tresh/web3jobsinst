@@ -111,10 +111,19 @@ const AdminScholarships = () => {
   const [isCreatingModule, setIsCreatingModule] = useState(false);
   
   // Email broadcast states
-  const [emailAudience, setEmailAudience] = useState<"scholars" | "all_users">("scholars");
+  const [emailAudience, setEmailAudience] = useState<"scholars" | "all_users" | "individual" | "bulk">("scholars");
   const [emailSubject, setEmailSubject] = useState("");
   const [emailBody, setEmailBody] = useState("");
   const [isSendingEmail, setIsSendingEmail] = useState(false);
+  // Individual send
+  const [individualEmail, setIndividualEmail] = useState("");
+  const [individualName, setIndividualName] = useState("");
+  const [userSearchQuery, setUserSearchQuery] = useState("");
+  const [userSearchResults, setUserSearchResults] = useState<{ email: string; full_name: string | null }[]>([]);
+  const [isSearchingUsers, setIsSearchingUsers] = useState(false);
+  // Bulk send
+  const [bulkRecipients, setBulkRecipients] = useState<{ email: string; name?: string }[]>([]);
+  const [bulkEmailInput, setBulkEmailInput] = useState("");
   
   const [newProgram, setNewProgram] = useState({
     title: "",
