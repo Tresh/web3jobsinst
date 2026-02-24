@@ -7,62 +7,60 @@
 @layer base {
   :root {
     /* ═══════════════════════════════════════════════════════════════════
-       PREMIUM LIGHT PALETTE — Warm off-white, charcoal text, orange accent
+       WEB3 JOBS INSTITUTE — LOCKED ORANGE-ONLY SYSTEM
        ═══════════════════════════════════════════════════════════════════ */
-    --background: 40 20% 97%;           /* #F9F8F6 warm off-white */
-    --background-secondary: 40 14% 96%; /* #F5F5F3 */
-    --foreground: 0 0% 13%;             /* #222222 deep charcoal */
+    --background: 37 16% 94%;           /* #F4F2ED warm neutral base */
+    --background-secondary: 37 14% 92%; /* #EFECE6 section alternate */
+    --foreground: 0 0% 11%;             /* #1C1C1C deep charcoal */
 
-    --card: 0 0% 100%;                  /* Pure white cards */
-    --card-foreground: 0 0% 13%;
+    --card: 0 0% 100%;                  /* #FFFFFF pure white cards */
+    --card-foreground: 0 0% 11%;        /* #1C1C1C */
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 13%;
+    --popover-foreground: 0 0% 11%;
 
-    /* Brand Orange — refined accent */
-    --primary: 24 95% 53%;              /* Warm amber-orange */
-    --primary-foreground: 0 0% 100%;
-    --primary-hover: 24 100% 46%;
+    /* Brand Orange — ONLY accent color */
+    --primary: 25 95% 53%;              /* #F97316 */
+    --primary-foreground: 0 0% 100%;    /* white on orange */
+    --primary-hover: 25 94% 48%;        /* #EA580C */
 
-    --secondary: 40 10% 95%;            /* #F2F2F0 soft neutral */
-    --secondary-foreground: 0 0% 13%;
+    --secondary: 37 14% 92%;            /* #EFECE6 */
+    --secondary-foreground: 0 0% 11%;   /* #1C1C1C */
 
-    --muted: 40 10% 93%;
-    --muted-foreground: 0 0% 45%;
+    --muted: 37 10% 90%;
+    --muted-foreground: 0 0% 48%;       /* #7A7A7A */
 
-    --accent: 24 95% 53%;
+    --accent: 25 95% 53%;               /* #F97316 */
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 90%;                /* #E5E5E5 soft dividers */
-    --input: 0 0% 90%;
-    --ring: 24 95% 53%;
+    --border: 34 10% 88%;               /* #E3E0DA warm neutral */
+    --input: 34 10% 88%;                /* #E3E0DA */
+    --ring: 25 95% 53%;                 /* #F97316 */
 
     --radius: 0.625rem;
 
-    /* Clean, subtle shadows */
+    /* Minimal shadows — no glow */
     --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.04);
-    --shadow-card: 0 1px 3px hsl(0 0% 0% / 0.06), 0 1px 2px hsl(0 0% 0% / 0.04);
-    --shadow-card-hover: 0 4px 12px hsl(0 0% 0% / 0.08), 0 2px 4px hsl(0 0% 0% / 0.04);
+    --shadow-card: 0 1px 3px hsl(0 0% 0% / 0.05), 0 1px 2px hsl(0 0% 0% / 0.03);
+    --shadow-card-hover: 0 4px 12px hsl(0 0% 0% / 0.07), 0 2px 4px hsl(0 0% 0% / 0.03);
 
     --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 0 0% 13%;
-    --sidebar-primary: 24 95% 53%;
+    --sidebar-foreground: 0 0% 11%;
+    --sidebar-primary: 25 95% 53%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 40 10% 95%;
-    --sidebar-accent-foreground: 0 0% 13%;
-    --sidebar-border: 0 0% 92%;
-    --sidebar-ring: 24 95% 53%;
+    --sidebar-accent: 37 14% 92%;
+    --sidebar-accent-foreground: 0 0% 11%;
+    --sidebar-border: 34 10% 88%;
+    --sidebar-ring: 25 95% 53%;
 
-    /* No hero gradient — clean solid background */
+    /* No gradients */
     --gradient-hero: none;
     --canvas-vignette: none;
-
-    /* Accent gradients (subtle, for buttons only) */
-    --gradient-primary: linear-gradient(135deg, hsl(24 95% 53%), hsl(28 100% 56%));
-    --gradient-primary-hover: linear-gradient(135deg, hsl(24 100% 46%), hsl(28 100% 50%));
+    --gradient-primary: none;
+    --gradient-primary-hover: none;
   }
 }
 
@@ -130,16 +128,15 @@
     @apply inline-flex items-center px-3 py-1 text-xs font-medium rounded-md bg-primary/10 text-primary border border-primary/20;
   }
 
-  /* Gradient button variant */
+  /* Gradient button variant — now flat orange, no gradient */
   .btn-gradient {
-    background: var(--gradient-primary);
+    background: hsl(var(--primary));
     @apply text-white font-semibold;
     transition: all 150ms ease-out;
   }
 
   .btn-gradient:hover {
-    background: var(--gradient-primary-hover);
-    @apply shadow-md;
+    background: hsl(var(--primary-hover));
   }
 }
 
