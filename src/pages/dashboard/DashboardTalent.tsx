@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTalentProfile, TALENT_CATEGORIES } from "@/hooks/useTalentProfile";
-import { Loader2, Plus, X, ExternalLink, Trash2, Eye, EyeOff } from "lucide-react";
+import { Loader2, Plus, X, ExternalLink, Trash2, Eye, EyeOff, Clock, CheckCircle } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const DashboardTalent = () => {
@@ -30,7 +30,6 @@ const DashboardTalent = () => {
   const [socialGithub, setSocialGithub] = useState("");
   const [isPublished, setIsPublished] = useState(true);
 
-  // Populate form when profile loads
   useEffect(() => {
     if (profile) {
       setHeadline(profile.headline || "");
@@ -108,6 +107,13 @@ const DashboardTalent = () => {
     );
   }
 
+  // Approval status indicator
+  const approvalStatus = profile
+    ? (profile as any).is_approved
+      ? { label: "Approved", icon: CheckCircle, color: "text-primary" }
+      : { label: "Pending Approval", icon: Clock, color: "text-amber-500" }
+    : null;
+
   return (
     <div className="p-6 lg:p-8 max-w-4xl">
       <div className="mb-8">
@@ -115,22 +121,48 @@ const DashboardTalent = () => {
           <div>
             <h1 className="text-2xl lg:text-3xl font-bold">Talent Profile</h1>
             <p className="text-muted-foreground mt-1">
-              {profile 
+              {profile
                 ? "Manage your talent profile visible on the marketplace"
                 : "Create your talent profile to get discovered by clients"
               }
             </p>
           </div>
-          {profile && (
-            <Badge 
-              variant={isPublished ? "default" : "secondary"}
-              className="flex items-center gap-1"
-            >
-              {isPublished ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
-              {isPublished ? "Live" : "Hidden"}
-            </Badge>
-          )}
+          <div className="flex items-center gap-2">
+            {approvalStatus && (
+              <Badge
+                variant={approvalStatus.label === "Approved" ? "default" : "secondary"}
+                className="flex items-center gap-1"
+              >
+                <approvalStatus.icon className={`w-3 h-3 ${approvalStatus.color}`} />
+                {approvalStatus.label}
+              </Badge>
+            )}
+            {profile && (
+              <Badge
+                variant={isPublished ? "default" : "secondary"}
+                className="flex items-center gap-1"
+              >
+                {isPublished ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
+                {isPublished ? "Visible" : "Hidden"}
+              </Badge>
+            )}
+          </div>
         </div>
+
+        {/* Pending notice */}
+        {profile && !(profile as any).is_approved && (
+          <Card className="mt-4 border-amber-500/30 bg-amber-500/5">
+            <CardContent className="p-4 flex items-center gap-3">
+              <Clock className="w-5 h-5 text-amber-500 shrink-0" />
+              <div>
+                <p className="font-medium text-sm">Profile Pending Approval</p>
+                <p className="text-xs text-muted-foreground">
+                  Your profile has been submitted and is awaiting admin review. Once approved, it will appear on the Talent Marketplace.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       <div className="space-y-6">
@@ -157,8 +189,8 @@ const DashboardTalent = () => {
                   <Badge variant="outline" className="text-xs">
                     {TALENT_CATEGORIES.find((c) => c.value === category)?.label || category}
                   </Badge>
-                  <span className={`text-xs flex items-center gap-1 ${availability === "available" ? "text-green-500" : "text-muted-foreground"}`}>
-                    <span className={`w-1.5 h-1.5 rounded-full ${availability === "available" ? "bg-green-500" : "bg-muted-foreground"}`} />
+                  <span className={`text-xs flex items-center gap-1 ${availability === "available" ? "text-primary" : "text-muted-foreground"}`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${availability === "available" ? "bg-primary" : "bg-muted-foreground"}`} />
                     {availability === "available" ? "Available" : "Busy"}
                   </span>
                 </div>
@@ -369,7 +401,7 @@ const DashboardTalent = () => {
               <div>
                 <p className="font-medium">Profile Published</p>
                 <p className="text-sm text-muted-foreground">
-                  When enabled, your profile is visible on the Talent Marketplace
+                  When enabled, your profile will be visible on the Talent Marketplace once approved
                 </p>
               </div>
               <Switch
@@ -395,7 +427,7 @@ const DashboardTalent = () => {
           <div className="ml-auto">
             <Button onClick={handleSave} disabled={saving || !headline}>
               {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              {profile ? "Save Changes" : "Create Profile"}
+              {profile ? "Save Changes" : "Submit for Approval"}
             </Button>
           </div>
         </div>
