@@ -93,7 +93,7 @@ const MarketplacePreview = () => {
                 >
                   <CardContent className="p-5">
                     <div className="flex items-start gap-3 mb-3">
-                      <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center shrink-0 overflow-hidden">
+                      <div className="w-10 h-10 rounded-lg border border-border flex items-center justify-center shrink-0 overflow-hidden">
                         {program.project_logo_url ? (
                           <img src={program.project_logo_url} alt={program.project_name} className="w-full h-full object-cover" />
                         ) : (
@@ -106,7 +106,7 @@ const MarketplacePreview = () => {
                       </div>
                     </div>
                     <div className="flex flex-wrap gap-2 mb-3">
-                      <Badge variant="secondary" className="text-[10px] capitalize">{program.category}</Badge>
+                      <Badge variant="outline" className="text-[10px] capitalize">{program.category}</Badge>
                       <Badge variant="secondary" className="text-[10px] bg-primary/10 text-primary border-0">
                         {REWARD_LABELS[program.reward_type] || program.reward_type}
                         {program.reward_token_symbol && ` · ${program.reward_token_symbol}`}
@@ -139,16 +139,16 @@ const MarketplacePreview = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {featuredCourses.map((course) => (
               <Card key={course.id} className="cursor-pointer bg-card border-border hover:border-primary/30 hover:shadow-card-hover transition-all group overflow-hidden">
-                <div className="aspect-video bg-secondary relative">
+                <div className="aspect-video bg-muted/50 relative">
                   <img src={course.image} alt={course.title} className="w-full h-full object-cover opacity-30" />
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <Badge variant="secondary">Coming Soon</Badge>
+                    <Badge variant="outline">Coming Soon</Badge>
                   </div>
                 </div>
                 <CardContent className="p-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <Badge variant="secondary" className="text-[10px]">{course.category}</Badge>
-                    <Badge variant="secondary" className="text-[10px]">{course.level}</Badge>
+                     <Badge variant="outline" className="text-[10px]">{course.category}</Badge>
+                    <Badge variant="outline" className="text-[10px]">{course.level}</Badge>
                   </div>
                   <h4 className="font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">{course.title}</h4>
                   <div className="flex items-center justify-between text-sm">
@@ -178,7 +178,7 @@ const MarketplacePreview = () => {
             {featuredProducts.map((product) => (
               <Card key={product.id} className="cursor-pointer bg-card border-border hover:border-primary/30 hover:shadow-card-hover transition-all group">
                 <CardContent className="p-4">
-                  <Badge variant="secondary" className="text-[10px] mb-3">{product.category}</Badge>
+                  <Badge variant="outline" className="text-[10px] mb-3">{product.category}</Badge>
                   <h4 className="font-semibold text-foreground mb-1 group-hover:text-primary transition-colors">{product.title}</h4>
                   <p className="text-xs text-muted-foreground mb-3">by {product.creator}</p>
                   <div className="flex items-center justify-between text-sm">
