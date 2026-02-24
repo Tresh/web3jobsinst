@@ -86,7 +86,6 @@ const LearnFiPartnerForm = ({ open, onOpenChange }: LearnFiPartnerFormProps) => 
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
 
   const [form, setForm] = useState({
     project_name: "",
