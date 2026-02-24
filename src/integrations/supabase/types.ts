@@ -1832,6 +1832,7 @@ export type Database = {
           reviewed_at: string | null
           reviewed_by: string | null
           status: string
+          submission_file_url: string | null
           submission_text: string | null
           submission_url: string | null
           updated_at: string
@@ -1847,6 +1848,7 @@ export type Database = {
           reviewed_at?: string | null
           reviewed_by?: string | null
           status?: string
+          submission_file_url?: string | null
           submission_text?: string | null
           submission_url?: string | null
           updated_at?: string
@@ -1862,6 +1864,7 @@ export type Database = {
           reviewed_at?: string | null
           reviewed_by?: string | null
           status?: string
+          submission_file_url?: string | null
           submission_text?: string | null
           submission_url?: string | null
           updated_at?: string
