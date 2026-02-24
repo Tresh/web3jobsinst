@@ -181,6 +181,7 @@ export const useTalentMarketplace = () => {
         .from("talent_profiles")
         .select("*")
         .eq("is_published", true)
+        .eq("is_approved", true)
         .order("created_at", { ascending: false });
 
       if (talentError) throw talentError;

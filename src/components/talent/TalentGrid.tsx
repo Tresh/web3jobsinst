@@ -40,7 +40,6 @@ const TalentGrid = ({ talents }: TalentGridProps) => {
 
   return (
     <div className="space-y-8">
-      {/* Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
         {paginatedTalents.map((talent) => (
           <TalentCard
@@ -51,7 +50,6 @@ const TalentGrid = ({ talents }: TalentGridProps) => {
         ))}
       </div>
 
-      {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-2">
           <Button
@@ -62,7 +60,6 @@ const TalentGrid = ({ talents }: TalentGridProps) => {
           >
             <ChevronLeft className="w-4 h-4" />
           </Button>
-          
           <div className="flex items-center gap-1">
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
               <Button
@@ -76,7 +73,6 @@ const TalentGrid = ({ talents }: TalentGridProps) => {
               </Button>
             ))}
           </div>
-
           <Button
             variant="outline"
             size="icon"
@@ -88,7 +84,6 @@ const TalentGrid = ({ talents }: TalentGridProps) => {
         </div>
       )}
 
-      {/* Talent Detail Modal */}
       {selectedTalent && (
         <TalentDetailModal
           talent={selectedTalent}
@@ -119,24 +114,19 @@ const TalentCard = ({ talent, onClick }: TalentCardProps) => {
       onClick={onClick}
       className="group text-left w-full bg-card border border-border rounded-xl overflow-hidden hover:border-primary/30 hover:shadow-sm transition-all duration-150"
     >
-      {/* Blurred avatar area with Coming Soon overlay */}
+      {/* Avatar area */}
       <div className="relative aspect-square bg-muted overflow-hidden flex items-center justify-center">
-        <Avatar className="w-24 h-24 blur-[2px]">
+        <Avatar className="w-24 h-24">
           <AvatarImage src={talent.avatar_url || undefined} />
           <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/5 text-3xl font-bold text-primary w-24 h-24">
             {initials}
           </AvatarFallback>
         </Avatar>
-        <div className="absolute inset-0 bg-background/60 flex items-center justify-center">
-          <span className="bg-card text-foreground text-xs font-medium px-3 py-1.5 rounded-full shadow-sm border border-border">
-            Coming Soon
-          </span>
-        </div>
         {/* Availability Badge */}
         <div className="absolute top-3 right-3">
           <span className={`px-2 py-1 text-[10px] font-medium rounded-full ${
             talent.availability === "available"
-              ? "bg-green-500 text-white"
+              ? "bg-primary text-primary-foreground"
               : "bg-secondary text-muted-foreground"
           }`}>
             {talent.availability === "available" ? "Available" : "Busy"}
@@ -159,7 +149,6 @@ const TalentCard = ({ talent, onClick }: TalentCardProps) => {
           {talent.headline}
         </p>
 
-        {/* Footer */}
         <div className="flex items-center justify-between pt-2 border-t border-border">
           <div className="flex items-center gap-1 text-xs text-muted-foreground">
             <Briefcase className="w-3 h-3" />
@@ -196,7 +185,6 @@ const TalentDetailModal = ({ talent, onClose }: TalentDetailModalProps) => {
         className="bg-card border border-border rounded-2xl p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
         <div className="flex items-start gap-4 mb-6">
           <Avatar className="w-20 h-20">
             <AvatarImage src={talent.avatar_url || undefined} />
@@ -209,15 +197,14 @@ const TalentDetailModal = ({ talent, onClose }: TalentDetailModalProps) => {
             <p className="text-muted-foreground">{talent.headline}</p>
             <div className="flex items-center gap-2 mt-2">
               <Badge variant="outline">{categoryLabel}</Badge>
-              <span className={`text-xs flex items-center gap-1 ${talent.availability === "available" ? "text-green-500" : "text-muted-foreground"}`}>
-                <span className={`w-1.5 h-1.5 rounded-full ${talent.availability === "available" ? "bg-green-500" : "bg-muted-foreground"}`} />
+              <span className={`text-xs flex items-center gap-1 ${talent.availability === "available" ? "text-primary" : "text-muted-foreground"}`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${talent.availability === "available" ? "bg-primary" : "bg-muted-foreground"}`} />
                 {talent.availability === "available" ? "Available" : "Busy"}
               </span>
             </div>
           </div>
         </div>
 
-        {/* Bio */}
         {talent.bio && (
           <div className="mb-6">
             <h3 className="font-semibold mb-2">About</h3>
@@ -225,7 +212,6 @@ const TalentDetailModal = ({ talent, onClose }: TalentDetailModalProps) => {
           </div>
         )}
 
-        {/* Skills */}
         {talent.skills.length > 0 && (
           <div className="mb-6">
             <h3 className="font-semibold mb-2">Skills</h3>
@@ -237,7 +223,6 @@ const TalentDetailModal = ({ talent, onClose }: TalentDetailModalProps) => {
           </div>
         )}
 
-        {/* Stats */}
         <div className="grid grid-cols-3 gap-4 mb-6">
           <div className="text-center p-3 bg-secondary rounded-lg">
             <div className="flex items-center justify-center gap-1 text-lg font-bold">
@@ -258,7 +243,6 @@ const TalentDetailModal = ({ talent, onClose }: TalentDetailModalProps) => {
           )}
         </div>
 
-        {/* Portfolio */}
         {talent.portfolio_links.length > 0 && (
           <div className="mb-6">
             <h3 className="font-semibold mb-2">Portfolio</h3>
@@ -278,7 +262,6 @@ const TalentDetailModal = ({ talent, onClose }: TalentDetailModalProps) => {
           </div>
         )}
 
-        {/* Actions */}
         <div className="flex gap-3">
           <ContactButton talent={talent} />
           <Button variant="outline" onClick={onClose}>

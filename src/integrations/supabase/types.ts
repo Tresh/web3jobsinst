@@ -2197,6 +2197,7 @@ export type Database = {
       }
       talent_profiles: {
         Row: {
+          admin_notes: string | null
           availability: string
           bio: string | null
           category: string
@@ -2205,6 +2206,7 @@ export type Database = {
           headline: string
           hourly_rate: number | null
           id: string
+          is_approved: boolean
           is_published: boolean | null
           portfolio_links: string[] | null
           rating: number | null
@@ -2216,6 +2218,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          admin_notes?: string | null
           availability?: string
           bio?: string | null
           category: string
@@ -2224,6 +2227,7 @@ export type Database = {
           headline: string
           hourly_rate?: number | null
           id?: string
+          is_approved?: boolean
           is_published?: boolean | null
           portfolio_links?: string[] | null
           rating?: number | null
@@ -2235,6 +2239,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          admin_notes?: string | null
           availability?: string
           bio?: string | null
           category?: string
@@ -2243,6 +2248,7 @@ export type Database = {
           headline?: string
           hourly_rate?: number | null
           id?: string
+          is_approved?: boolean
           is_published?: boolean | null
           portfolio_links?: string[] | null
           rating?: number | null
