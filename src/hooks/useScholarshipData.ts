@@ -80,7 +80,7 @@ export function useScholarshipPortal() {
           // Fetch modules with new video/cover fields (includes intro module with order_index = -1)
           const { data: modulesData } = await supabase
             .from("scholarship_modules")
-            .select("id, program_id, title, description, order_index, unlock_type, unlock_day, unlock_task_id, is_published, cover_image_url, video_url, video_duration, xp_value, created_at, updated_at")
+            .select("id, program_id, title, description, order_index, unlock_type, unlock_day, unlock_task_id, is_published, cover_image_url, video_url, video_duration, xp_value, xp_threshold, created_at, updated_at")
             .eq("program_id", appData.program_id)
             .eq("is_published", true)
             .gte("order_index", 0)  // Exclude intro module (order_index = -1) from regular modules list
@@ -218,9 +218,19 @@ export function useScholarshipPortal() {
     return submissions.find((s) => s.task_id === taskId);
   };
 
-  const getModuleStatus = (moduleId: string) => {
+  const getModuleStatus = (moduleId: string): "locked" | "available" | "completed" => {
     const progress = moduleProgress.find((p) => p.module_id === moduleId);
-    return progress?.status || "locked";
+    if (progress?.status === "completed") return "completed";
+
+    const mod = modules.find((m) => m.id === moduleId);
+    if (!mod) return "locked";
+
+    const dayNumber = getDayNumber();
+
+    if (mod.unlock_type === "immediate") return "available";
+    if (mod.unlock_type === "day" && mod.unlock_day && dayNumber >= mod.unlock_day) return "available";
+
+    return "locked";
   };
 
   const getUserRank = () => {
