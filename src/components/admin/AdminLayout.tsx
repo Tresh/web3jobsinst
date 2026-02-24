@@ -76,6 +76,11 @@ const adminNavItems = [
     icon: Rocket,
     href: "/admin/bootcamps",
   },
+  {
+    title: "Tutors",
+    icon: BookOpen,
+    href: "/admin/tutors",
+  },
 ];
 
 const settingsNavItems = [
