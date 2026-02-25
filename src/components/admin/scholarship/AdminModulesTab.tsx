@@ -45,6 +45,7 @@ import {
   Clock,
   Zap,
   Lock,
+  Unlock,
 } from "lucide-react";
 import type { ScholarshipProgram, ScholarshipModule } from "@/types/scholarship";
 
@@ -244,6 +245,42 @@ export function AdminModulesTab({ programs, modules, isLoading, onRefetch }: Adm
         .eq("id", moduleId);
 
       if (error) throw error;
+      onRefetch();
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  };
+
+  const handleQuickUnlock = async (moduleId: string) => {
+    try {
+      const { error } = await supabase
+        .from("scholarship_modules")
+        .update({ unlock_type: "immediate" })
+        .eq("id", moduleId);
+
+      if (error) throw error;
+      toast({ title: "Module unlocked", description: "Module is now immediately available to all students." });
+      onRefetch();
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  };
+
+  const handleBulkUnlockAll = async () => {
+    const manualModules = filteredModules.filter(m => m.unlock_type === "manual");
+    if (manualModules.length === 0) {
+      toast({ title: "No locked modules", description: "All modules are already unlocked." });
+      return;
+    }
+    try {
+      const ids = manualModules.map(m => m.id);
+      const { error } = await supabase
+        .from("scholarship_modules")
+        .update({ unlock_type: "immediate" })
+        .in("id", ids);
+
+      if (error) throw error;
+      toast({ title: "All modules unlocked", description: `${manualModules.length} modules are now available.` });
       onRefetch();
     } catch (error: any) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
@@ -501,7 +538,6 @@ export function AdminModulesTab({ programs, modules, isLoading, onRefetch }: Adm
         </Dialog>
       </div>
 
-      {/* Filter */}
       <div className="flex items-center gap-4">
         <Label>Filter by Program:</Label>
         <Select value={programFilter} onValueChange={setProgramFilter}>
@@ -517,6 +553,12 @@ export function AdminModulesTab({ programs, modules, isLoading, onRefetch }: Adm
             ))}
           </SelectContent>
         </Select>
+        {filteredModules.some(m => m.unlock_type === "manual") && (
+          <Button variant="outline" size="sm" className="gap-2 ml-auto" onClick={handleBulkUnlockAll}>
+            <Unlock className="w-4 h-4" />
+            Unlock All Manual Modules
+          </Button>
+        )}
       </div>
 
       {/* Modules Table */}
@@ -619,7 +661,17 @@ export function AdminModulesTab({ programs, modules, isLoading, onRefetch }: Adm
                       />
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-2">
+                      <div className="flex items-center justify-end gap-1">
+                        {module.unlock_type === "manual" && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            title="Quick unlock (set to immediate)"
+                            onClick={() => handleQuickUnlock(module.id)}
+                          >
+                            <Unlock className="w-4 h-4 text-primary" />
+                          </Button>
+                        )}
                         <Button
                           variant="ghost"
                           size="icon"
