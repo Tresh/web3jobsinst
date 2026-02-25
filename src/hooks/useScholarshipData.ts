@@ -209,6 +209,11 @@ export function useScholarshipPortal() {
       )
       .on(
         "postgres_changes",
+        { event: "*", schema: "public", table: "scholarship_modules" },
+        () => scheduleTasksRefetch()
+      )
+      .on(
+        "postgres_changes",
         {
           event: "*",
           schema: "public",
