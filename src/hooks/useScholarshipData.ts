@@ -306,6 +306,9 @@ export function useScholarshipPortal() {
     if (mod.unlock_type === "immediate") return "available";
     if (mod.unlock_type === "day" && mod.unlock_day && dayNumber >= mod.unlock_day) return "available";
 
+    // For manual/task types: if admin has created a progress record (any status), treat as available
+    if ((mod.unlock_type === "manual" || mod.unlock_type === "task") && progress) return "available";
+
     return "locked";
   };
 

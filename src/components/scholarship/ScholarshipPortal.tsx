@@ -29,6 +29,7 @@ export function ScholarshipPortal() {
     notifications,
     totalScholars,
     userRank,
+    dayNumber,
     submitTask,
     markNotificationRead,
     markAllNotificationsRead,
@@ -145,7 +146,7 @@ export function ScholarshipPortal() {
           <PortalModules
             modules={modules}
             getModuleStatus={getModuleStatus}
-            dayNumber={0}
+            dayNumber={dayNumber}
             onRefetch={refetch}
             programId={application.program_id}
             userTotalXp={application.total_xp || 0}
