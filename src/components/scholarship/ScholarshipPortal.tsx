@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { GraduationCap, ListTodo, Trophy, BookOpen, Bell, Gift, FolderCheck, Briefcase } from "lucide-react";
 import { useScholarshipPortal } from "@/hooks/useScholarshipData";
@@ -12,7 +13,11 @@ import { PortalProofOfWork } from "./PortalProofOfWork";
 import { PortalInternshipProfile } from "./PortalInternshipProfile";
 import { Loader2 } from "lucide-react";
 
+// Module-level — persists the active tab across navigation without URL coupling
+let persistedTab = "overview";
+
 export function ScholarshipPortal() {
+  const location = useLocation();
   const {
     isLoading,
     application,
@@ -31,6 +36,16 @@ export function ScholarshipPortal() {
     getModuleStatus,
     refetch,
   } = useScholarshipPortal();
+
+  // Prefer location.state?.tab (e.g. coming back from module detail),
+  // then the last tab the user was on, then default to "overview"
+  const initialTab = (location.state as any)?.tab || persistedTab;
+  const [activeTab, setActiveTab] = useState<string>(initialTab);
+
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    persistedTab = tab;
+  };
 
   const unreadCount = notifications.filter((n) => !n.is_read).length;
   const completedModulesCount = moduleProgress?.filter((p) => p.status === "completed").length || 0;
@@ -59,7 +74,7 @@ export function ScholarshipPortal() {
         </p>
       </div>
 
-      <Tabs defaultValue="overview" className="space-y-6">
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
         <TabsList className="flex w-full overflow-x-auto scrollbar-hide justify-start lg:w-auto lg:inline-flex lg:justify-center">
           <TabsTrigger value="overview" className="gap-2">
             <GraduationCap className="w-4 h-4 hidden sm:inline" />

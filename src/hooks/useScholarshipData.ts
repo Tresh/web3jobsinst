@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import type {
@@ -11,20 +11,49 @@ import type {
   LeaderboardEntry,
 } from "@/types/scholarship";
 
+// Module-level session cache — survives component unmount/remount within the same tab session.
+// Keyed by user ID so switching accounts is safe.
+type PortalCache = {
+  application: ScholarshipApplication | null;
+  tasks: ScholarshipTask[];
+  submissions: ScholarshipTaskSubmission[];
+  modules: ScholarshipModule[];
+  moduleProgress: ScholarshipModuleProgress[];
+  notifications: ScholarshipNotification[];
+  leaderboard: LeaderboardEntry[];
+  loaded: boolean;
+};
+
+const portalCache = new Map<string, PortalCache>();
+
+const emptyCache = (): PortalCache => ({
+  application: null,
+  tasks: [],
+  submissions: [],
+  modules: [],
+  moduleProgress: [],
+  notifications: [],
+  leaderboard: [],
+  loaded: false,
+});
+
 export function useScholarshipPortal() {
   const { user } = useAuth();
-  const [isLoading, setIsLoading] = useState(true);
-  const [application, setApplication] = useState<ScholarshipApplication | null>(null);
-  const [tasks, setTasks] = useState<ScholarshipTask[]>([]);
-  const [submissions, setSubmissions] = useState<ScholarshipTaskSubmission[]>([]);
-  const [modules, setModules] = useState<ScholarshipModule[]>([]);
-  const [moduleProgress, setModuleProgress] = useState<ScholarshipModuleProgress[]>([]);
-  const [notifications, setNotifications] = useState<ScholarshipNotification[]>([]);
-  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
+  const cached = user?.id ? (portalCache.get(user.id) ?? emptyCache()) : emptyCache();
+
+  // Initialise state from cache — on remount, cached data is available immediately
+  const [application, setApplication] = useState<ScholarshipApplication | null>(cached.application);
+  const [tasks, setTasks] = useState<ScholarshipTask[]>(cached.tasks);
+  const [submissions, setSubmissions] = useState<ScholarshipTaskSubmission[]>(cached.submissions);
+  const [modules, setModules] = useState<ScholarshipModule[]>(cached.modules);
+  const [moduleProgress, setModuleProgress] = useState<ScholarshipModuleProgress[]>(cached.moduleProgress);
+  const [notifications, setNotifications] = useState<ScholarshipNotification[]>(cached.notifications);
+  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>(cached.leaderboard);
+  // Only show the full-screen loader on the very first load (cache empty)
+  const [isLoading, setIsLoading] = useState(!cached.loaded);
 
   const isApproved = application?.status === "approved";
-  
-  // Calculate days since start
+
   const getDayNumber = () => {
     if (!application?.scholarship_start_date) return 0;
     const startDate = new Date(application.scholarship_start_date);
@@ -34,16 +63,24 @@ export function useScholarshipPortal() {
     return Math.max(1, Math.min(diffDays, 30));
   };
 
-  const initialLoadDone = useRef(false);
+  // Helper — write through to the module-level cache
+  const updateCache = useCallback(
+    (patch: Partial<PortalCache>) => {
+      if (!user?.id) return;
+      const prev = portalCache.get(user.id) ?? emptyCache();
+      portalCache.set(user.id, { ...prev, ...patch });
+    },
+    [user?.id]
+  );
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     if (!user) return;
-    if (!initialLoadDone.current) {
-      setIsLoading(true);
-    }
+
+    // Only show full-screen loader when we have no cached data
+    const existing = portalCache.get(user.id);
+    if (!existing?.loaded) setIsLoading(true);
 
     try {
-      // Fetch user's approved application
       const { data: appData } = await supabase
         .from("scholarship_applications")
         .select("*")
@@ -53,12 +90,11 @@ export function useScholarshipPortal() {
         .single();
 
       if (appData) {
-        setApplication(appData as unknown as ScholarshipApplication);
+        const app = appData as unknown as ScholarshipApplication;
+        setApplication(app);
+        updateCache({ application: app });
 
-        // Only fetch portal data if approved
         if (appData.status === "approved" && appData.program_id) {
-          // Fetch tasks - include global tasks and program-specific tasks
-          // The RLS policy already handles visibility, but we filter for active/published
           const { data: tasksData } = await supabase
             .from("scholarship_tasks")
             .select("*")
@@ -67,43 +103,45 @@ export function useScholarshipPortal() {
             .or(`is_global.eq.true,program_id.eq.${appData.program_id}`)
             .order("created_at", { ascending: false });
 
-          setTasks((tasksData || []) as unknown as ScholarshipTask[]);
+          const tArr = (tasksData || []) as unknown as ScholarshipTask[];
+          setTasks(tArr);
 
-          // Fetch user's submissions
           const { data: subsData } = await supabase
             .from("scholarship_task_submissions")
             .select("*")
             .eq("user_id", user.id);
 
-          setSubmissions((subsData || []) as unknown as ScholarshipTaskSubmission[]);
+          const sArr = (subsData || []) as unknown as ScholarshipTaskSubmission[];
+          setSubmissions(sArr);
 
-          // Fetch modules with new video/cover fields (includes intro module with order_index = -1)
           const { data: modulesData } = await supabase
             .from("scholarship_modules")
             .select("id, program_id, title, description, order_index, unlock_type, unlock_day, unlock_task_id, is_published, cover_image_url, video_url, video_duration, xp_value, xp_threshold, created_at, updated_at")
             .eq("program_id", appData.program_id)
             .eq("is_published", true)
-            .gte("order_index", 0)  // Exclude intro module (order_index = -1) from regular modules list
+            .gte("order_index", 0)
             .order("order_index", { ascending: true });
 
-          setModules((modulesData || []) as unknown as ScholarshipModule[]);
+          const mArr = (modulesData || []) as unknown as ScholarshipModule[];
+          setModules(mArr);
 
-          // Fetch module progress
           const { data: progressData } = await supabase
             .from("scholarship_module_progress")
             .select("*")
             .eq("user_id", user.id);
 
-          setModuleProgress((progressData || []) as unknown as ScholarshipModuleProgress[]);
+          const pArr = (progressData || []) as unknown as ScholarshipModuleProgress[];
+          setModuleProgress(pArr);
 
-          // Fetch leaderboard
           const { data: leaderboardData } = await supabase
             .rpc("get_scholarship_leaderboard", { p_program_id: appData.program_id });
 
-          setLeaderboard((leaderboardData || []) as unknown as LeaderboardEntry[]);
+          const lArr = (leaderboardData || []) as unknown as LeaderboardEntry[];
+          setLeaderboard(lArr);
+
+          updateCache({ tasks: tArr, submissions: sArr, modules: mArr, moduleProgress: pArr, leaderboard: lArr });
         }
 
-        // Fetch notifications
         const { data: notifData } = await supabase
           .from("scholarship_notifications")
           .select("*")
@@ -111,26 +149,53 @@ export function useScholarshipPortal() {
           .order("created_at", { ascending: false })
           .limit(20);
 
-        setNotifications((notifData || []) as unknown as ScholarshipNotification[]);
+        const nArr = (notifData || []) as unknown as ScholarshipNotification[];
+        setNotifications(nArr);
+        updateCache({ notifications: nArr, loaded: true });
       }
     } catch (error) {
       console.error("Error fetching scholarship data:", error);
     } finally {
       setIsLoading(false);
-      initialLoadDone.current = true;
     }
-  };
+  }, [user?.id, updateCache]);
 
-  // Realtime auto-sync: whenever tasks/submissions/notifications change, refetch.
-  // This keeps approved scholars dashboards up-to-date without manual refresh.
+  // Targeted fetch — only submissions
+  const fetchSubmissionsOnly = useCallback(async () => {
+    if (!user) return;
+    const { data: subsData } = await supabase
+      .from("scholarship_task_submissions")
+      .select("*")
+      .eq("user_id", user.id);
+    const sArr = (subsData || []) as unknown as ScholarshipTaskSubmission[];
+    setSubmissions(sArr);
+    updateCache({ submissions: sArr });
+  }, [user?.id, updateCache]);
+
+  // Targeted fetch — only notifications
+  const fetchNotificationsOnly = useCallback(async () => {
+    if (!user) return;
+    const { data: notifData } = await supabase
+      .from("scholarship_notifications")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(20);
+    const nArr = (notifData || []) as unknown as ScholarshipNotification[];
+    setNotifications(nArr);
+    updateCache({ notifications: nArr });
+  }, [user?.id, updateCache]);
+
+  // Debounced full refetch — only for admin-driven task changes
   const refetchTimerRef = useRef<number | null>(null);
-  const scheduleRefetch = () => {
+  const scheduleTasksRefetch = useCallback(() => {
     if (refetchTimerRef.current) window.clearTimeout(refetchTimerRef.current);
     refetchTimerRef.current = window.setTimeout(() => {
       fetchData();
-    }, 250);
-  };
+    }, 400);
+  }, [fetchData]);
 
+  // Realtime: surgical updates
   useEffect(() => {
     if (!user) return;
     if (application?.status !== "approved" || !application.program_id) return;
@@ -140,7 +205,7 @@ export function useScholarshipPortal() {
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "scholarship_tasks" },
-        () => scheduleRefetch()
+        () => scheduleTasksRefetch()
       )
       .on(
         "postgres_changes",
@@ -150,7 +215,7 @@ export function useScholarshipPortal() {
           table: "scholarship_task_submissions",
           filter: `user_id=eq.${user.id}`,
         },
-        () => scheduleRefetch()
+        () => fetchSubmissionsOnly()
       )
       .on(
         "postgres_changes",
@@ -160,7 +225,7 @@ export function useScholarshipPortal() {
           table: "scholarship_notifications",
           filter: `user_id=eq.${user.id}`,
         },
-        () => scheduleRefetch()
+        () => fetchNotificationsOnly()
       )
       .subscribe();
 
@@ -185,7 +250,7 @@ export function useScholarshipPortal() {
       });
 
     if (!error) {
-      await fetchData();
+      await fetchSubmissionsOnly();
     }
 
     return { error };
@@ -200,6 +265,11 @@ export function useScholarshipPortal() {
     setNotifications((prev) =>
       prev.map((n) => (n.id === notificationId ? { ...n, is_read: true } : n))
     );
+    updateCache({
+      notifications: (portalCache.get(user?.id || "")?.notifications || []).map((n) =>
+        n.id === notificationId ? { ...n, is_read: true } : n
+      ),
+    });
   };
 
   const markAllNotificationsRead = async () => {
@@ -212,6 +282,12 @@ export function useScholarshipPortal() {
       .eq("is_read", false);
 
     setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
+    updateCache({
+      notifications: (portalCache.get(user.id)?.notifications || []).map((n) => ({
+        ...n,
+        is_read: true,
+      })),
+    });
   };
 
   const getSubmissionForTask = (taskId: string) => {
@@ -238,9 +314,10 @@ export function useScholarshipPortal() {
     return leaderboard.find((entry) => entry.user_id === user.id);
   };
 
+  // Fetch on mount / user change — background refresh if cache already has data
   useEffect(() => {
     fetchData();
-  }, [user]);
+  }, [fetchData]);
 
   return {
     isLoading,

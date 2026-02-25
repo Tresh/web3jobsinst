@@ -126,12 +126,12 @@ const Dashboard = () => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 z-40 h-full w-64 bg-background/80 backdrop-blur-md border-r border-border/50 transform transition-transform duration-200 lg:translate-x-0 ${
+        className={`fixed top-0 left-0 z-40 h-full w-64 bg-background/80 backdrop-blur-md border-r border-border/50 transform transition-transform duration-200 lg:translate-x-0 flex flex-col ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         {/* Sidebar Header */}
-        <div className="h-16 border-b border-border px-4 flex items-center gap-2">
+        <div className="h-16 border-b border-border px-4 flex items-center gap-2 flex-shrink-0">
           <Link to="/" className="flex items-center gap-2">
             <img src="/favicon.png" alt="Web3 Jobs Institute" className="w-8 h-8" />
             <span className="font-bold text-foreground">Web3 Jobs Institute</span>
@@ -139,7 +139,7 @@ const Dashboard = () => {
         </div>
 
         {/* User Info */}
-        <div className="p-4 border-b border-border">
+        <div className="p-4 border-b border-border flex-shrink-0">
           <div className="flex items-center gap-3">
             <div className="relative">
               <Avatar className="h-10 w-10">
@@ -179,8 +179,8 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Navigation */}
-        <nav className="p-4 space-y-1">
+        {/* Navigation — scrollable, fills remaining space */}
+        <nav className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-1">
           {navItems.map((item) => (
             <Link
               key={item.href}
@@ -200,7 +200,7 @@ const Dashboard = () => {
         </nav>
 
         {/* Sign Out */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-border">
+        <div className="p-4 border-t border-border flex-shrink-0">
           <Button
             variant="ghost"
             className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground"

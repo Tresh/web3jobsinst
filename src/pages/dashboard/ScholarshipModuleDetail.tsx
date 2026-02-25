@@ -332,14 +332,14 @@ export default function ScholarshipModuleDetail() {
 
           <div className="p-6 space-y-4">
             {/* Module Info */}
-            <div className="flex items-start justify-between gap-4">
-              <div>
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+              <div className="min-w-0">
                 <h2 className="text-xl font-semibold">{module.title}</h2>
                 {module.description && (
                   <p className="text-muted-foreground mt-2">{module.description}</p>
                 )}
               </div>
-              <div className="flex items-center gap-2 shrink-0 flex-wrap">
+              <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap sm:shrink-0">
                 {module.video_duration && (
                   <Badge variant="outline" className="gap-1">
                     <Clock className="w-3 h-3" />

@@ -31,6 +31,13 @@ export const useConversations = () => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Optimistic: immediately zero the unread badge when the user opens a conversation
+  const clearConversationUnread = (conversationId: string) => {
+    setConversations((prev) =>
+      prev.map((c) => (c.id === conversationId ? { ...c, unread_count: 0 } : c))
+    );
+  };
+
   const fetchConversations = useCallback(async () => {
     if (!user) return;
     
@@ -109,7 +116,7 @@ export const useConversations = () => {
     return () => { supabase.removeChannel(channel); };
   }, [user, fetchConversations]);
 
-  return { conversations, loading, refetch: fetchConversations };
+  return { conversations, loading, refetch: fetchConversations, clearConversationUnread };
 };
 
 export const useChat = (conversationId: string | null) => {

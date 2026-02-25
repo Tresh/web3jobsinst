@@ -15,7 +15,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import faviconLogo from "/favicon.png";
 import ComingSoonDialog from "./ComingSoonDialog";
 import UserMenu from "./auth/UserMenu";
@@ -162,7 +161,7 @@ const Navbar = () => {
                   <SheetHeader className="p-4 border-b border-border">
                     <SheetTitle className="text-left">Menu</SheetTitle>
                   </SheetHeader>
-                  <ScrollArea className="h-[calc(100vh-60px)]">
+                  <div className="h-[calc(100vh-60px)] overflow-y-auto overscroll-contain">
                     <div className="flex flex-col gap-1 p-4">
                       {user && (
                         <Link
@@ -242,7 +241,7 @@ const Navbar = () => {
                         </div>
                       )}
                     </div>
-                  </ScrollArea>
+                  </div>
                 </SheetContent>
               </Sheet>
             </div>

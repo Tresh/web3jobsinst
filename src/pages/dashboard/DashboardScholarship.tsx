@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { GraduationCap, Clock, CheckCircle, XCircle, Loader2, ExternalLink, AlertCircle } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -12,42 +12,43 @@ import type { ScholarshipApplication, ScholarshipProgram } from "@/types/scholar
 
 const DashboardScholarship = () => {
   const { user } = useAuth();
-  const [isLoading, setIsLoading] = useState(true);
-  const [applications, setApplications] = useState<ScholarshipApplication[]>([]);
-  const [activePrograms, setActivePrograms] = useState<ScholarshipProgram[]>([]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!user) return;
-
+  const { data: applications = [], isLoading: appsLoading } = useQuery({
+    queryKey: ["scholarship-applications", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
       const { data: apps } = await supabase
         .from("scholarship_applications")
         .select("*")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
+      return (apps || []) as unknown as ScholarshipApplication[];
+    },
+    enabled: !!user?.id,
+    staleTime: 5 * 60 * 1000,   // keep cache fresh for 5 min
+    gcTime: 10 * 60 * 1000,     // discard cache after 10 min idle
+  });
 
+  const { data: activePrograms = [] } = useQuery({
+    queryKey: ["scholarship-programs"],
+    queryFn: async () => {
       const { data: programs } = await supabase
         .from("scholarship_programs")
         .select("*")
         .eq("is_active", true);
+      return (programs || []) as unknown as ScholarshipProgram[];
+    },
+    staleTime: 10 * 60 * 1000,
+    gcTime: 15 * 60 * 1000,
+  });
 
-      setApplications((apps || []) as unknown as ScholarshipApplication[]);
-      setActivePrograms((programs || []) as unknown as ScholarshipProgram[]);
-      setIsLoading(false);
-    };
-
-    fetchData();
-  }, [user]);
-
-  // Check if user has an approved application
   const approvedApplication = applications.find((app) => app.status === "approved");
 
-  // If approved, show the full portal
-  if (!isLoading && approvedApplication) {
+  // Show portal immediately if approved (data comes from cache on revisit — no flash)
+  if (!appsLoading && approvedApplication) {
     return <ScholarshipPortal />;
   }
 
-  // Helper functions for non-approved users
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "approved":
@@ -74,7 +75,7 @@ const DashboardScholarship = () => {
     }
   };
 
-  if (isLoading) {
+  if (appsLoading) {
     return (
       <div className="p-6 lg:p-8 flex items-center justify-center min-h-[400px]">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -82,12 +83,8 @@ const DashboardScholarship = () => {
     );
   }
 
-  const appliedProgramIds = applications.map((a) => a.program_id);
-  const availablePrograms = activePrograms.filter((p) => !appliedProgramIds.includes(p.id));
-
   return (
     <div className="p-6 lg:p-8 max-w-4xl">
-      {/* Countdown Timer - visible to everyone */}
       <CountdownTimer />
 
       <div className="mb-8 mt-6">
@@ -100,7 +97,6 @@ const DashboardScholarship = () => {
         </p>
       </div>
 
-      {/* Applications Status */}
       {applications.length > 0 && (
         <div className="mb-8">
           <h2 className="text-lg font-semibold mb-4">Your Applications</h2>
@@ -134,7 +130,7 @@ const DashboardScholarship = () => {
                         )}
                       </div>
                     </div>
-                    
+
                     {app.status === "pending" && (
                       <div className="mt-4 bg-secondary/50 p-4 rounded-lg">
                         <p className="text-sm text-muted-foreground">
@@ -143,7 +139,7 @@ const DashboardScholarship = () => {
                         </p>
                       </div>
                     )}
-                    
+
                     {app.status === "rejected" && (
                       <div className="mt-4 bg-red-500/10 p-4 rounded-lg">
                         <p className="text-sm font-medium text-red-500 mb-1">Application Not Accepted</p>
@@ -152,7 +148,7 @@ const DashboardScholarship = () => {
                         </p>
                       </div>
                     )}
-                    
+
                     {app.status === "waitlist" && (
                       <div className="mt-4 bg-yellow-500/10 p-4 rounded-lg">
                         <p className="text-sm font-medium text-yellow-600 dark:text-yellow-400 mb-1">You're on the Waitlist</p>
@@ -169,17 +165,13 @@ const DashboardScholarship = () => {
         </div>
       )}
 
-      {/* Available Programs - HIDDEN: Scholarship intake closed */}
-      {/* Programs section removed - intake is closed for new applicants */}
-
-      {/* Scholarship Intake Closed - Show to users without applications */}
       {applications.length === 0 && (
         <Card className="border-dashed">
           <CardContent className="p-12 text-center">
             <GraduationCap className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-semibold mb-2">Scholarship Intake Has Ended</h3>
             <p className="text-muted-foreground mb-4">
-              Thank you for your interest! The current scholarship batch is now closed. 
+              Thank you for your interest! The current scholarship batch is now closed.
               Stay tuned for the next cohort — we'll announce it soon.
             </p>
             <Button asChild variant="outline">

@@ -2,6 +2,52 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
+// Compress + resize to at most maxDim×maxDim at given JPEG quality (0–1)
+const compressImage = (file: File, maxDim = 300, quality = 0.75): Promise<Blob> => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(file);
+
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+
+      let { width, height } = img;
+      if (width > maxDim || height > maxDim) {
+        if (width > height) {
+          height = Math.round((height * maxDim) / width);
+          width = maxDim;
+        } else {
+          width = Math.round((width * maxDim) / height);
+          height = maxDim;
+        }
+      }
+
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return reject(new Error("Canvas not supported"));
+      ctx.drawImage(img, 0, 0, width, height);
+
+      canvas.toBlob(
+        (blob) => {
+          if (blob) resolve(blob);
+          else reject(new Error("Compression failed"));
+        },
+        "image/jpeg",
+        quality
+      );
+    };
+
+    img.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error("Image load failed"));
+    };
+
+    img.src = objectUrl;
+  });
+};
+
 export const useProfilePhotoUpload = (userId: string | undefined) => {
   const { toast } = useToast();
   const [uploading, setUploading] = useState(false);
@@ -17,25 +63,22 @@ export const useProfilePhotoUpload = (userId: string | undefined) => {
     }
 
     setUploading(true);
-    
-    try {
-      // Create unique file path
-      const fileExt = file.name.split(".").pop();
-      const filePath = `${userId}/avatar.${fileExt}`;
 
-      // Upload to scholar-photos bucket (repurposing existing bucket)
+    try {
+      // Compress: max 300×300, JPEG at 75% — keeps avatar well under 30KB
+      const compressed = await compressImage(file, 300, 0.75);
+      const filePath = `${userId}/avatar.jpg`;
+
       const { error: uploadError } = await supabase.storage
         .from("scholar-photos")
-        .upload(filePath, file, { upsert: true });
+        .upload(filePath, compressed, { upsert: true, contentType: "image/jpeg" });
 
       if (uploadError) throw uploadError;
 
-      // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from("scholar-photos")
         .getPublicUrl(filePath);
 
-      // Update profile with new avatar URL
       const { error: updateError } = await supabase
         .from("profiles")
         .update({ avatar_url: publicUrl })

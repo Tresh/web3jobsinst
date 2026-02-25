@@ -1,19 +1,34 @@
 import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { useConversations, useChat, type Conversation } from "@/hooks/useMessages";
+import { useConversations, useChat, type Conversation, type Message } from "@/hooks/useMessages";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MessageSquare, Send, ArrowLeft, Loader2, CreditCard } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { MessageSquare, Send, ArrowLeft, Loader2, CreditCard, Smile, X, CornerUpLeft } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import ComingSoonDialog from "@/components/ComingSoonDialog";
 
+const EMOJI_LIST = [
+  "😀","😂","😍","🥰","😊","😎","🤔","😢","😡","🤩",
+  "👍","👎","❤️","🔥","✅","⭐","🎉","💯","🙏","👏",
+  "💪","🚀","💡","📌","📢","💬","✨","🎯","💰","🌍",
+  "😅","🤣","😭","😤","🥳","🤝","👀","💀","🫡","🫂",
+  "1️⃣","2️⃣","3️⃣","💎","🏆","📈","⚡","🌟","🎓","🛠️",
+];
+
 const DashboardMessages = () => {
   const { user } = useAuth();
-  const { conversations, loading } = useConversations();
+  const { conversations, loading, clearConversationUnread } = useConversations();
   const [activeConvo, setActiveConvo] = useState<Conversation | null>(null);
+
+  const handleSelectConvo = (convo: Conversation) => {
+    setActiveConvo(convo);
+    // Immediately zero the badge — DB mark-as-read is handled inside useChat
+    clearConversationUnread(convo.id);
+  };
 
   return (
     <div className="h-[calc(100vh-64px)] lg:h-screen flex flex-col">
@@ -50,7 +65,7 @@ const DashboardMessages = () => {
               return (
                 <button
                   key={convo.id}
-                  onClick={() => setActiveConvo(convo)}
+                  onClick={() => handleSelectConvo(convo)}
                   className={cn(
                     "w-full p-4 text-left flex items-center gap-3 hover:bg-secondary/50 transition-colors border-b border-border",
                     activeConvo?.id === convo.id && "bg-secondary"
@@ -64,9 +79,7 @@ const DashboardMessages = () => {
                   </Avatar>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
-                      <p className="font-medium text-sm truncate">
-                        {name}
-                      </p>
+                      <p className="font-medium text-sm truncate">{name}</p>
                       <span className="text-xs text-muted-foreground">
                         {format(new Date(convo.last_message_at), "MMM d")}
                       </span>
@@ -76,7 +89,7 @@ const DashboardMessages = () => {
                     </p>
                   </div>
                   {(convo.unread_count || 0) > 0 && (
-                    <span className="bg-primary text-primary-foreground text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                    <span className="bg-primary text-primary-foreground text-xs w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0">
                       {convo.unread_count}
                     </span>
                   )}
@@ -120,8 +133,11 @@ interface ChatPanelProps {
 const ChatPanel = ({ conversation, onBack, currentUserId }: ChatPanelProps) => {
   const { messages, loading, sendMessage } = useChat(conversation.id);
   const [input, setInput] = useState("");
+  const [replyingTo, setReplyingTo] = useState<Message | null>(null);
   const [payComingSoon, setPayComingSoon] = useState(false);
+  const [emojiOpen, setEmojiOpen] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -129,15 +145,29 @@ const ChatPanel = ({ conversation, onBack, currentUserId }: ChatPanelProps) => {
 
   const handleSend = async () => {
     if (!input.trim()) return;
-    const text = input;
+    let text = input.trim();
+    if (replyingTo) {
+      const preview = replyingTo.content.length > 60
+        ? replyingTo.content.slice(0, 60) + "…"
+        : replyingTo.content;
+      // Strip nested quotes from the preview so replies don't chain
+      const cleanPreview = preview.startsWith("> ") ? preview.slice(2) : preview;
+      text = `> ${cleanPreview}\n\n${text}`;
+    }
     setInput("");
+    setReplyingTo(null);
     await sendMessage(text);
+  };
+
+  const handleEmojiSelect = (emoji: string) => {
+    setInput((prev) => prev + emoji);
+    setEmojiOpen(false);
+    inputRef.current?.focus();
   };
 
   const otherUser = conversation.other_user;
   const name = otherUser?.full_name || "Unknown";
-  const initials = name
-    .split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
+  const initials = name.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
 
   return (
     <>
@@ -176,15 +206,44 @@ const ChatPanel = ({ conversation, onBack, currentUserId }: ChatPanelProps) => {
         )}
         {messages.map((msg) => {
           const isMine = msg.sender_id === currentUserId;
+          // Detect reply prefix: "> quote\n\nbody"
+          const parts = msg.content.split("\n\n");
+          const hasReply = parts.length >= 2 && parts[0].startsWith("> ");
+          const quotedText = hasReply ? parts[0].slice(2) : null;
+          const bodyText = hasReply ? parts.slice(1).join("\n\n") : msg.content;
+
           return (
-            <div key={msg.id} className={cn("flex", isMine ? "justify-end" : "justify-start")}>
+            <div
+              key={msg.id}
+              className={cn("flex group items-end gap-1", isMine ? "justify-end" : "justify-start")}
+            >
+              {/* Reply button — shows on hover, opposite side of bubble */}
+              {!isMine && (
+                <button
+                  onClick={() => { setReplyingTo(msg); inputRef.current?.focus(); }}
+                  className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-full hover:bg-secondary mb-1 order-last"
+                  title="Reply"
+                >
+                  <CornerUpLeft className="w-3.5 h-3.5 text-muted-foreground" />
+                </button>
+              )}
+
               <div className={cn(
                 "max-w-[75%] px-4 py-2 rounded-2xl text-sm",
                 isMine
                   ? "bg-primary text-primary-foreground rounded-br-md"
                   : "bg-secondary text-foreground rounded-bl-md"
               )}>
-                <p>{msg.content}</p>
+                {/* Quoted reply */}
+                {quotedText && (
+                  <div className={cn(
+                    "text-xs border-l-2 pl-2 mb-2 opacity-70 line-clamp-2",
+                    isMine ? "border-primary-foreground/50" : "border-primary/50"
+                  )}>
+                    {quotedText}
+                  </div>
+                )}
+                <p className="whitespace-pre-wrap break-words">{bodyText}</p>
                 <p className={cn(
                   "text-[10px] mt-1",
                   isMine ? "text-primary-foreground/70" : "text-muted-foreground"
@@ -192,11 +251,36 @@ const ChatPanel = ({ conversation, onBack, currentUserId }: ChatPanelProps) => {
                   {format(new Date(msg.created_at), "h:mm a")}
                 </p>
               </div>
+
+              {isMine && (
+                <button
+                  onClick={() => { setReplyingTo(msg); inputRef.current?.focus(); }}
+                  className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-full hover:bg-secondary mb-1"
+                  title="Reply"
+                >
+                  <CornerUpLeft className="w-3.5 h-3.5 text-muted-foreground" />
+                </button>
+              )}
             </div>
           );
         })}
         <div ref={bottomRef} />
       </div>
+
+      {/* Reply preview bar */}
+      {replyingTo && (
+        <div className="px-4 py-2 border-t border-border flex items-center gap-2 bg-secondary/40">
+          <CornerUpLeft className="w-4 h-4 text-primary flex-shrink-0" />
+          <p className="text-xs text-muted-foreground truncate flex-1">
+            {replyingTo.content.length > 80
+              ? replyingTo.content.slice(0, 80) + "…"
+              : replyingTo.content}
+          </p>
+          <button onClick={() => setReplyingTo(null)}>
+            <X className="w-4 h-4 text-muted-foreground hover:text-foreground transition-colors" />
+          </button>
+        </div>
+      )}
 
       {/* Input */}
       <div className="p-4 border-t border-border">
@@ -204,7 +288,31 @@ const ChatPanel = ({ conversation, onBack, currentUserId }: ChatPanelProps) => {
           onSubmit={(e) => { e.preventDefault(); handleSend(); }}
           className="flex items-center gap-2"
         >
+          {/* Emoji picker */}
+          <Popover open={emojiOpen} onOpenChange={setEmojiOpen}>
+            <PopoverTrigger asChild>
+              <Button type="button" variant="ghost" size="icon" className="flex-shrink-0 text-muted-foreground">
+                <Smile className="w-5 h-5" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent side="top" align="start" className="w-64 p-2">
+              <div className="grid grid-cols-10 gap-0.5">
+                {EMOJI_LIST.map((emoji) => (
+                  <button
+                    key={emoji}
+                    type="button"
+                    onClick={() => handleEmojiSelect(emoji)}
+                    className="text-lg p-1 rounded hover:bg-secondary transition-colors leading-none"
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+            </PopoverContent>
+          </Popover>
+
           <Input
+            ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Type a message..."
