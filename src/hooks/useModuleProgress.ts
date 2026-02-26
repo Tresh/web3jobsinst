@@ -75,39 +75,8 @@ export function useModuleProgress({ moduleId, xpValue }: UseModuleProgressProps)
         }
       }
 
-      // Find or create a task submission for this module video
-      // Look for a task associated with this module (by title convention)
-      const { data: moduleTask } = await supabase
-        .from("scholarship_tasks")
-        .select("id, xp_value")
-        .ilike("title", `%${moduleData.title.substring(0, 30)}%`)
-        .eq("task_type", "complete_lesson")
-        .maybeSingle();
-
-      if (moduleTask) {
-        // Check if submission already exists
-        const { data: existingSub } = await supabase
-          .from("scholarship_task_submissions")
-          .select("id")
-          .eq("task_id", moduleTask.id)
-          .eq("user_id", user.id)
-          .maybeSingle();
-
-        if (!existingSub) {
-          // Create auto-approved submission for the module video
-          await supabase
-            .from("scholarship_task_submissions")
-            .insert({
-              task_id: moduleTask.id,
-              user_id: user.id,
-              submission_text: `MODULE_VIDEO_WATCH_${moduleId}`,
-              submission_url: null,
-              status: "approved",
-              xp_awarded: moduleTask.xp_value || xpValue,
-            });
-        }
-      } else if (xpValue > 0) {
-        // No specific task found, just update user's total XP directly
+      // Award XP directly to the user's scholarship application
+      if (xpValue > 0) {
         const { data: appData } = await supabase
           .from("scholarship_applications")
           .select("total_xp")
@@ -116,11 +85,15 @@ export function useModuleProgress({ moduleId, xpValue }: UseModuleProgressProps)
           .maybeSingle();
 
         if (appData) {
-          await supabase
+          const { error: xpError } = await supabase
             .from("scholarship_applications")
             .update({ total_xp: (appData.total_xp || 0) + xpValue })
             .eq("user_id", user.id)
             .eq("status", "approved");
+
+          if (xpError) {
+            console.error("Error awarding XP:", xpError);
+          }
         }
       }
 
