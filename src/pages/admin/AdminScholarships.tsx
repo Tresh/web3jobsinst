@@ -435,13 +435,8 @@ const AdminScholarships = () => {
       return;
     }
 
-    if (approved && selectedSubmission?.applicant) {
-      const currentXp = selectedSubmission.applicant.total_xp || 0;
-      await supabase
-        .from("scholarship_applications")
-        .update({ total_xp: currentXp + xpValue })
-        .eq("user_id", selectedSubmission.user_id);
-    }
+    // XP updates are handled in the database trigger when submissions become approved.
+    // Keeping app-side writes out here prevents drift/double-counting.
 
     if (selectedSubmission) {
       await supabase.from("scholarship_notifications").insert({
@@ -610,16 +605,9 @@ const AdminScholarships = () => {
           .eq("id", sub.id)
           .eq("status", "pending"); // Only update if still pending (idempotent)
 
-        if (!error && xpValue > 0) {
-          // Award XP - the trigger handles this but we also update directly for safety
-          const applicant = applications.find((a) => a.user_id === sub.user_id);
-          if (applicant) {
-            const currentXp = applicant.total_xp || 0;
-            await supabase
-              .from("scholarship_applications")
-              .update({ total_xp: currentXp + xpValue })
-              .eq("user_id", sub.user_id);
-          }
+        if (!error) {
+          // XP updates are handled by DB trigger (submission approval + xp_awarded).
+          // Only send notification from app layer.
 
           // Create notification
           await supabase.from("scholarship_notifications").insert({
