@@ -21,12 +21,18 @@ const ResetPassword = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check for hash parameters that indicate a recovery flow
+    // Handle both hash-based and query-based recovery links
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const queryParams = new URLSearchParams(window.location.search);
+
     const accessToken = hashParams.get("access_token");
-    const type = hashParams.get("type");
-    const errorCode = hashParams.get("error_code");
-    const errorDescription = hashParams.get("error_description");
+    const hashType = hashParams.get("type");
+    const tokenHash = queryParams.get("token_hash");
+    const queryType = queryParams.get("type");
+    const authCode = queryParams.get("code");
+
+    const errorCode = hashParams.get("error_code") || queryParams.get("error_code");
+    const errorDescription = hashParams.get("error_description") || queryParams.get("error_description");
 
     // Handle error in URL (e.g., expired link)
     if (errorCode || errorDescription) {
@@ -35,10 +41,34 @@ const ResetPassword = () => {
       return;
     }
 
-    // If we have a recovery token in the URL, Supabase will handle it
-    if (accessToken && type === "recovery") {
-      // Supabase client automatically picks up the token from the URL hash
-      // and sets the session, triggering onAuthStateChange with PASSWORD_RECOVERY
+    // Query-based recovery (token_hash flow)
+    if (tokenHash && queryType === "recovery") {
+      supabase.auth.verifyOtp({ type: "recovery", token_hash: tokenHash }).then(({ error }) => {
+        if (error) {
+          setIsValidSession(false);
+          setErrorMessage("This reset link is invalid or has expired. Please request a new one.");
+        } else {
+          setIsValidSession(true);
+        }
+      });
+      return;
+    }
+
+    // Auth-code based recovery flow
+    if (authCode) {
+      supabase.auth.exchangeCodeForSession(authCode).then(({ error }) => {
+        if (error) {
+          setIsValidSession(false);
+          setErrorMessage("Unable to verify reset link. Please request a new one.");
+        } else {
+          setIsValidSession(true);
+        }
+      });
+      return;
+    }
+
+    // Hash-based recovery flow
+    if (accessToken && hashType === "recovery") {
       setIsValidSession(true);
       return;
     }
@@ -66,8 +96,8 @@ const ResetPassword = () => {
       
       if (session) {
         setIsValidSession(true);
-      } else if (!accessToken) {
-        // No session and no token in URL
+      } else if (!accessToken && !tokenHash && !authCode) {
+        // No session and no recovery token/code in URL
         setIsValidSession(false);
         setErrorMessage("No valid reset session found. Please request a new password reset link.");
       }
