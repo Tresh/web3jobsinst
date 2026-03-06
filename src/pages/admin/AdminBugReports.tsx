@@ -88,21 +88,29 @@ const AdminBugReports = () => {
   const [adminNotes, setAdminNotes] = useState("");
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
+  const [page, setPage] = useState(0);
+  const [allReports, setAllReports] = useState<BugReport[]>([]);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+
+  const PAGE_SIZE = 30;
+
   const { data: reports, isLoading } = useQuery({
-    queryKey: ["bug-reports", filterStatus],
+    queryKey: ["bug-reports", filterStatus, page],
     queryFn: async () => {
       let query = supabase
         .from("bug_reports")
-        .select("*")
+        .select("*", { count: "exact" })
         .order("created_at", { ascending: false })
-        .limit(30);
+        .range(0, (page + 1) * PAGE_SIZE - 1);
 
       if (filterStatus !== "all") {
         query = query.eq("status", filterStatus);
       }
 
-      const { data, error } = await query;
+      const { data, error, count } = await query;
       if (error) throw error;
+      setHasMore((data?.length || 0) < (count || 0));
       return data as BugReport[];
     },
   });
@@ -234,83 +242,97 @@ const AdminBugReports = () => {
               No bug reports found.
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Reporter</TableHead>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Screenshots</TableHead>
-                  <TableHead>Submitted</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {reports?.map((report) => (
-                  <TableRow key={report.id}>
-                    <TableCell>
-                      <div className="flex flex-col">
-                        <span className="font-medium text-sm">
-                          {report.reporter_name || "Guest"}
-                        </span>
-                        {report.reporter_email && (
-                          <span className="text-xs text-muted-foreground">
-                            {report.reporter_email}
-                          </span>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <span className="font-medium line-clamp-1 max-w-[200px]">
-                        {report.title}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <Select
-                        value={report.status}
-                        onValueChange={(v) => handleStatusChange(report.id, v as BugReportStatus)}
-                      >
-                        <SelectTrigger className="w-32 h-8">
-                          <Badge variant="outline" className={statusColors[report.status]}>
-                            {statusLabels[report.status]}
-                          </Badge>
-                        </SelectTrigger>
-                        <SelectContent>
-                          {(["new", "in_review", "resolved", "ignored"] as BugReportStatus[]).map((s) => (
-                            <SelectItem key={s} value={s}>
-                              {statusLabels[s]}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
-                    <TableCell>
-                      {report.screenshot_urls?.length > 0 ? (
-                        <Badge variant="secondary">
-                          <ImageIcon className="h-3 w-3 mr-1" />
-                          {report.screenshot_urls.length}
-                        </Badge>
-                      ) : (
-                        <span className="text-muted-foreground text-sm">None</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {format(new Date(report.created_at), "MMM d, yyyy")}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => openReportDetails(report)}
-                      >
-                        <Eye className="h-4 w-4 mr-1" />
-                        View
-                      </Button>
-                    </TableCell>
+            <>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Reporter</TableHead>
+                    <TableHead>Title</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Screenshots</TableHead>
+                    <TableHead>Submitted</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {(reports || []).map((report) => (
+                    <TableRow key={report.id}>
+                      <TableCell>
+                        <div className="flex flex-col">
+                          <span className="font-medium text-sm">
+                            {report.reporter_name || "Guest"}
+                          </span>
+                          {report.reporter_email && (
+                            <span className="text-xs text-muted-foreground">
+                              {report.reporter_email}
+                            </span>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <span className="font-medium line-clamp-1 max-w-[200px]">
+                          {report.title}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <Select
+                          value={report.status}
+                          onValueChange={(v) => handleStatusChange(report.id, v as BugReportStatus)}
+                        >
+                          <SelectTrigger className="w-32 h-8">
+                            <Badge variant="outline" className={statusColors[report.status]}>
+                              {statusLabels[report.status]}
+                            </Badge>
+                          </SelectTrigger>
+                          <SelectContent>
+                            {(["new", "in_review", "resolved", "ignored"] as BugReportStatus[]).map((s) => (
+                              <SelectItem key={s} value={s}>
+                                {statusLabels[s]}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </TableCell>
+                      <TableCell>
+                        {report.screenshot_urls?.length > 0 ? (
+                          <Badge variant="secondary">
+                            <ImageIcon className="h-3 w-3 mr-1" />
+                            {report.screenshot_urls.length}
+                          </Badge>
+                        ) : (
+                          <span className="text-muted-foreground text-sm">None</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {format(new Date(report.created_at), "MMM d, yyyy")}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => openReportDetails(report)}
+                        >
+                          <Eye className="h-4 w-4 mr-1" />
+                          View
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              {hasMore && (reports?.length || 0) > 0 && (
+                <div className="flex justify-center py-4 border-t border-border">
+                  <Button
+                    variant="outline"
+                    onClick={() => setPage(p => p + 1)}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                    Load More
+                  </Button>
+                </div>
+              )}
+            </>
           )}
         </CardContent>
       </Card>
