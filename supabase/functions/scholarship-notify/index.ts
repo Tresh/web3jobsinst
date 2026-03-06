@@ -70,7 +70,7 @@ const handler = async (req: Request): Promise<Response> => {
     <p style="font-size: 16px;">Great news! <strong>Your scholarship application has been approved!</strong></p>
     <p style="font-size: 16px;">You are now officially part of the Web3 Jobs Institute Scholarship Program. Your journey to building skills, earning rewards, and joining our community starts now.</p>
     <div style="text-align: center; margin: 30px 0;">
-      <a href="https://web3jobsinstitute.careers/dashboard/scholarship" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">Access Your Scholarship Portal</a>
+      <a href="https://web3jobsinstitute.careers/dashboard/scholarship" style="display: inline-block; background: linear-gradient(135deg, #FF4D00 0%, #E64500 100%); color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">Access Your Scholarship Portal</a>
     </div>
     <p style="font-size: 14px; color: #666;">Here's what you can do next:</p>
     <ul style="font-size: 14px; color: #666;">
