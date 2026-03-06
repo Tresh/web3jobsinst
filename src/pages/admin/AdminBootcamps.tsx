@@ -69,7 +69,7 @@ const AdminBootcamps = () => {
         query = query.or(`title.ilike.%${debouncedSearch}%,host_name.ilike.%${debouncedSearch}%`);
       }
       if (statusFilter !== "all") {
-        query = query.eq("status", statusFilter);
+        query = query.eq("status", statusFilter as BootcampStatus);
       }
 
       const { data, error, count } = await query;
