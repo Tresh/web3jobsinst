@@ -32,9 +32,11 @@ import {
   Rocket,
   Zap,
   FileText,
+  BarChart3,
 } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { useIsMobile } from "@/hooks/use-mobile";
+import NotificationBell from "@/components/NotificationBell";
 
 const adminNavItems = [
   {
@@ -81,6 +83,11 @@ const adminNavItems = [
     title: "Tutors",
     icon: BookOpen,
     href: "/admin/tutors",
+  },
+  {
+    title: "Analytics",
+    icon: BarChart3,
+    href: "/admin/analytics",
   },
   {
     title: "Changelog",
@@ -232,6 +239,7 @@ const AdminLayout = () => {
               <Menu className="h-5 w-5" />
             </SidebarTrigger>
             <div className="flex items-center gap-2 sm:gap-4">
+              <NotificationBell />
               <div className="text-right hidden sm:block">
                 <p className="text-sm font-medium">{profile?.full_name || "Admin"}</p>
                 <p className="text-xs text-muted-foreground">Administrator</p>

@@ -21,6 +21,8 @@ import faviconLogo from "/favicon.png";
 import ComingSoonDialog from "@/components/ComingSoonDialog";
 import UserMenu from "@/components/auth/UserMenu";
 import { useAuth } from "@/contexts/AuthContext";
+import NotificationBell from "@/components/NotificationBell";
+import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 
 interface NavLink {
   label: string;
@@ -189,7 +191,9 @@ const UnifiedNavbar = ({
             </div>
 
             {/* Auth & Mobile Menu */}
-            <div className="flex items-center gap-3 shrink-0">
+            <div className="flex items-center gap-2 shrink-0">
+              <PWAInstallPrompt />
+              <NotificationBell />
               <div className="hidden sm:block">
                 <UserMenu />
               </div>

@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      analytics_events: {
+        Row: {
+          created_at: string | null
+          event_type: string
+          id: string
+          metadata: Json | null
+          page_path: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          page_path?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          page_path?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       bootcamp_applications: {
         Row: {
           admin_notes: string | null
@@ -1371,6 +1398,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      notifications: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          link: string | null
+          message: string | null
+          title: string
+          type: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          link?: string | null
+          message?: string | null
+          title: string
+          type?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          link?: string | null
+          message?: string | null
+          title?: string
+          type?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       password_reset_attempts: {
         Row: {

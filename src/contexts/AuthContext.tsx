@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState, useRef, useCallback } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -41,8 +41,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [profile, setProfile] = useState<Profile | null>(null);
   const [role, setRole] = useState<AppRole | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Guards to prevent redundant fetches
+  const lastFetchedUserId = useRef<string | null>(null);
+  const isFetching = useRef(false);
 
-  const fetchProfile = async (userId: string) => {
+  const fetchProfile = useCallback(async (userId: string) => {
     try {
       const { data, error } = await supabase
         .from("profiles")
@@ -59,9 +63,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error("Error fetching profile:", error);
       return null;
     }
-  };
+  }, []);
 
-  const fetchRole = async (userId: string): Promise<AppRole | null> => {
+  const fetchRole = useCallback(async (userId: string): Promise<AppRole | null> => {
     try {
       const { data, error } = await supabase
         .from("user_roles")
@@ -75,7 +79,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       if (data && data.length > 0) {
-        // Return highest role (admin > moderator > user)
         const roles = data.map((r) => r.role as AppRole);
         if (roles.includes("admin")) return "admin";
         if (roles.includes("moderator")) return "moderator";
@@ -86,7 +89,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error("Error fetching role:", error);
       return null;
     }
-  };
+  }, []);
 
   const refreshRole = async () => {
     if (user) {
@@ -102,8 +105,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const loadUserData = useCallback(async (userId: string, event?: string) => {
+    // Skip if already fetching or if same user data was just fetched
+    if (isFetching.current) return;
+    if (lastFetchedUserId.current === userId && event === "TOKEN_REFRESHED") return;
+    
+    isFetching.current = true;
+    try {
+      const [userProfile, userRole] = await Promise.all([
+        fetchProfile(userId),
+        fetchRole(userId),
+      ]);
+      setProfile(userProfile);
+      setRole(userRole);
+      lastFetchedUserId.current = userId;
+    } finally {
+      isFetching.current = false;
+      setIsLoading(false);
+    }
+  }, [fetchProfile, fetchRole]);
+
   useEffect(() => {
-    // Set up auth state listener BEFORE getting session
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, currentSession) => {
         setSession(currentSession);
@@ -112,21 +134,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (currentSession?.user) {
           // Use setTimeout to prevent potential deadlock with Supabase client
           setTimeout(async () => {
-            const userProfile = await fetchProfile(currentSession.user.id);
-            setProfile(userProfile);
-            const userRole = await fetchRole(currentSession.user.id);
-            setRole(userRole);
-            setIsLoading(false);
+            await loadUserData(currentSession.user.id, event);
 
             // Track referral on first login (new user signup)
             if (event === "SIGNED_IN") {
-              // Check sessionStorage first, then fall back to user metadata
               const storedRefCode = sessionStorage.getItem("referral_code");
               const metadataRefCode = currentSession.user.user_metadata?.referral_code;
               const referralCode = storedRefCode || metadataRefCode;
               
               if (referralCode) {
-                // Track this referral relationship
                 try {
                   const { data: referrerCode } = await supabase
                     .from("scholar_referral_codes")
@@ -135,7 +151,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     .maybeSingle();
 
                   if (referrerCode && referrerCode.user_id !== currentSession.user.id) {
-                    // Check if already tracked
                     const { data: existing } = await supabase
                       .from("scholar_referrals")
                       .select("id")
@@ -161,30 +176,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } else {
           setProfile(null);
           setRole(null);
+          lastFetchedUserId.current = null;
           setIsLoading(false);
         }
       }
     );
 
-    // Get initial session
     supabase.auth.getSession().then(({ data: { session: initialSession } }) => {
       if (!initialSession) {
         setIsLoading(false);
       }
-      // The auth state listener will handle setting the session
     });
 
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [loadUserData]);
 
   const signInWithGoogle = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: {
-        redirectTo: window.location.origin,
-      },
+      options: { redirectTo: window.location.origin },
     });
     if (error) throw error;
   };
@@ -192,18 +204,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signInWithTwitter = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "twitter",
-      options: {
-        redirectTo: window.location.origin,
-      },
+      options: { redirectTo: window.location.origin },
     });
     if (error) throw error;
   };
 
   const signInWithEmail = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
     return { error: error as Error | null };
   };
 
@@ -229,6 +236,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setSession(null);
     setProfile(null);
     setRole(null);
+    lastFetchedUserId.current = null;
   };
 
   const value: AuthContextType = {
