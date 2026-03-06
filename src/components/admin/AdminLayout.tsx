@@ -85,6 +85,11 @@ const adminNavItems = [
     href: "/admin/tutors",
   },
   {
+    title: "Analytics",
+    icon: BarChart3,
+    href: "/admin/analytics",
+  },
+  {
     title: "Changelog",
     icon: FileText,
     href: "/admin/changelog",
