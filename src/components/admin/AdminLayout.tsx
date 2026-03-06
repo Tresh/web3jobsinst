@@ -32,9 +32,11 @@ import {
   Rocket,
   Zap,
   FileText,
+  BarChart3,
 } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { useIsMobile } from "@/hooks/use-mobile";
+import NotificationBell from "@/components/NotificationBell";
 
 const adminNavItems = [
   {
