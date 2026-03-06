@@ -197,28 +197,16 @@ const AdminScholarships = () => {
 
     const appsPromise = (async () => {
       try {
-        // Paginate to fetch ALL applications (Supabase has 1000 row limit)
-        const PAGE_SIZE = 1000;
-        const allApplications: ScholarshipApplication[] = [];
-        let page = 0;
-        
-        while (true) {
-          const res = await withTimeout(
-            supabase
-              .from("scholarship_applications")
-              .select("*")
-              .order("created_at", { ascending: false })
-              .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1),
-            8000
-          );
-          if ((res as any).error) throw (res as any).error;
-          const batch = ((res as any).data || []) as ScholarshipApplication[];
-          allApplications.push(...batch);
-          if (batch.length < PAGE_SIZE) break;
-          page++;
-        }
-        
-        setApplications(allApplications);
+        const res = await withTimeout(
+          supabase
+            .from("scholarship_applications")
+            .select("*", { count: "exact" })
+            .order("created_at", { ascending: false })
+            .limit(30),
+          8000
+        );
+        if ((res as any).error) throw (res as any).error;
+        setApplications(((res as any).data || []) as ScholarshipApplication[]);
       } catch {
         setApplications([]);
       } finally {
