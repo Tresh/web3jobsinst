@@ -254,7 +254,7 @@ const AdminBugReports = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {reports?.map((report) => (
+                {(reports || []).map((report) => (
                   <TableRow key={report.id}>
                     <TableCell>
                       <div className="flex flex-col">
