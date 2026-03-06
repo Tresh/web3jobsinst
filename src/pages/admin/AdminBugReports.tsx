@@ -94,7 +94,8 @@ const AdminBugReports = () => {
       let query = supabase
         .from("bug_reports")
         .select("*")
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .limit(30);
 
       if (filterStatus !== "all") {
         query = query.eq("status", filterStatus);
