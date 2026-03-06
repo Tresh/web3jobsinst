@@ -183,7 +183,7 @@ const AdminScholarships = () => {
     const tasksPromise = (async () => {
       try {
         const res = await withTimeout(
-          supabase.from("scholarship_tasks").select("*").order("created_at", { ascending: false }),
+          supabase.from("scholarship_tasks").select("*").order("created_at", { ascending: false }).limit(30),
           8000
         );
         if ((res as any).error) throw (res as any).error;
