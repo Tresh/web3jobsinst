@@ -239,6 +239,7 @@ const AdminLayout = () => {
               <Menu className="h-5 w-5" />
             </SidebarTrigger>
             <div className="flex items-center gap-2 sm:gap-4">
+              <NotificationBell />
               <div className="text-right hidden sm:block">
                 <p className="text-sm font-medium">{profile?.full_name || "Admin"}</p>
                 <p className="text-xs text-muted-foreground">Administrator</p>

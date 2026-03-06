@@ -21,6 +21,8 @@ import faviconLogo from "/favicon.png";
 import ComingSoonDialog from "@/components/ComingSoonDialog";
 import UserMenu from "@/components/auth/UserMenu";
 import { useAuth } from "@/contexts/AuthContext";
+import NotificationBell from "@/components/NotificationBell";
+import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 
 interface NavLink {
   label: string;
