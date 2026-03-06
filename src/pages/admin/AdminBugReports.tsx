@@ -88,21 +88,29 @@ const AdminBugReports = () => {
   const [adminNotes, setAdminNotes] = useState("");
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
+  const [page, setPage] = useState(0);
+  const [allReports, setAllReports] = useState<BugReport[]>([]);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+
+  const PAGE_SIZE = 30;
+
   const { data: reports, isLoading } = useQuery({
-    queryKey: ["bug-reports", filterStatus],
+    queryKey: ["bug-reports", filterStatus, page],
     queryFn: async () => {
       let query = supabase
         .from("bug_reports")
-        .select("*")
+        .select("*", { count: "exact" })
         .order("created_at", { ascending: false })
-        .limit(30);
+        .range(0, (page + 1) * PAGE_SIZE - 1);
 
       if (filterStatus !== "all") {
         query = query.eq("status", filterStatus);
       }
 
-      const { data, error } = await query;
+      const { data, error, count } = await query;
       if (error) throw error;
+      setHasMore((data?.length || 0) < (count || 0));
       return data as BugReport[];
     },
   });
