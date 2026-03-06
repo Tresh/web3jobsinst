@@ -250,7 +250,7 @@ const AdminScholarships = () => {
     const modulesPromise = (async () => {
       try {
         const res = await withTimeout(
-          supabase.from("scholarship_modules").select("*").order("order_index", { ascending: true }),
+          supabase.from("scholarship_modules").select("*").order("order_index", { ascending: true }).limit(30),
           8000
         );
         if ((res as any).error) throw (res as any).error;

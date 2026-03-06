@@ -44,15 +44,15 @@ const AdminScholarshipTasks = () => {
           8000
         ),
         withTimeout(
-          supabase.from("scholarship_tasks").select("*").order("created_at", { ascending: false }),
+          supabase.from("scholarship_tasks").select("*").order("created_at", { ascending: false }).limit(30),
           8000
         ),
         withTimeout(
-          supabase.from("scholarship_applications").select("*").order("created_at", { ascending: false }),
+          supabase.from("scholarship_applications").select("*").order("created_at", { ascending: false }).limit(30),
           8000
         ),
         withTimeout(
-          supabase.from("scholarship_task_submissions").select("*").order("created_at", { ascending: false }),
+          supabase.from("scholarship_task_submissions").select("*").order("created_at", { ascending: false }).limit(30),
           8000
         ),
       ]);
