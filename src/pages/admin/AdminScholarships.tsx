@@ -221,7 +221,8 @@ const AdminScholarships = () => {
           supabase
             .from("scholarship_task_submissions")
             .select("*, scholarship_tasks!inner(id, title, xp_value, task_type, status, program_id)")
-            .order("created_at", { ascending: false }),
+            .order("created_at", { ascending: false })
+            .limit(30),
           8000
         );
         if ((res as any).error) throw (res as any).error;
