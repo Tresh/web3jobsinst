@@ -319,6 +319,18 @@ const AdminBugReports = () => {
                 ))}
               </TableBody>
             </Table>
+            {hasMore && (reports?.length || 0) > 0 && (
+              <div className="flex justify-center py-4 border-t border-border">
+                <Button
+                  variant="outline"
+                  onClick={() => setPage(p => p + 1)}
+                  disabled={isLoading}
+                >
+                  {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                  Load More
+                </Button>
+              </div>
+            )}
           )}
         </CardContent>
       </Card>

@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -38,6 +38,8 @@ interface TutorApplication {
   updated_at: string;
 }
 
+const PAGE_SIZE = 30;
+
 const expertiseLabels: Record<string, string> = {
   development: "Web3 Development",
   trading: "Trading & DeFi",
@@ -59,28 +61,82 @@ const AdminTutors = () => {
   const { toast } = useToast();
   const [applications, setApplications] = useState<TutorApplication[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [statusFilter, setStatusFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selected, setSelected] = useState<TutorApplication | null>(null);
   const [adminNotes, setAdminNotes] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [totalCount, setTotalCount] = useState<number | null>(null);
 
-  const fetchApplications = async () => {
-    setIsLoading(true);
-    const { data, error } = await supabase
-      .from("tutor_applications")
-      .select("*")
-      .order("created_at", { ascending: false });
+  // Debounce search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+      setPage(0);
+      setApplications([]);
+      setHasMore(true);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
-    if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else {
-      setApplications((data as unknown as TutorApplication[]) || []);
+  const fetchApplications = useCallback(async (pageNum: number, append = false) => {
+    if (!append) setIsLoading(true);
+    else setLoadingMore(true);
+
+    try {
+      let query = supabase
+        .from("tutor_applications")
+        .select("*", { count: "exact" })
+        .order("created_at", { ascending: false })
+        .range(pageNum * PAGE_SIZE, (pageNum + 1) * PAGE_SIZE - 1);
+
+      if (debouncedSearch) {
+        query = query.or(`full_name.ilike.%${debouncedSearch}%,email.ilike.%${debouncedSearch}%`);
+      }
+      if (statusFilter !== "all") {
+        query = query.eq("status", statusFilter);
+      }
+
+      const { data, error, count } = await query;
+      if (error) throw error;
+
+      const items = (data as unknown as TutorApplication[]) || [];
+      if (count !== null) setTotalCount(count);
+
+      if (append) {
+        setApplications(prev => [...prev, ...items]);
+      } else {
+        setApplications(items);
+      }
+      setHasMore(items.length === PAGE_SIZE);
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setIsLoading(false);
+      setLoadingMore(false);
     }
-    setIsLoading(false);
+  }, [debouncedSearch, statusFilter, toast]);
+
+  useEffect(() => {
+    fetchApplications(0);
+  }, [fetchApplications]);
+
+  const loadMore = () => {
+    const nextPage = page + 1;
+    setPage(nextPage);
+    fetchApplications(nextPage, true);
   };
 
-  useEffect(() => { fetchApplications(); }, []);
+  const resetAndRefetch = () => {
+    setPage(0);
+    setApplications([]);
+    setHasMore(true);
+    fetchApplications(0);
+  };
 
   const updateStatus = async (id: string, newStatus: string) => {
     setIsUpdating(true);
@@ -98,7 +154,7 @@ const AdminTutors = () => {
       toast({ title: `Application ${newStatus}` });
       setSelected(null);
       setAdminNotes("");
-      fetchApplications();
+      resetAndRefetch();
     }
     setIsUpdating(false);
   };
@@ -110,21 +166,12 @@ const AdminTutors = () => {
     } else {
       toast({ title: "Application deleted" });
       setSelected(null);
-      fetchApplications();
+      resetAndRefetch();
     }
   };
 
-  const filtered = applications.filter((app) => {
-    if (statusFilter !== "all" && app.status !== statusFilter) return false;
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      return app.full_name.toLowerCase().includes(q) || app.email.toLowerCase().includes(q);
-    }
-    return true;
-  });
-
   const counts = {
-    total: applications.length,
+    total: totalCount ?? applications.length,
     pending: applications.filter((a) => a.status === "pending").length,
     approved: applications.filter((a) => a.status === "approved").length,
     rejected: applications.filter((a) => a.status === "rejected").length,
@@ -137,6 +184,7 @@ const AdminTutors = () => {
           <h1 className="text-2xl font-bold text-foreground">Tutor Applications</h1>
           <p className="text-muted-foreground">Manage tutor applications and approvals</p>
         </div>
+        <Badge variant="secondary">{totalCount !== null ? `${totalCount} total` : `${applications.length} loaded`}</Badge>
       </div>
 
       {/* Stats */}
@@ -153,7 +201,7 @@ const AdminTutors = () => {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input placeholder="Search by name or email..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-9" />
         </div>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
+        <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(0); setApplications([]); setHasMore(true); }}>
           <SelectTrigger className="w-[160px]"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Status</SelectItem>
@@ -167,7 +215,7 @@ const AdminTutors = () => {
       {/* Table */}
       {isLoading ? (
         <div className="flex items-center justify-center py-12"><Loader2 className="w-6 h-6 animate-spin" /></div>
-      ) : filtered.length === 0 ? (
+      ) : applications.length === 0 ? (
         <Card><CardContent className="p-8 text-center text-muted-foreground">No applications found.</CardContent></Card>
       ) : (
         <Card>
@@ -183,31 +231,26 @@ const AdminTutors = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtered.map((app) => (
+              {applications.map((app) => (
                 <TableRow key={app.id}>
-                  <TableCell>
-                    <div>
-                      <p className="font-medium text-foreground">{app.full_name}</p>
-                      <p className="text-xs text-muted-foreground">{app.email}</p>
-                    </div>
-                  </TableCell>
+                  <TableCell><div><p className="font-medium text-foreground">{app.full_name}</p><p className="text-xs text-muted-foreground">{app.email}</p></div></TableCell>
                   <TableCell className="hidden sm:table-cell">{expertiseLabels[app.expertise] || app.expertise}</TableCell>
                   <TableCell className="hidden md:table-cell">{app.experience}</TableCell>
-                  <TableCell>
-                    <Badge variant={statusConfig[app.status]?.variant || "secondary"}>
-                      {statusConfig[app.status]?.label || app.status}
-                    </Badge>
-                  </TableCell>
+                  <TableCell><Badge variant={statusConfig[app.status]?.variant || "secondary"}>{statusConfig[app.status]?.label || app.status}</Badge></TableCell>
                   <TableCell className="hidden md:table-cell text-sm text-muted-foreground">{format(new Date(app.created_at), "MMM d, yyyy")}</TableCell>
-                  <TableCell className="text-right">
-                    <Button size="sm" variant="ghost" onClick={() => { setSelected(app); setAdminNotes(app.admin_notes || ""); }}>
-                      <Eye className="w-4 h-4" />
-                    </Button>
-                  </TableCell>
+                  <TableCell className="text-right"><Button size="sm" variant="ghost" onClick={() => { setSelected(app); setAdminNotes(app.admin_notes || ""); }}><Eye className="w-4 h-4" /></Button></TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
+          {hasMore && applications.length > 0 && (
+            <div className="flex justify-center py-4 border-t border-border">
+              <Button variant="outline" onClick={loadMore} disabled={loadingMore}>
+                {loadingMore ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                Load More
+              </Button>
+            </div>
+          )}
         </Card>
       )}
 
@@ -217,9 +260,7 @@ const AdminTutors = () => {
           {selected && (
             <>
               <DialogHeader>
-                <DialogTitle className="flex items-center gap-2">
-                  <BookOpen className="w-5 h-5" /> {selected.full_name}
-                </DialogTitle>
+                <DialogTitle className="flex items-center gap-2"><BookOpen className="w-5 h-5" /> {selected.full_name}</DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-3 text-sm">
@@ -231,38 +272,17 @@ const AdminTutors = () => {
                 {selected.portfolio_url && (
                   <div className="text-sm">
                     <span className="text-muted-foreground">Portfolio:</span>
-                    <a href={selected.portfolio_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-primary hover:underline">
-                      {selected.portfolio_url} <ExternalLink className="w-3 h-3" />
-                    </a>
+                    <a href={selected.portfolio_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-primary hover:underline">{selected.portfolio_url} <ExternalLink className="w-3 h-3" /></a>
                   </div>
                 )}
-                <div className="text-sm">
-                  <span className="text-muted-foreground">Pitch:</span>
-                  <p className="mt-1 p-3 bg-secondary rounded-md">{selected.pitch}</p>
-                </div>
-                <div className="text-sm">
-                  <span className="text-muted-foreground">Applied:</span>
-                  <p>{format(new Date(selected.created_at), "PPP 'at' p")}</p>
-                </div>
-                <div>
-                  <span className="text-sm text-muted-foreground">Admin Notes</span>
-                  <Textarea value={adminNotes} onChange={(e) => setAdminNotes(e.target.value)} placeholder="Add notes about this applicant..." rows={3} className="mt-1" />
-                </div>
+                <div className="text-sm"><span className="text-muted-foreground">Pitch:</span><p className="mt-1 p-3 bg-secondary rounded-md">{selected.pitch}</p></div>
+                <div className="text-sm"><span className="text-muted-foreground">Applied:</span><p>{format(new Date(selected.created_at), "PPP 'at' p")}</p></div>
+                <div><span className="text-sm text-muted-foreground">Admin Notes</span><Textarea value={adminNotes} onChange={(e) => setAdminNotes(e.target.value)} placeholder="Add notes about this applicant..." rows={3} className="mt-1" /></div>
               </div>
               <DialogFooter className="flex-col sm:flex-row gap-2 mt-4">
-                {selected.status !== "approved" && (
-                  <Button onClick={() => updateStatus(selected.id, "approved")} disabled={isUpdating} className="flex-1">
-                    <CheckCircle className="w-4 h-4 mr-1" /> Approve
-                  </Button>
-                )}
-                {selected.status !== "rejected" && (
-                  <Button variant="destructive" onClick={() => updateStatus(selected.id, "rejected")} disabled={isUpdating} className="flex-1">
-                    <XCircle className="w-4 h-4 mr-1" /> Reject
-                  </Button>
-                )}
-                <Button variant="outline" size="icon" onClick={() => deleteApplication(selected.id)} disabled={isUpdating}>
-                  <Trash2 className="w-4 h-4" />
-                </Button>
+                {selected.status !== "approved" && (<Button onClick={() => updateStatus(selected.id, "approved")} disabled={isUpdating} className="flex-1"><CheckCircle className="w-4 h-4 mr-1" /> Approve</Button>)}
+                {selected.status !== "rejected" && (<Button variant="destructive" onClick={() => updateStatus(selected.id, "rejected")} disabled={isUpdating} className="flex-1"><XCircle className="w-4 h-4 mr-1" /> Reject</Button>)}
+                <Button variant="outline" size="icon" onClick={() => deleteApplication(selected.id)} disabled={isUpdating}><Trash2 className="w-4 h-4" /></Button>
               </DialogFooter>
             </>
           )}
