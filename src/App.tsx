@@ -72,6 +72,7 @@ import AdminBootcampManage from "./pages/admin/AdminBootcampManage";
 import AdminTutors from "./pages/admin/AdminTutors";
 import AdminUserProfile from "./pages/admin/AdminUserProfile";
 import AdminChangelog from "./pages/admin/AdminChangelog";
+import AdminAnalytics from "./pages/admin/AdminAnalytics";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
