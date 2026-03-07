@@ -15,6 +15,7 @@ import {
   Zap,
   Settings,
 } from "lucide-react";
+import NotificationBell from "@/components/NotificationBell";
 import type { Bootcamp, BootcampParticipant, BootcampTask, BootcampTaskSubmission, BootcampLeaderboardEntry } from "@/types/bootcamp";
 import CommunityTab from "./CommunityTab";
 import ClassroomTab from "./ClassroomTab";
