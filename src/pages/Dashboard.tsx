@@ -24,6 +24,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 import OnboardingFlow from "@/components/onboarding/OnboardingFlow";
+import ProfilePhotoReminder from "@/components/ProfilePhotoReminder";
 
 const navItems = [
   { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
