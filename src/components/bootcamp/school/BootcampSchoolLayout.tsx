@@ -142,7 +142,7 @@ const BootcampSchoolLayout = ({
       </header>
 
       {/* Tab Content */}
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto px-4 sm:px-6 py-4">
         {activeTab === "community" && (
           <CommunityTab
             bootcamp={bootcamp}
