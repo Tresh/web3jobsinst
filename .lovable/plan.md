@@ -1,57 +1,84 @@
-# Fix: Modules Not Showing as Available for Students
 
-## Problem Identified
 
-There are two issues preventing "Go Live (Immediate)" modules from appearing available to students:
+# Paystack Integration for Digital Products
 
-1. **`getModuleStatus` always defaults to "locked"**: The function in `useScholarshipData.ts` (line 221-224) only checks if a `scholarship_module_progress` record exists. If there's no progress record (i.e., the student hasn't started the module yet), it returns `"locked"` regardless of the module's `unlock_type`. This means even "immediate" modules appear locked.
+## Current State
+- Products are **hardcoded** in `src/data/productsData.ts` — no database table
+- Admin page reads from static data, no CRUD
+- Cart exists but checkout is disabled ("Checkout (Soon)")
+- No payment infrastructure at all
 
-2. **Missing `xp_threshold` in the query**: The modules query (line 83) explicitly lists columns but does not include `xp_threshold`, so the XP-gating logic in `PortalModules` silently fails.
+## What We Need to Build
 
-## Solution
+### 1. Database: `products` table + `product_orders` table
 
-### 1. Update the modules query to include `xp_threshold`
-**File:** `src/hooks/useScholarshipData.ts` (line 83)
-- Add `xp_threshold` to the select column list.
+**`products`** table for admin CRUD:
+- id, title, description, category, price (integer, kobo), currency, image_url, creator_name, creator_user_id, download_url, downloads_count, is_published, created_at, updated_at
 
-### 2. Fix `getModuleStatus` to consider unlock rules
-**File:** `src/hooks/useScholarshipData.ts` (lines 221-224)
-- Rewrite `getModuleStatus` to check the module's `unlock_type`, `unlock_day`, and the student's current day number.
-- If a module has `unlock_type = "immediate"`, return `"available"` (not `"locked"`).
-- If `unlock_type = "day"` and the student has reached that day, return `"available"`.
-- If there's a completed progress record, return `"completed"`.
-- Otherwise, return `"locked"`.
+**`product_orders`** table to track purchases:
+- id, user_id, product_id, email, amount, currency, paystack_reference, paystack_transaction_id, status (pending/success/failed), created_at
 
-This requires the function to accept the module object (not just the ID), or to look up the module from the modules list.
+RLS: Anyone can view published products. Admins full CRUD. Users can insert orders and view own orders. Admins can view all orders.
 
-### Technical Details
+### 2. Edge Function: `paystack-initialize`
+- Receives product_id + user email
+- Looks up product price from DB (never trust frontend amount)
+- Calls `POST https://api.paystack.co/transaction/initialize` with secret key
+- Creates a `product_orders` row with status=pending
+- Returns `authorization_url` to frontend
 
-**`useScholarshipData.ts` changes:**
+### 3. Edge Function: `paystack-webhook`
+- Receives Paystack webhook events
+- Verifies `x-paystack-signature` via HMAC SHA512
+- On `charge.success`: verifies amount matches, updates order status to "success", increments product downloads_count
+- Prevents duplicate fulfillment by checking existing order status
 
-```
-// Line 83 - Add xp_threshold to select
-.select("id, program_id, title, description, order_index, unlock_type, unlock_day, unlock_task_id, is_published, cover_image_url, video_url, video_duration, xp_value, xp_threshold, created_at, updated_at")
+### 4. Edge Function: `paystack-verify`
+- Called after user returns from Paystack checkout
+- Calls `GET https://api.paystack.co/transaction/verify/{reference}`
+- Updates order status accordingly
+- Returns success/fail to frontend
 
-// Lines 221-224 - Rewrite getModuleStatus
-const getModuleStatus = (moduleId: string): "locked" | "available" | "completed" => {
-  const progress = moduleProgress.find((p) => p.module_id === moduleId);
-  if (progress?.status === "completed") return "completed";
+### 5. Secret Required
+- `PAYSTACK_SECRET_KEY` — the user's Paystack secret key (sk_live_xxx or sk_test_xxx)
 
-  const mod = modules.find((m) => m.id === moduleId);
-  if (!mod) return "locked";
+### 6. Frontend Changes
 
-  const dayNumber = getDayNumber();
+**Products page** (`Products.tsx` + `ProductGrid.tsx`):
+- Fetch products from Supabase instead of static data
+- Remove "Coming Soon" overlay for published products
+- Product click opens a detail dialog with "Buy Now" / "Get Free" button
+- Buy Now: calls `paystack-initialize`, redirects to `authorization_url`
+- After return: calls `paystack-verify`, shows success/failure toast
 
-  if (mod.unlock_type === "immediate") return "available";
-  if (mod.unlock_type === "day" && mod.unlock_day && dayNumber >= mod.unlock_day) return "available";
+**Cart Dialog** (`CartDialog.tsx`):
+- Enable checkout button — initializes Paystack for total amount
+- Or simplify to single-product purchase flow (recommended for v1)
 
-  // For "task" and "manual" types, remain locked unless progress exists
-  return "locked";
-};
-```
+**Admin Products** (`AdminProducts.tsx`):
+- Full CRUD against `products` table
+- Add/Edit product dialog with form fields
+- Toggle published status
+- View orders/sales per product
 
-### Files to Edit
-- `src/hooks/useScholarshipData.ts` -- add `xp_threshold` to query and fix `getModuleStatus` logic
+**Dashboard Products** (`DashboardProducts.tsx`):
+- Show user's purchased products with download links
 
-No new files or database changes needed.
+### 7. Config
+- Add `[functions.paystack-initialize]`, `[functions.paystack-webhook]`, `[functions.paystack-verify]` to `supabase/config.toml` with `verify_jwt = false`
+
+## Implementation Order
+1. Ask user for Paystack secret key via secrets tool
+2. Create DB migration (products + product_orders tables)
+3. Build 3 edge functions
+4. Update Admin Products with full CRUD
+5. Update Products page with live data + payment flow
+6. Update Dashboard Products to show purchases
+7. Seed initial products from existing static data via migration
+
+## Technical Notes
+- Paystack amounts are in **kobo** (NGN lowest denomination): NGN 5000 = 500000
+- Currency will default to NGN
+- Popup method is simplest: frontend redirects to `authorization_url`, Paystack handles the rest
+- Webhook ensures reliability even if user closes browser after payment
 
