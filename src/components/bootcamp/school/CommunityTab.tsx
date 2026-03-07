@@ -140,7 +140,7 @@ const CommunityTab = ({
         user_avatar: profile?.avatar_url,
         message: `${newPost.title}\n${newPost.content}`,
         message_type: "post",
-        topic_id: newPost.category,
+        topic_id: null,
         is_pinned: isHost && newPost.category === "announcements",
       });
 

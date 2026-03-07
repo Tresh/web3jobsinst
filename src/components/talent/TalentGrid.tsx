@@ -293,7 +293,7 @@ const ContactButton = ({ talent }: { talent: TalentProfileWithUser }) => {
     const convoId = await startConversation(talent.user_id);
     setLoading(false);
     if (convoId) {
-      navigate("/dashboard/messages");
+      navigate("/dashboard/messages", { state: { openConversationId: convoId } });
     }
   };
 
