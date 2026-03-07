@@ -105,7 +105,7 @@ const TelegramRoomChat = ({ bootcamp, topic, isCompleted, onBack }: TelegramRoom
     <div className="flex flex-col h-full min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="px-4 py-3">
+        <div className="px-4 sm:px-6 py-3">
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="icon" onClick={onBack} className="shrink-0">
               <ArrowLeft className="w-5 h-5" />

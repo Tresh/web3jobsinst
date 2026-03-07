@@ -10,8 +10,15 @@ interface BeforeInstallPromptEvent extends Event {
 const PWAInstallPrompt = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstallable, setIsInstallable] = useState(false);
+  const [isStandalone, setIsStandalone] = useState(false);
 
   useEffect(() => {
+    // Check if already in standalone mode
+    const standalone = window.matchMedia("(display-mode: standalone)").matches
+      || (navigator as any).standalone === true;
+    setIsStandalone(standalone);
+    if (standalone) return;
+
     const handler = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
@@ -19,12 +26,6 @@ const PWAInstallPrompt = () => {
     };
 
     window.addEventListener("beforeinstallprompt", handler);
-
-    // Hide if already installed
-    if (window.matchMedia("(display-mode: standalone)").matches) {
-      setIsInstallable(false);
-    }
-
     return () => window.removeEventListener("beforeinstallprompt", handler);
   }, []);
 
@@ -38,7 +39,8 @@ const PWAInstallPrompt = () => {
     setDeferredPrompt(null);
   };
 
-  if (!isInstallable) return null;
+  // Don't render if already installed or browser doesn't support PWA install
+  if (isStandalone || !isInstallable) return null;
 
   return (
     <Button variant="outline" size="sm" onClick={handleInstall} className="gap-1.5">

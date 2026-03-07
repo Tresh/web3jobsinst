@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useConversations, useChat, type Conversation, type Message } from "@/hooks/useMessages";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -21,12 +21,24 @@ const EMOJI_LIST = [
 
 const DashboardMessages = () => {
   const { user } = useAuth();
+  const location = useLocation();
   const { conversations, loading, clearConversationUnread } = useConversations();
   const [activeConvo, setActiveConvo] = useState<Conversation | null>(null);
 
+  // Auto-open conversation passed from talent contact button
+  useEffect(() => {
+    const openId = (location.state as any)?.openConversationId;
+    if (openId && conversations.length > 0 && !activeConvo) {
+      const match = conversations.find((c) => c.id === openId);
+      if (match) {
+        setActiveConvo(match);
+        clearConversationUnread(match.id);
+      }
+    }
+  }, [conversations, location.state]);
+
   const handleSelectConvo = (convo: Conversation) => {
     setActiveConvo(convo);
-    // Immediately zero the badge — DB mark-as-read is handled inside useChat
     clearConversationUnread(convo.id);
   };
 
