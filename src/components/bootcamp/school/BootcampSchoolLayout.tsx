@@ -101,6 +101,7 @@ const BootcampSchoolLayout = ({
               </div>
             </div>
             <div className="flex items-center gap-2 shrink-0">
+              <NotificationBell />
               <Badge className="bg-primary/10 text-primary border-primary/30 text-xs">
                 <Zap className="w-3 h-3 mr-1" />
                 {participation.total_xp} XP
