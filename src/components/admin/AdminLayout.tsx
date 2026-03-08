@@ -85,6 +85,11 @@ const adminNavItems = [
     href: "/admin/tutors",
   },
   {
+    title: "Institutions",
+    icon: Building2,
+    href: "/admin/institutions",
+  },
+  {
     title: "Analytics",
     icon: BarChart3,
     href: "/admin/analytics",
