@@ -54,6 +54,30 @@ const Institutions = () => {
     formRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  // Fetch approved institutions from DB
+  const { data: approvedInstitutions = [], isLoading: loadingInstitutions } = useQuery({
+    queryKey: ["approved-institutions"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("institution_applications")
+        .select("*")
+        .eq("status", "approved")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data || []) as Array<{
+        id: string;
+        organization_name: string;
+        ecosystem_category: string;
+        official_email: string;
+        logo_url: string | null;
+        website: string;
+        community_size: string;
+        planned_courses: string;
+      }>;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+
   return (
     <div className="min-h-screen bg-background">
       <UnifiedNavbar />
