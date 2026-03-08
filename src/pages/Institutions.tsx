@@ -169,36 +169,54 @@ const Institutions = () => {
               Explore learning portals from leading protocols and ecosystems
             </p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {institutions.map((institution) => (
-              <Link key={institution.id} to={`/institutions/${institution.slug}`}>
-                <Card className="border-border bg-background hover:shadow-md transition-shadow cursor-pointer h-full">
+          {loadingInstitutions ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {[1, 2, 3, 4].map((i) => (
+                <Card key={i} className="border-border bg-background">
                   <CardContent className="p-5">
                     <div className="flex items-center gap-3 mb-4">
-                      <img
-                        src={institution.logo}
-                        alt={institution.name}
-                        className="w-10 h-10 rounded-full object-cover bg-secondary"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = "/placeholder.svg";
-                        }}
-                      />
+                      <Skeleton className="w-10 h-10 rounded-full" />
+                      <div className="flex-1"><Skeleton className="h-4 w-24 mb-1" /><Skeleton className="h-3 w-16" /></div>
+                    </div>
+                    <Skeleton className="h-3 w-full" />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : approvedInstitutions.length === 0 ? (
+            <div className="text-center py-12">
+              <Building className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+              <p className="text-muted-foreground">No verified institutions yet. Be the first to apply!</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {approvedInstitutions.map((inst) => (
+                <Card key={inst.id} className="border-border bg-background hover:shadow-md transition-shadow h-full">
+                  <CardContent className="p-5">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                        {inst.logo_url ? (
+                          <img src={inst.logo_url} alt={inst.organization_name} className="w-10 h-10 rounded-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                        ) : (
+                          <Building className="w-5 h-5 text-primary" />
+                        )}
+                      </div>
                       <div>
-                        <h3 className="font-semibold text-foreground text-sm">{institution.name}</h3>
+                        <h3 className="font-semibold text-foreground text-sm">{inst.organization_name}</h3>
                         <span className="text-xs text-muted-foreground">
-                          {categoryLabels[institution.category]}
+                          {categoryLabels[inst.ecosystem_category as keyof typeof categoryLabels] || inst.ecosystem_category}
                         </span>
                       </div>
                     </div>
                     <div className="flex items-center justify-between text-xs text-muted-foreground">
-                      <span>{institution.coursesCount} courses</span>
-                      <span>{institution.learnersCount.toLocaleString()} learners</span>
+                      <span>{inst.planned_courses} courses planned</span>
+                      <span>{inst.community_size} members</span>
                     </div>
                   </CardContent>
                 </Card>
-              </Link>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
           <div className="text-center mt-8">
             <p className="text-muted-foreground text-sm">
               Want to join these industry leaders?{" "}

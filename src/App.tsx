@@ -210,6 +210,7 @@ const App = () => (
               <Route path="bootcamps" element={<AdminBootcamps />} />
               <Route path="bootcamps/:id" element={<AdminBootcampManage />} />
               <Route path="tutors" element={<AdminTutors />} />
+              <Route path="institutions" element={<AdminInstitutions />} />
               <Route path="changelog" element={<AdminChangelog />} />
               <Route path="analytics" element={<AdminAnalytics />} />
               <Route path="settings" element={<AdminSettings />} />
