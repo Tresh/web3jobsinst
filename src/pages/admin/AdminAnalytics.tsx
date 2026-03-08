@@ -121,6 +121,44 @@ const AdminAnalytics = () => {
     },
   });
 
+  // Page traffic last 30 days
+  const { data: pageTraffic, isLoading: trafficLoading } = useQuery({
+    queryKey: ["admin-analytics-page-traffic"],
+    queryFn: async () => {
+      const thirtyDaysAgo = subDays(new Date(), 30).toISOString();
+      const { data } = await supabase
+        .from("analytics_events")
+        .select("created_at, page_path")
+        .eq("event_type", "page_view")
+        .gte("created_at", thirtyDaysAgo);
+
+      // Daily traffic
+      const dailyGrouped: Record<string, number> = {};
+      for (let i = 29; i >= 0; i--) {
+        const day = format(subDays(new Date(), i), "MMM d");
+        dailyGrouped[day] = 0;
+      }
+
+      // Top pages
+      const pageCount: Record<string, number> = {};
+
+      (data || []).forEach((row) => {
+        const day = format(new Date(row.created_at!), "MMM d");
+        if (dailyGrouped[day] !== undefined) dailyGrouped[day]++;
+        const path = row.page_path || "/";
+        pageCount[path] = (pageCount[path] || 0) + 1;
+      });
+
+      const daily = Object.entries(dailyGrouped).map(([date, views]) => ({ date, views }));
+      const topPages = Object.entries(pageCount)
+        .sort(([, a], [, b]) => b - a)
+        .slice(0, 10)
+        .map(([page, views]) => ({ page, views }));
+
+      return { daily, topPages, totalViews: data?.length || 0 };
+    },
+  });
+
   const statCards = [
     { label: "Total Users", value: stats?.totalUsers, icon: Users, color: "text-primary" },
     { label: "Approved Scholars", value: stats?.approvedScholars, icon: GraduationCap, color: "text-primary" },
