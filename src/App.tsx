@@ -100,6 +100,8 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <PageAnalyticsTracker />
+          <CookieConsent />
           <Routes>
             {/* Public routes */}
             <Route path="/" element={<Index />} />
