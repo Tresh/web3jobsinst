@@ -860,6 +860,78 @@ export type Database = {
           },
         ]
       }
+      institution_applications: {
+        Row: {
+          admin_notes: string | null
+          community_size: string
+          contact_person: string
+          created_at: string
+          ecosystem_category: string
+          has_certifications: boolean
+          hiring_needs: string | null
+          id: string
+          logo_url: string | null
+          official_email: string
+          organization_name: string
+          planned_courses: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          role_in_org: string
+          status: string
+          updated_at: string
+          user_id: string | null
+          website: string
+          what_to_teach: string
+          why_portal: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          community_size: string
+          contact_person: string
+          created_at?: string
+          ecosystem_category: string
+          has_certifications?: boolean
+          hiring_needs?: string | null
+          id?: string
+          logo_url?: string | null
+          official_email: string
+          organization_name: string
+          planned_courses: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          role_in_org: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+          website: string
+          what_to_teach: string
+          why_portal: string
+        }
+        Update: {
+          admin_notes?: string | null
+          community_size?: string
+          contact_person?: string
+          created_at?: string
+          ecosystem_category?: string
+          has_certifications?: boolean
+          hiring_needs?: string | null
+          id?: string
+          logo_url?: string | null
+          official_email?: string
+          organization_name?: string
+          planned_courses?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          role_in_org?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+          website?: string
+          what_to_teach?: string
+          why_portal?: string
+        }
+        Relationships: []
+      }
       internship_profiles: {
         Row: {
           admin_notes: string | null
