@@ -1480,6 +1480,110 @@ export type Database = {
         }
         Relationships: []
       }
+      product_orders: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          email: string
+          id: string
+          paystack_reference: string | null
+          paystack_transaction_id: string | null
+          product_id: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          email: string
+          id?: string
+          paystack_reference?: string | null
+          paystack_transaction_id?: string | null
+          product_id: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          email?: string
+          id?: string
+          paystack_reference?: string | null
+          paystack_transaction_id?: string | null
+          product_id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_orders_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          category: string
+          coming_soon: boolean
+          created_at: string
+          creator_name: string
+          creator_user_id: string | null
+          currency: string
+          description: string | null
+          download_url: string | null
+          downloads_count: number
+          id: string
+          image_url: string | null
+          is_published: boolean
+          price: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          coming_soon?: boolean
+          created_at?: string
+          creator_name?: string
+          creator_user_id?: string | null
+          currency?: string
+          description?: string | null
+          download_url?: string | null
+          downloads_count?: number
+          id?: string
+          image_url?: string | null
+          is_published?: boolean
+          price?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          coming_soon?: boolean
+          created_at?: string
+          creator_name?: string
+          creator_user_id?: string | null
+          currency?: string
+          description?: string | null
+          download_url?: string | null
+          downloads_count?: number
+          id?: string
+          image_url?: string | null
+          is_published?: boolean
+          price?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
