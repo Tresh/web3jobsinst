@@ -33,6 +33,7 @@ import {
   Zap,
   FileText,
   BarChart3,
+  Building2,
 } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -83,6 +84,11 @@ const adminNavItems = [
     title: "Tutors",
     icon: BookOpen,
     href: "/admin/tutors",
+  },
+  {
+    title: "Institutions",
+    icon: Building2,
+    href: "/admin/institutions",
   },
   {
     title: "Analytics",

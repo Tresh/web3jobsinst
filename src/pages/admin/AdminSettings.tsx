@@ -5,10 +5,23 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { Save, Globe, Bell, Shield, Palette } from "lucide-react";
+import { Save, Globe, Bell, Shield, ToggleLeft, Loader2 } from "lucide-react";
+import { useFeatureFlags, FEATURE_FLAGS } from "@/hooks/useFeatureFlags";
+
+const featureDescriptions: Record<string, { label: string; description: string }> = {
+  institutions: { label: "Verified Institutions", description: "Institution portal applications and directory" },
+  tutors: { label: "Become a Tutor", description: "Tutor application system" },
+  talent_market: { label: "Talent Market", description: "Public talent directory and hiring" },
+  internships: { label: "Internships", description: "Internship profiles and marketplace" },
+  learnfi: { label: "LearnFi", description: "Learn-to-earn programs" },
+  bootcamps: { label: "Bootcamps", description: "Bootcamp creation and participation" },
+  products: { label: "Products", description: "Digital product marketplace" },
+  campaigns: { label: "Campaigns", description: "Marketing campaigns directory" },
+};
 
 const AdminSettings = () => {
   const { toast } = useToast();
+  const { flags, isLoading: flagsLoading, toggleFeature } = useFeatureFlags();
   const [settings, setSettings] = useState({
     siteName: "Web3 Jobs Institute",
     siteDescription: "Learn Web3 skills and get hired",
@@ -26,6 +39,19 @@ const AdminSettings = () => {
     });
   };
 
+  const handleToggleFeature = async (featureKey: string, enabled: boolean) => {
+    const settingKey = FEATURE_FLAGS[featureKey as keyof typeof FEATURE_FLAGS];
+    try {
+      await toggleFeature.mutateAsync({ key: settingKey, enabled });
+      toast({
+        title: enabled ? "Feature enabled" : "Feature disabled",
+        description: `${featureDescriptions[featureKey]?.label} is now ${enabled ? "live" : "showing Coming Soon"}`,
+      });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
   return (
     <div className="space-y-6 max-w-3xl">
       {/* Header */}
@@ -34,6 +60,44 @@ const AdminSettings = () => {
         <p className="text-muted-foreground mt-1">
           Configure platform settings and preferences
         </p>
+      </div>
+
+      {/* Feature Toggles */}
+      <div className="bg-card border border-border rounded-xl p-6">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+            <ToggleLeft className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <h2 className="font-semibold">Feature Toggles</h2>
+            <p className="text-sm text-muted-foreground">Enable or disable platform features. Disabled features show &quot;Coming Soon&quot;.</p>
+          </div>
+        </div>
+
+        {flagsLoading ? (
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+          </div>
+        ) : (
+          <div className="space-y-5">
+            {Object.entries(featureDescriptions).map(([key, { label, description }], index) => (
+              <div key={key}>
+                {index > 0 && <Separator className="mb-5" />}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>{label}</Label>
+                    <p className="text-sm text-muted-foreground">{description}</p>
+                  </div>
+                  <Switch
+                    checked={flags[key] !== false}
+                    onCheckedChange={(checked) => handleToggleFeature(key, checked)}
+                    disabled={toggleFeature.isPending}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* General Settings */}

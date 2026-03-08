@@ -73,6 +73,15 @@ import AdminTutors from "./pages/admin/AdminTutors";
 import AdminUserProfile from "./pages/admin/AdminUserProfile";
 import AdminChangelog from "./pages/admin/AdminChangelog";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
+import AdminInstitutions from "./pages/admin/AdminInstitutions";
+import CookieConsent from "@/components/CookieConsent";
+import { usePageAnalytics } from "@/hooks/usePageAnalytics";
+
+const PageAnalyticsTracker = () => {
+  usePageAnalytics();
+  return null;
+};
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -91,6 +100,8 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <PageAnalyticsTracker />
+          <CookieConsent />
           <Routes>
             {/* Public routes */}
             <Route path="/" element={<Index />} />
@@ -199,6 +210,7 @@ const App = () => (
               <Route path="bootcamps" element={<AdminBootcamps />} />
               <Route path="bootcamps/:id" element={<AdminBootcampManage />} />
               <Route path="tutors" element={<AdminTutors />} />
+              <Route path="institutions" element={<AdminInstitutions />} />
               <Route path="changelog" element={<AdminChangelog />} />
               <Route path="analytics" element={<AdminAnalytics />} />
               <Route path="settings" element={<AdminSettings />} />

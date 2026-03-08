@@ -2,8 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users, GraduationCap, Rocket, Bug, TrendingUp, MessageSquare, BookOpen, Briefcase, Award } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, PieChart, Pie, Cell, LineChart, Line } from "recharts";
+import { Users, GraduationCap, Rocket, Bug, TrendingUp, MessageSquare, BookOpen, Briefcase, Award, Eye } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, PieChart, Pie, Cell, LineChart, Line, AreaChart, Area } from "recharts";
 import { format, subDays } from "date-fns";
 
 const COLORS = ["hsl(var(--primary))", "hsl(var(--destructive))", "hsl(var(--accent))", "hsl(var(--muted-foreground))"];
@@ -121,6 +121,44 @@ const AdminAnalytics = () => {
     },
   });
 
+  // Page traffic last 30 days
+  const { data: pageTraffic, isLoading: trafficLoading } = useQuery({
+    queryKey: ["admin-analytics-page-traffic"],
+    queryFn: async () => {
+      const thirtyDaysAgo = subDays(new Date(), 30).toISOString();
+      const { data } = await supabase
+        .from("analytics_events")
+        .select("created_at, page_path")
+        .eq("event_type", "page_view")
+        .gte("created_at", thirtyDaysAgo);
+
+      // Daily traffic
+      const dailyGrouped: Record<string, number> = {};
+      for (let i = 29; i >= 0; i--) {
+        const day = format(subDays(new Date(), i), "MMM d");
+        dailyGrouped[day] = 0;
+      }
+
+      // Top pages
+      const pageCount: Record<string, number> = {};
+
+      (data || []).forEach((row) => {
+        const day = format(new Date(row.created_at!), "MMM d");
+        if (dailyGrouped[day] !== undefined) dailyGrouped[day]++;
+        const path = row.page_path || "/";
+        pageCount[path] = (pageCount[path] || 0) + 1;
+      });
+
+      const daily = Object.entries(dailyGrouped).map(([date, views]) => ({ date, views }));
+      const topPages = Object.entries(pageCount)
+        .sort(([, a], [, b]) => b - a)
+        .slice(0, 10)
+        .map(([page, views]) => ({ page, views }));
+
+      return { daily, topPages, totalViews: data?.length || 0 };
+    },
+  });
+
   const statCards = [
     { label: "Total Users", value: stats?.totalUsers, icon: Users, color: "text-primary" },
     { label: "Approved Scholars", value: stats?.approvedScholars, icon: GraduationCap, color: "text-primary" },
@@ -158,20 +196,20 @@ const AdminAnalytics = () => {
         ))}
       </div>
 
-      {/* Signup chart */}
+      {/* Page Traffic */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
-            <TrendingUp className="h-4 w-4" />
-            User Signups (Last 30 Days)
+            <Eye className="h-4 w-4" />
+            Page Views (Last 30 Days) — {pageTraffic?.totalViews?.toLocaleString() || 0} total
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {signupsLoading ? (
+          {trafficLoading ? (
             <Skeleton className="h-64 w-full" />
           ) : (
             <ResponsiveContainer width="100%" height={280}>
-              <BarChart data={signupData}>
+              <AreaChart data={pageTraffic?.daily}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis dataKey="date" tick={{ fontSize: 11 }} interval="preserveStartEnd" />
                 <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
@@ -183,12 +221,77 @@ const AdminAnalytics = () => {
                     fontSize: "12px",
                   }}
                 />
-                <Bar dataKey="signups" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-              </BarChart>
+                <Area type="monotone" dataKey="views" stroke="hsl(var(--primary))" fill="hsl(var(--primary) / 0.1)" strokeWidth={2} />
+              </AreaChart>
             </ResponsiveContainer>
           )}
         </CardContent>
       </Card>
+
+      {/* Top Pages + Signup chart side by side */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Top Pages */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <TrendingUp className="h-4 w-4" />
+              Top Pages
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {trafficLoading ? (
+              <Skeleton className="h-48 w-full" />
+            ) : (
+              <div className="space-y-2">
+                {(pageTraffic?.topPages || []).map((p, i) => (
+                  <div key={p.page} className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground truncate max-w-[70%]">
+                      <span className="text-foreground font-medium mr-2">{i + 1}.</span>
+                      {p.page}
+                    </span>
+                    <span className="font-medium text-foreground">{p.views}</span>
+                  </div>
+                ))}
+                {(!pageTraffic?.topPages || pageTraffic.topPages.length === 0) && (
+                  <p className="text-sm text-muted-foreground text-center py-4">No page view data yet</p>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Signup chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <TrendingUp className="h-4 w-4" />
+              User Signups (Last 30 Days)
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {signupsLoading ? (
+              <Skeleton className="h-48 w-full" />
+            ) : (
+              <ResponsiveContainer width="100%" height={220}>
+                <BarChart data={signupData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis dataKey="date" tick={{ fontSize: 11 }} interval="preserveStartEnd" />
+                  <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
+                  <Tooltip
+                    contentStyle={{
+                      background: "hsl(var(--card))",
+                      border: "1px solid hsl(var(--border))",
+                      borderRadius: "8px",
+                      fontSize: "12px",
+                    }}
+                  />
+                  <Bar dataKey="signups" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </CardContent>
+        </Card>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Scholarship breakdown */}

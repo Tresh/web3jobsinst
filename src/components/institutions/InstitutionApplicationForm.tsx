@@ -93,17 +93,46 @@ const InstitutionApplicationForm = () => {
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    
-    toast({
-      title: "Application Submitted!",
-      description: "Our partnerships team will contact you within 5 business days.",
-    });
-    
-    clearFormData();
-    setFormData(initialFormData);
-    setStep(1);
-    setIsSubmitting(false);
+
+    try {
+      const { supabase } = await import("@/integrations/supabase/client");
+      const { data: { user } } = await supabase.auth.getUser();
+
+      const { error } = await supabase.from("institution_applications").insert({
+        user_id: user?.id || null,
+        organization_name: formData.organizationName,
+        website: formData.website,
+        ecosystem_category: formData.ecosystemCategory,
+        official_email: formData.officialEmail,
+        contact_person: formData.contactPerson,
+        role_in_org: formData.role,
+        why_portal: formData.whyPortal,
+        what_to_teach: formData.whatToTeach,
+        planned_courses: formData.plannedCourses,
+        has_certifications: formData.hasCertifications,
+        hiring_needs: formData.hiringNeeds || null,
+        community_size: formData.communitySize,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Application Submitted!",
+        description: "Our partnerships team will contact you within 5 business days.",
+      });
+
+      clearFormData();
+      setFormData(initialFormData);
+      setStep(1);
+    } catch (err: any) {
+      toast({
+        title: "Error",
+        description: err.message || "Failed to submit application. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const renderStep = () => {

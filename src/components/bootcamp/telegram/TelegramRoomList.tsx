@@ -192,7 +192,7 @@ const TelegramRoomList = ({
   }
 
   return (
-    <div className="pb-4">
+    <div className="pb-4 px-4 sm:px-6">
       {/* Pinned Actions */}
       <div className="px-4 py-3">
         <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2 flex items-center gap-1">
