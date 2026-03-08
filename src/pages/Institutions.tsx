@@ -20,7 +20,10 @@ import UnifiedNavbar from "@/components/UnifiedNavbar";
 import Footer from "@/components/Footer";
 import OpportunitiesStrip from "@/components/OpportunitiesStrip";
 import InstitutionApplicationForm from "@/components/institutions/InstitutionApplicationForm";
-import { institutions, categoryLabels } from "@/data/institutionsData";
+import { categoryLabels } from "@/data/institutionsData";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const portalFeatures = [
   { icon: Layout, title: "Branded portal", description: "Your own customized learning hub" },
