@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { ChevronLeft, ChevronRight, Star, Briefcase, MessageSquare } from "lucide-react";
+import { ChevronLeft, ChevronRight, Star, Briefcase, MessageSquare, MapPin, CreditCard } from "lucide-react";
 import { type TalentProfileWithUser, TALENT_CATEGORIES } from "@/hooks/useTalentProfile";
 import { useAuth } from "@/contexts/AuthContext";
 import { useStartConversation } from "@/hooks/useMessages";
