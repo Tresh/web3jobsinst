@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -32,11 +32,11 @@ export const useConversations = () => {
   const [loading, setLoading] = useState(true);
 
   // Optimistic: immediately zero the unread badge when the user opens a conversation
-  const clearConversationUnread = (conversationId: string) => {
+  const clearConversationUnread = useCallback((conversationId: string) => {
     setConversations((prev) =>
       prev.map((c) => (c.id === conversationId ? { ...c, unread_count: 0 } : c))
     );
-  };
+  }, []);
 
   const fetchConversations = useCallback(async () => {
     if (!user) return;
@@ -52,8 +52,18 @@ export const useConversations = () => {
       return;
     }
 
+    // Filter out empty conversations (no messages)
+    const convoIds = convos.map(c => c.id);
+    const { data: messageCounts } = await supabase
+      .from("messages")
+      .select("conversation_id")
+      .in("conversation_id", convoIds);
+
+    const convoIdsWithMessages = new Set((messageCounts || []).map(m => m.conversation_id));
+    const nonEmptyConvos = convos.filter(c => convoIdsWithMessages.has(c.id));
+
     // Get other user profiles
-    const otherUserIds = convos.map(c => 
+    const otherUserIds = nonEmptyConvos.map(c => 
       c.participant_one === user.id ? c.participant_two : c.participant_one
     );
 
@@ -63,7 +73,7 @@ export const useConversations = () => {
       .in("user_id", otherUserIds);
 
     // Get last message and unread count for each conversation
-    const enriched = await Promise.all(convos.map(async (c) => {
+    const enriched = await Promise.all(nonEmptyConvos.map(async (c) => {
       const otherUserId = c.participant_one === user.id ? c.participant_two : c.participant_one;
       const otherProfile = profiles?.find(p => p.user_id === otherUserId);
 
@@ -123,6 +133,7 @@ export const useChat = (conversationId: string | null) => {
   const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
+  const hasMarkedRead = useRef(false);
 
   const fetchMessages = useCallback(async () => {
     if (!conversationId) return;
@@ -136,23 +147,31 @@ export const useChat = (conversationId: string | null) => {
 
     setMessages((data || []) as Message[]);
     setLoading(false);
+  }, [conversationId]);
 
-    // Mark as read
-    if (user) {
-      await supabase
-        .from("messages")
-        .update({ is_read: true })
-        .eq("conversation_id", conversationId)
-        .neq("sender_id", user.id)
-        .eq("is_read", false);
-    }
+  // Mark messages as read - separated from fetch to avoid loops
+  const markAsRead = useCallback(async () => {
+    if (!user || !conversationId || hasMarkedRead.current) return;
+    hasMarkedRead.current = true;
+
+    await supabase
+      .from("messages")
+      .update({ is_read: true })
+      .eq("conversation_id", conversationId)
+      .neq("sender_id", user.id)
+      .eq("is_read", false);
   }, [conversationId, user]);
+
+  // Reset the read flag when conversation changes
+  useEffect(() => {
+    hasMarkedRead.current = false;
+  }, [conversationId]);
 
   useEffect(() => {
     fetchMessages();
   }, [fetchMessages]);
 
-  // Real-time
+  // Real-time subscription with deduplication
   useEffect(() => {
     if (!conversationId) return;
 
@@ -165,14 +184,29 @@ export const useChat = (conversationId: string | null) => {
         filter: `conversation_id=eq.${conversationId}`,
       }, (payload) => {
         const newMsg = payload.new as Message;
-        setMessages(prev => [...prev, newMsg]);
-        // Mark as read if not sender
+        setMessages(prev => {
+          // Deduplicate by ID
+          if (prev.some(m => m.id === newMsg.id)) return prev;
+          return [...prev, newMsg];
+        });
+        // Mark as read if not sender and conversation is open
         if (user && newMsg.sender_id !== user.id) {
           supabase
             .from("messages")
             .update({ is_read: true })
             .eq("id", newMsg.id);
         }
+      })
+      .on("postgres_changes", {
+        event: "UPDATE",
+        schema: "public",
+        table: "messages",
+        filter: `conversation_id=eq.${conversationId}`,
+      }, (payload) => {
+        const updatedMsg = payload.new as Message;
+        setMessages(prev =>
+          prev.map(m => (m.id === updatedMsg.id ? updatedMsg : m))
+        );
       })
       .subscribe();
 
@@ -195,7 +229,7 @@ export const useChat = (conversationId: string | null) => {
       .eq("id", conversationId);
   };
 
-  return { messages, loading, sendMessage };
+  return { messages, loading, sendMessage, markAsRead };
 };
 
 export const useStartConversation = () => {
@@ -233,4 +267,58 @@ export const useStartConversation = () => {
   };
 
   return { startConversation };
+};
+
+// Hook to get total unread message count for the current user
+export const useTotalUnreadCount = () => {
+  const { user } = useAuth();
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  const fetchUnreadCount = useCallback(async () => {
+    if (!user) {
+      setUnreadCount(0);
+      return;
+    }
+
+    // Get all conversations for this user
+    const { data: convos } = await supabase
+      .from("conversations")
+      .select("id")
+      .or(`participant_one.eq.${user.id},participant_two.eq.${user.id}`);
+
+    if (!convos || convos.length === 0) {
+      setUnreadCount(0);
+      return;
+    }
+
+    // Count unread messages
+    const { count } = await supabase
+      .from("messages")
+      .select("*", { count: "exact", head: true })
+      .in("conversation_id", convos.map(c => c.id))
+      .eq("is_read", false)
+      .neq("sender_id", user.id);
+
+    setUnreadCount(count || 0);
+  }, [user]);
+
+  useEffect(() => {
+    fetchUnreadCount();
+  }, [fetchUnreadCount]);
+
+  // Real-time updates
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel("unread-count-updates")
+      .on("postgres_changes", { event: "*", schema: "public", table: "messages" }, () => {
+        fetchUnreadCount();
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [user, fetchUnreadCount]);
+
+  return { unreadCount, refetch: fetchUnreadCount };
 };
