@@ -7,7 +7,7 @@ const AffiliateOverviewTab = () => {
   const stats = useAffiliateStats();
   const { data: products } = usePublicProducts();
 
-  const topProducts = (products ?? []).slice(0, 4);
+  const topProducts = (products ?? []).filter((p) => p.price > 0 && !p.coming_soon).slice(0, 4);
 
   const statCards = [
     { label: "Total Sales", value: stats.totalSales, icon: ShoppingCart },

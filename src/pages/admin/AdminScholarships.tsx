@@ -66,9 +66,7 @@ import type {
 } from "@/types/scholarship";
 import { TasksTab, OverviewTab, ReferrersTab, EmailHistoryTab, AdminOffersTab, AdminPOWTab } from "@/components/admin/scholarship";
 import { AdminModulesTab } from "@/components/admin/scholarship/AdminModulesTab";
-import { AdminInternshipsTab } from "@/components/admin/scholarship/AdminInternshipsTab";
-import { AdminInternshipWaitlistTab } from "@/components/admin/internships/AdminInternshipWaitlistTab";
-import { Link2, Briefcase, ClipboardList } from "lucide-react";
+import { Link2 } from "lucide-react";
 
 const AdminScholarships = () => {
   const { user } = useAuth();
@@ -984,14 +982,6 @@ const AdminScholarships = () => {
             <FolderCheck className="w-4 h-4" />
             Proof of Work
           </TabsTrigger>
-          <TabsTrigger value="internships" className="gap-2">
-            <Briefcase className="w-4 h-4" />
-            Internships
-          </TabsTrigger>
-          <TabsTrigger value="waitlist" className="gap-2">
-            <ClipboardList className="w-4 h-4" />
-            Waitlist
-          </TabsTrigger>
         </TabsList>
 
         {/* Overview Tab */}
@@ -1828,15 +1818,6 @@ const AdminScholarships = () => {
           <AdminPOWTab />
         </TabsContent>
 
-        {/* Internships Tab */}
-        <TabsContent value="internships">
-          <AdminInternshipsTab />
-        </TabsContent>
-
-        {/* Internship Waitlist Tab */}
-        <TabsContent value="waitlist">
-          <AdminInternshipWaitlistTab />
-        </TabsContent>
       </Tabs>
     </div>
   );

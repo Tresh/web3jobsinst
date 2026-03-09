@@ -35,6 +35,7 @@ import {
   BarChart3,
   Building2,
   FlaskConical,
+  Briefcase,
 } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -80,6 +81,11 @@ const adminNavItems = [
     title: "Bootcamps",
     icon: Rocket,
     href: "/admin/bootcamps",
+  },
+  {
+    title: "Internships",
+    icon: Briefcase,
+    href: "/admin/internships",
   },
   {
     title: "Tutors",

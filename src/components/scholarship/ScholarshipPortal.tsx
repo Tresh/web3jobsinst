@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { GraduationCap, ListTodo, Trophy, BookOpen, Bell, Gift, FolderCheck, Briefcase } from "lucide-react";
+import { GraduationCap, ListTodo, Trophy, BookOpen, Bell, Gift, FolderCheck } from "lucide-react";
 import { useScholarshipPortal } from "@/hooks/useScholarshipData";
 import { PortalOverview } from "./PortalOverview";
 import { PortalTasks } from "./PortalTasks";
@@ -10,7 +10,6 @@ import { PortalModules } from "./PortalModules";
 import { PortalNotifications } from "./PortalNotifications";
 import { PortalOffers } from "./PortalOffers";
 import { PortalProofOfWork } from "./PortalProofOfWork";
-import { PortalInternshipProfile } from "./PortalInternshipProfile";
 import { Loader2 } from "lucide-react";
 
 // Module-level — persists the active tab across navigation without URL coupling
@@ -101,10 +100,6 @@ export function ScholarshipPortal() {
             <FolderCheck className="w-4 h-4 hidden sm:inline" />
             <span>Proof of Work</span>
           </TabsTrigger>
-          <TabsTrigger value="internship" className="gap-2">
-            <Briefcase className="w-4 h-4 hidden sm:inline" />
-            <span>Internship</span>
-          </TabsTrigger>
           <TabsTrigger value="notifications" className="gap-2 relative">
             <Bell className="w-4 h-4 hidden sm:inline" />
             <span>Alerts</span>
@@ -159,10 +154,6 @@ export function ScholarshipPortal() {
 
         <TabsContent value="proof-of-work">
           <PortalProofOfWork />
-        </TabsContent>
-
-        <TabsContent value="internship">
-          <PortalInternshipProfile application={application} />
         </TabsContent>
 
         <TabsContent value="notifications">

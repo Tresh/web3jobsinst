@@ -78,6 +78,7 @@ import AdminChangelog from "./pages/admin/AdminChangelog";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminInstitutions from "./pages/admin/AdminInstitutions";
 import AdminXpAudit from "./pages/admin/AdminXpAudit";
+import AdminInternships from "./pages/admin/AdminInternships";
 import CookieConsent from "@/components/CookieConsent";
 import { usePageAnalytics } from "@/hooks/usePageAnalytics";
 
@@ -215,6 +216,7 @@ const App = () => (
               />
               <Route path="bug-reports" element={<AdminBugReports />} />
               <Route path="bootcamps" element={<AdminBootcamps />} />
+              <Route path="internships" element={<AdminInternships />} />
               <Route path="bootcamps/:id" element={<AdminBootcampManage />} />
               <Route path="tutors" element={<AdminTutors />} />
               <Route path="institutions" element={<AdminInstitutions />} />
