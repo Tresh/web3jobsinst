@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Rocket, Users, Briefcase, Handshake, Trophy, Megaphone } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import ComingSoonDialog from "@/components/ComingSoonDialog";
@@ -8,7 +9,13 @@ const opportunities = [
     title: "Bootcamps",
     description: "Intensive cohort-based learning programs",
     icon: Rocket,
-    comingSoon: true,
+    href: "/bootcamps",
+  },
+  {
+    title: "Campaigns",
+    description: "Participate in ecosystem campaigns",
+    icon: Megaphone,
+    href: "/campaigns",
   },
   {
     title: "Affiliates",
@@ -32,12 +39,6 @@ const opportunities = [
     title: "Bounties",
     description: "Complete tasks and earn rewards",
     icon: Trophy,
-    comingSoon: true,
-  },
-  {
-    title: "Campaigns",
-    description: "Participate in ecosystem campaigns",
-    icon: Megaphone,
     comingSoon: true,
   },
 ];
