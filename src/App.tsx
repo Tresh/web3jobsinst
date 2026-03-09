@@ -51,6 +51,7 @@ import DashboardInternship from "./pages/dashboard/DashboardInternship";
 import DashboardMessages from "./pages/dashboard/DashboardMessages";
 import DashboardPayments from "./pages/dashboard/DashboardPayments";
 import DashboardCampaigns from "./pages/dashboard/DashboardCampaigns";
+import DashboardAffiliate from "./pages/dashboard/DashboardAffiliate";
 import ScholarshipModuleDetail from "./pages/dashboard/ScholarshipModuleDetail";
 import Scholarship from "./pages/Scholarship";
 // ScholarshipCelebration removed - no longer needed
