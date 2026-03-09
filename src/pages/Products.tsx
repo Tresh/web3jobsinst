@@ -67,6 +67,10 @@ const Products = () => {
     return count;
   }, [selectedCategory, selectedPriceType]);
 
+  const ownedProductIds = useMemo(() => {
+    return new Set(myOrders.map((o) => o.product_id));
+  }, [myOrders]);
+
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
       const matchesSearch =
