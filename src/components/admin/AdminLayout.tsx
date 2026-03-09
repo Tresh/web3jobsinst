@@ -35,6 +35,7 @@ import {
   BarChart3,
   Building2,
   FlaskConical,
+  Briefcase,
 } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { useIsMobile } from "@/hooks/use-mobile";
