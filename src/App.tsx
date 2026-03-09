@@ -169,6 +169,7 @@ const App = () => (
               <Route path="learnfi" element={<DashboardLearnFi />} />
               <Route path="courses" element={<DashboardCourses />} />
               <Route path="products" element={<DashboardProducts />} />
+              <Route path="payments" element={<DashboardPayments />} />
               <Route path="talent" element={<DashboardTalent />} />
               <Route path="messages" element={<DashboardMessages />} />
               <Route path="settings" element={<DashboardSettings />} />
