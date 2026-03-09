@@ -66,9 +66,7 @@ import type {
 } from "@/types/scholarship";
 import { TasksTab, OverviewTab, ReferrersTab, EmailHistoryTab, AdminOffersTab, AdminPOWTab } from "@/components/admin/scholarship";
 import { AdminModulesTab } from "@/components/admin/scholarship/AdminModulesTab";
-import { AdminInternshipsTab } from "@/components/admin/scholarship/AdminInternshipsTab";
-import { AdminInternshipWaitlistTab } from "@/components/admin/internships/AdminInternshipWaitlistTab";
-import { Link2, Briefcase, ClipboardList } from "lucide-react";
+import { Link2 } from "lucide-react";
 
 const AdminScholarships = () => {
   const { user } = useAuth();
