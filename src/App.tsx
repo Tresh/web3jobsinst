@@ -215,6 +215,14 @@ const App = () => (
               <Route path="changelog" element={<AdminChangelog />} />
               <Route path="analytics" element={<AdminAnalytics />} />
               <Route path="settings" element={<AdminSettings />} />
+              <Route
+                path="xp-audit"
+                element={
+                  <ProtectedRoute requireAdmin>
+                    <AdminXpAudit />
+                  </ProtectedRoute>
+                }
+              />
             </Route>
 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
