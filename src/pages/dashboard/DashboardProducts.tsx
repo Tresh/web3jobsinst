@@ -1,6 +1,7 @@
+import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/card";
-import { Package, Download, ExternalLink } from "lucide-react";
+import { Package, Download } from "lucide-react";
 import { useMyOrders, formatPrice } from "@/hooks/useProducts";
 import { useNavigate } from "react-router-dom";
 

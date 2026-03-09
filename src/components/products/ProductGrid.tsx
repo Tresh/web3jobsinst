@@ -9,9 +9,10 @@ const ITEMS_PER_PAGE = 8;
 interface ProductGridProps {
   products: DBProduct[];
   onProductClick: (product: DBProduct) => void;
+  purchasedProductIds?: Set<string>;
 }
 
-const ProductGrid = ({ products, onProductClick }: ProductGridProps) => {
+const ProductGrid = ({ products, onProductClick, purchasedProductIds }: ProductGridProps) => {
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = Math.ceil(products.length / ITEMS_PER_PAGE);
 

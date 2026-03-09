@@ -31,11 +31,13 @@ const Products = () => {
   const [detailOpen, setDetailOpen] = useState(false);
 
   const { data: products = [], isLoading } = usePublicProducts();
+  const { data: myOrders = [] } = useMyOrders();
   const initPayment = useInitializePayment();
   const verifyPayment = useVerifyPayment();
   const { user } = useAuth();
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   // Handle Paystack callback
   useEffect(() => {
