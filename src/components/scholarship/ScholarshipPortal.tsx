@@ -100,10 +100,6 @@ export function ScholarshipPortal() {
             <FolderCheck className="w-4 h-4 hidden sm:inline" />
             <span>Proof of Work</span>
           </TabsTrigger>
-          <TabsTrigger value="internship" className="gap-2">
-            <Briefcase className="w-4 h-4 hidden sm:inline" />
-            <span>Internship</span>
-          </TabsTrigger>
           <TabsTrigger value="notifications" className="gap-2 relative">
             <Bell className="w-4 h-4 hidden sm:inline" />
             <span>Alerts</span>
