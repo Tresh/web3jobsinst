@@ -101,6 +101,11 @@ const adminNavItems = [
     icon: FileText,
     href: "/admin/changelog",
   },
+  {
+    title: "XP Audit",
+    icon: FlaskConical,
+    href: "/admin/xp-audit",
+  },
 ];
 
 const settingsNavItems = [
