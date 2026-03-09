@@ -802,6 +802,7 @@ export type Database = {
       }
       conversations: {
         Row: {
+          auto_reply_sent_by: Json | null
           created_at: string
           id: string
           last_message_at: string
@@ -809,6 +810,7 @@ export type Database = {
           participant_two: string
         }
         Insert: {
+          auto_reply_sent_by?: Json | null
           created_at?: string
           id?: string
           last_message_at?: string
@@ -816,6 +818,7 @@ export type Database = {
           participant_two: string
         }
         Update: {
+          auto_reply_sent_by?: Json | null
           created_at?: string
           id?: string
           last_message_at?: string

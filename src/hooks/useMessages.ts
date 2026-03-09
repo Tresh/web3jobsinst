@@ -222,6 +222,43 @@ export const useChat = (conversationId: string | null) => {
     await supabase.from("conversations")
       .update({ last_message_at: new Date().toISOString() })
       .eq("id", conversationId);
+
+    // Auto-reply: check if the other user has an auto-reply set and hasn't already sent one in this conversation
+    try {
+      const { data: convo } = await supabase
+        .from("conversations")
+        .select("participant_one, participant_two, auto_reply_sent_by")
+        .eq("id", conversationId)
+        .single();
+
+      if (convo) {
+        const otherUserId = convo.participant_one === user.id ? convo.participant_two : convo.participant_one;
+        const alreadySent: string[] = (convo.auto_reply_sent_by as string[]) || [];
+
+        if (!alreadySent.includes(otherUserId)) {
+          const { data: otherSettings } = await supabase
+            .from("message_settings")
+            .select("auto_reply_message")
+            .eq("user_id", otherUserId)
+            .maybeSingle();
+
+          if (otherSettings?.auto_reply_message) {
+            // Send auto-reply as the other user
+            await supabase.from("messages").insert({
+              conversation_id: conversationId,
+              sender_id: otherUserId,
+              content: `🤖 Auto-reply: ${otherSettings.auto_reply_message}`,
+            });
+            // Mark auto-reply as sent for this user in this conversation
+            await supabase.from("conversations")
+              .update({ auto_reply_sent_by: [...alreadySent, otherUserId] })
+              .eq("id", conversationId);
+          }
+        }
+      }
+    } catch (err) {
+      console.error("Auto-reply error:", err);
+    }
   };
 
   return { messages, loading, sendMessage, markAsRead };
