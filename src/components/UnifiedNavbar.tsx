@@ -42,6 +42,7 @@ const marketLinks: NavLink[] = [
 ];
 
 const opportunityLinks: NavLink[] = [
+  { label: "Campaigns", href: "/campaigns" },
   { label: "LearnFi", href: "/learnfi" },
   { label: "Become a Tutor", href: "/tutors" },
   { label: "Verified Institutions", href: "/institutions" },

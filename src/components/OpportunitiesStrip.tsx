@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Rocket, Users, Briefcase, Handshake, Trophy, Megaphone } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import ComingSoonDialog from "@/components/ComingSoonDialog";
@@ -8,7 +9,13 @@ const opportunities = [
     title: "Bootcamps",
     description: "Intensive cohort-based learning programs",
     icon: Rocket,
-    comingSoon: true,
+    href: "/bootcamps",
+  },
+  {
+    title: "Campaigns",
+    description: "Participate in ecosystem campaigns",
+    icon: Megaphone,
+    href: "/campaigns",
   },
   {
     title: "Affiliates",
@@ -34,21 +41,20 @@ const opportunities = [
     icon: Trophy,
     comingSoon: true,
   },
-  {
-    title: "Campaigns",
-    description: "Participate in ecosystem campaigns",
-    icon: Megaphone,
-    comingSoon: true,
-  },
 ];
 
 const OpportunitiesStrip = () => {
+  const navigate = useNavigate();
   const [comingSoonOpen, setComingSoonOpen] = useState(false);
   const [selectedTitle, setSelectedTitle] = useState("");
 
-  const handleCardClick = (title: string) => {
-    setSelectedTitle(title);
-    setComingSoonOpen(true);
+  const handleCardClick = (opp: typeof opportunities[0]) => {
+    if (opp.href) {
+      navigate(opp.href);
+    } else {
+      setSelectedTitle(opp.title);
+      setComingSoonOpen(true);
+    }
   };
 
   return (
@@ -68,7 +74,7 @@ const OpportunitiesStrip = () => {
             <Card
               key={opportunity.title}
               className="cursor-pointer hover:shadow-md transition-shadow border-border bg-background"
-              onClick={() => handleCardClick(opportunity.title)}
+              onClick={() => handleCardClick(opportunity)}
             >
               <CardContent className="p-4 text-center">
                 <div className="w-10 h-10 mx-auto mb-3 rounded-full bg-primary/10 flex items-center justify-center">
