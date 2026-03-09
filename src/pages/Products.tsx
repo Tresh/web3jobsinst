@@ -99,6 +99,14 @@ const Products = () => {
 
   const handleBuyNow = async () => {
     if (!selectedProduct) return;
+
+    // If already purchased, send them to their dashboard downloads
+    if (ownedProductIds.has(selectedProduct.id)) {
+      setDetailOpen(false);
+      navigate("/dashboard/products");
+      return;
+    }
+
     if (!user) {
       toast({ title: "Please log in to purchase", variant: "destructive" });
       return;
