@@ -8,6 +8,7 @@ import ProductFilterSheet from "@/components/products/ProductFilterSheet";
 import ProductGrid from "@/components/products/ProductGrid";
 import ComingSoonDialog from "@/components/ComingSoonDialog";
 import ScholarshipFormDialog from "@/components/ScholarshipFormDialog";
+import G6LaunchSection from "@/components/products/G6LaunchSection";
 import { type ProductCategory, type ProductPriceType } from "@/data/productsData";
 import { usePublicProducts, useInitializePayment, useVerifyPayment, formatPrice, type DBProduct } from "@/hooks/useProducts";
 import { useAuth } from "@/contexts/AuthContext";
@@ -132,6 +133,16 @@ const Products = () => {
       />
 
       <main className="pt-[72px]">
+        {/* G6 Launch Announcement */}
+        <section className="section-container py-8 md:py-12">
+          <G6LaunchSection />
+        </section>
+
+        {/* Divider */}
+        <div className="section-container pb-4">
+          <div className="border-t border-border" />
+        </div>
+
         <section className="section-container py-6 md:py-10">
           <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-1 md:mb-2">Digital Products</h1>
           <p className="text-sm md:text-base text-muted-foreground">
