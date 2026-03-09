@@ -8,6 +8,7 @@ import ProductFilterSheet from "@/components/products/ProductFilterSheet";
 import ProductGrid from "@/components/products/ProductGrid";
 import ComingSoonDialog from "@/components/ComingSoonDialog";
 import ScholarshipFormDialog from "@/components/ScholarshipFormDialog";
+import G6LaunchSection from "@/components/products/G6LaunchSection";
 import { type ProductCategory, type ProductPriceType } from "@/data/productsData";
 import { usePublicProducts, useInitializePayment, useVerifyPayment, formatPrice, type DBProduct } from "@/hooks/useProducts";
 import { useAuth } from "@/contexts/AuthContext";
