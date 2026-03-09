@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { GraduationCap, ListTodo, Trophy, BookOpen, Bell, Gift, FolderCheck, Briefcase } from "lucide-react";
+import { GraduationCap, ListTodo, Trophy, BookOpen, Bell, Gift, FolderCheck } from "lucide-react";
 import { useScholarshipPortal } from "@/hooks/useScholarshipData";
 import { PortalOverview } from "./PortalOverview";
 import { PortalTasks } from "./PortalTasks";
@@ -10,7 +10,6 @@ import { PortalModules } from "./PortalModules";
 import { PortalNotifications } from "./PortalNotifications";
 import { PortalOffers } from "./PortalOffers";
 import { PortalProofOfWork } from "./PortalProofOfWork";
-import { PortalInternshipProfile } from "./PortalInternshipProfile";
 import { Loader2 } from "lucide-react";
 
 // Module-level — persists the active tab across navigation without URL coupling
