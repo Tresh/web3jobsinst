@@ -74,6 +74,7 @@ import AdminUserProfile from "./pages/admin/AdminUserProfile";
 import AdminChangelog from "./pages/admin/AdminChangelog";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminInstitutions from "./pages/admin/AdminInstitutions";
+import AdminXpAudit from "./pages/admin/AdminXpAudit";
 import CookieConsent from "@/components/CookieConsent";
 import { usePageAnalytics } from "@/hooks/usePageAnalytics";
 
@@ -214,6 +215,14 @@ const App = () => (
               <Route path="changelog" element={<AdminChangelog />} />
               <Route path="analytics" element={<AdminAnalytics />} />
               <Route path="settings" element={<AdminSettings />} />
+              <Route
+                path="xp-audit"
+                element={
+                  <ProtectedRoute requireAdmin>
+                    <AdminXpAudit />
+                  </ProtectedRoute>
+                }
+              />
             </Route>
 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

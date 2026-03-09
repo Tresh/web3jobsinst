@@ -34,6 +34,7 @@ import {
   FileText,
   BarChart3,
   Building2,
+  FlaskConical,
 } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -99,6 +100,11 @@ const adminNavItems = [
     title: "Changelog",
     icon: FileText,
     href: "/admin/changelog",
+  },
+  {
+    title: "XP Audit",
+    icon: FlaskConical,
+    href: "/admin/xp-audit",
   },
 ];
 
