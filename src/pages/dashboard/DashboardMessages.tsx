@@ -180,11 +180,11 @@ const ChatPanel = ({ conversation, onBack, currentUserId, onConversationUpdated 
     if (!input.trim()) return;
     let text = input.trim();
     if (replyingTo) {
-      const preview = replyingTo.content.length > 60
-        ? replyingTo.content.slice(0, 60) + "…"
-        : replyingTo.content;
-      const cleanPreview = preview.startsWith("> ") ? preview.slice(2) : preview;
-      text = `> ${cleanPreview}\n\n${text}`;
+      // Extract only the actual body text (skip any quoted parts) to avoid nesting
+      const parts = replyingTo.content.split("\n\n");
+      const bodyOnly = parts.filter(p => !p.startsWith("> ")).join(" ").trim();
+      const preview = bodyOnly.length > 60 ? bodyOnly.slice(0, 60) + "…" : bodyOnly;
+      text = `> ${preview}\n\n${text}`;
     }
     setInput("");
     setReplyingTo(null);
