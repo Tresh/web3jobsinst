@@ -1867,6 +1867,7 @@ export type Database = {
           order_index: number
           resources: Json | null
           skill_outcome: string | null
+          slug: string | null
           title: string
           total_duration: string | null
           updated_at: string
@@ -1887,6 +1888,7 @@ export type Database = {
           order_index?: number
           resources?: Json | null
           skill_outcome?: string | null
+          slug?: string | null
           title: string
           total_duration?: string | null
           updated_at?: string
@@ -1907,6 +1909,7 @@ export type Database = {
           order_index?: number
           resources?: Json | null
           skill_outcome?: string | null
+          slug?: string | null
           title?: string
           total_duration?: string | null
           updated_at?: string
