@@ -1,7 +1,8 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useConversations, useChat, type Conversation, type Message } from "@/hooks/useMessages";
+import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,16 +48,13 @@ const DashboardMessages = () => {
 
   return (
     <div className="h-[calc(100vh-64px)] lg:h-screen flex flex-col">
-      {/* Only show header when no active conversation on mobile, always on desktop */}
+      {/* Header - hidden on mobile when chat is active */}
       <div className={cn(
         "p-6 border-b border-border flex items-center justify-between",
         activeConvo ? "hidden md:flex" : "flex"
       )}>
         <div>
           <h1 className="text-2xl font-bold">Messages</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Chat with talents and interns
-          </p>
         </div>
         <Button variant="ghost" size="icon" onClick={() => setSettingsOpen(true)}>
           <Settings className="w-5 h-5" />
@@ -160,6 +158,7 @@ interface ChatPanelProps {
 
 const ChatPanel = ({ conversation, onBack, currentUserId, onConversationUpdated }: ChatPanelProps) => {
   const { messages, loading, sendMessage, markAsRead } = useChat(conversation.id);
+  const { settings: otherUserSettings } = useOtherUserMessageSettings(conversation.other_user?.user_id || null);
   const [input, setInput] = useState("");
   const [replyingTo, setReplyingTo] = useState<Message | null>(null);
   const [payComingSoon, setPayComingSoon] = useState(false);
@@ -184,7 +183,6 @@ const ChatPanel = ({ conversation, onBack, currentUserId, onConversationUpdated 
       const preview = replyingTo.content.length > 60
         ? replyingTo.content.slice(0, 60) + "…"
         : replyingTo.content;
-      // Strip nested quotes from the preview so replies don't chain
       const cleanPreview = preview.startsWith("> ") ? preview.slice(2) : preview;
       text = `> ${cleanPreview}\n\n${text}`;
     }
@@ -211,7 +209,7 @@ const ChatPanel = ({ conversation, onBack, currentUserId, onConversationUpdated 
         <Button variant="ghost" size="icon" className="md:hidden" onClick={onBack}>
           <ArrowLeft className="w-5 h-5" />
         </Button>
-        <button 
+        <button
           onClick={() => setProfileModalOpen(true)}
           className="flex items-center gap-3 hover:opacity-80 transition-opacity"
         >
@@ -224,16 +222,20 @@ const ChatPanel = ({ conversation, onBack, currentUserId, onConversationUpdated 
           <p className="font-semibold hover:text-primary transition-colors">{name}</p>
         </button>
         <div className="flex-1" />
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => setPayComingSoon(true)}
-          className="gap-2"
-        >
+        <Button size="sm" variant="outline" onClick={() => setPayComingSoon(true)} className="gap-2">
           <CreditCard className="w-4 h-4" />
           <span className="hidden sm:inline">Pay for Service</span>
         </Button>
       </div>
+
+      {/* Disclaimer from other user */}
+      {otherUserSettings?.disclaimer_text && (
+        <div className="px-4 py-2 bg-muted/50 border-b border-border">
+          <p className="text-xs text-muted-foreground italic">
+            ℹ️ {otherUserSettings.disclaimer_text}
+          </p>
+        </div>
+      )}
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
@@ -244,18 +246,14 @@ const ChatPanel = ({ conversation, onBack, currentUserId, onConversationUpdated 
         )}
         {messages.map((msg) => {
           const isMine = msg.sender_id === currentUserId;
-          // Detect reply prefix: "> quote\n\nbody"
           const parts = msg.content.split("\n\n");
           const hasReply = parts.length >= 2 && parts[0].startsWith("> ");
           const quotedText = hasReply ? parts[0].slice(2) : null;
           const bodyText = hasReply ? parts.slice(1).join("\n\n") : msg.content;
 
           return (
-            <div
-              key={msg.id}
-              className={cn("flex group items-end gap-1", isMine ? "justify-end" : "justify-start")}
-            >
-              {/* Reply button — shows on hover, opposite side of bubble */}
+            <div key={msg.id}
+              className={cn("flex group items-end gap-1", isMine ? "justify-end" : "justify-start")}>
               {!isMine && (
                 <button
                   onClick={() => { setReplyingTo(msg); inputRef.current?.focus(); }}
@@ -265,14 +263,12 @@ const ChatPanel = ({ conversation, onBack, currentUserId, onConversationUpdated 
                   <CornerUpLeft className="w-3.5 h-3.5 text-muted-foreground" />
                 </button>
               )}
-
               <div className={cn(
                 "max-w-[75%] px-4 py-2 rounded-2xl text-sm",
                 isMine
                   ? "bg-primary text-primary-foreground rounded-br-md"
                   : "bg-secondary text-foreground rounded-bl-md"
               )}>
-                {/* Quoted reply */}
                 {quotedText && (
                   <div className={cn(
                     "text-xs border-l-2 pl-2 mb-2 opacity-70 line-clamp-2",
@@ -289,7 +285,6 @@ const ChatPanel = ({ conversation, onBack, currentUserId, onConversationUpdated 
                   {format(new Date(msg.created_at), "h:mm a")}
                 </p>
               </div>
-
               {isMine && (
                 <button
                   onClick={() => { setReplyingTo(msg); inputRef.current?.focus(); }}
@@ -322,11 +317,8 @@ const ChatPanel = ({ conversation, onBack, currentUserId, onConversationUpdated 
 
       {/* Input */}
       <div className="p-4 border-t border-border">
-        <form
-          onSubmit={(e) => { e.preventDefault(); handleSend(); }}
-          className="flex items-center gap-2"
-        >
-          {/* Emoji picker */}
+        <form onSubmit={(e) => { e.preventDefault(); handleSend(); }}
+          className="flex items-center gap-2">
           <Popover open={emojiOpen} onOpenChange={setEmojiOpen}>
             <PopoverTrigger asChild>
               <Button type="button" variant="ghost" size="icon" className="flex-shrink-0 text-muted-foreground">
@@ -336,46 +328,54 @@ const ChatPanel = ({ conversation, onBack, currentUserId, onConversationUpdated 
             <PopoverContent side="top" align="start" className="w-64 p-2">
               <div className="grid grid-cols-10 gap-0.5">
                 {EMOJI_LIST.map((emoji) => (
-                  <button
-                    key={emoji}
-                    type="button"
-                    onClick={() => handleEmojiSelect(emoji)}
-                    className="text-lg p-1 rounded hover:bg-secondary transition-colors leading-none"
-                  >
+                  <button key={emoji} type="button" onClick={() => handleEmojiSelect(emoji)}
+                    className="text-lg p-1 rounded hover:bg-secondary transition-colors leading-none">
                     {emoji}
                   </button>
                 ))}
               </div>
             </PopoverContent>
           </Popover>
-
-          <Input
-            ref={inputRef}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Type a message..."
-            className="flex-1"
-          />
+          <Input ref={inputRef} value={input} onChange={(e) => setInput(e.target.value)}
+            placeholder="Type a message..." className="flex-1" />
           <Button type="submit" size="icon" disabled={!input.trim()}>
             <Send className="w-4 h-4" />
           </Button>
         </form>
       </div>
 
-      <ComingSoonDialog
-        open={payComingSoon}
-        onOpenChange={setPayComingSoon}
-        title="Pay for Service — Coming Soon"
-      />
+      <ComingSoonDialog open={payComingSoon} onOpenChange={setPayComingSoon}
+        title="Pay for Service — Coming Soon" />
 
-      <UserProfileModal
-        open={profileModalOpen}
-        onOpenChange={setProfileModalOpen}
+      <UserProfileModal open={profileModalOpen} onOpenChange={setProfileModalOpen}
         userId={otherUser?.user_id || null}
-        onBackToChat={() => setProfileModalOpen(false)}
-      />
+        onBackToChat={() => setProfileModalOpen(false)} />
     </>
   );
+};
+
+// Hook to fetch another user's message settings (disclaimer, auto-reply)
+const useOtherUserMessageSettings = (userId: string | null) => {
+  const [settings, setSettings] = useState<{
+    disclaimer_text: string | null;
+    auto_reply_message: string | null;
+    allow_messages_from: string;
+  } | null>(null);
+
+  useEffect(() => {
+    if (!userId) return;
+    const fetch = async () => {
+      const { data } = await supabase
+        .from("message_settings")
+        .select("disclaimer_text, auto_reply_message, allow_messages_from")
+        .eq("user_id", userId)
+        .maybeSingle();
+      setSettings(data as typeof settings);
+    };
+    fetch();
+  }, [userId]);
+
+  return { settings };
 };
 
 export default DashboardMessages;

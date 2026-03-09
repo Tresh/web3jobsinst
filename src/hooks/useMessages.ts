@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -133,7 +133,7 @@ export const useChat = (conversationId: string | null) => {
   const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
-  const hasMarkedRead = useRef(false);
+  
 
   const fetchMessages = useCallback(async () => {
     if (!conversationId) return;
@@ -149,10 +149,9 @@ export const useChat = (conversationId: string | null) => {
     setLoading(false);
   }, [conversationId]);
 
-  // Mark messages as read - separated from fetch to avoid loops
+  // Mark messages as read
   const markAsRead = useCallback(async () => {
-    if (!user || !conversationId || hasMarkedRead.current) return;
-    hasMarkedRead.current = true;
+    if (!user || !conversationId) return;
 
     await supabase
       .from("messages")
@@ -161,11 +160,6 @@ export const useChat = (conversationId: string | null) => {
       .neq("sender_id", user.id)
       .eq("is_read", false);
   }, [conversationId, user]);
-
-  // Reset the read flag when conversation changes
-  useEffect(() => {
-    hasMarkedRead.current = false;
-  }, [conversationId]);
 
   useEffect(() => {
     fetchMessages();

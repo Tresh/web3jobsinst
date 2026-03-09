@@ -1633,6 +1633,113 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_course_modules: {
+        Row: {
+          course_id: string
+          cover_image_url: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_free_preview: boolean
+          is_published: boolean
+          order_index: number
+          title: string
+          updated_at: string
+          video_duration: string | null
+          video_url: string | null
+        }
+        Insert: {
+          course_id: string
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_free_preview?: boolean
+          is_published?: boolean
+          order_index?: number
+          title: string
+          updated_at?: string
+          video_duration?: string | null
+          video_url?: string | null
+        }
+        Update: {
+          course_id?: string
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_free_preview?: boolean
+          is_published?: boolean
+          order_index?: number
+          title?: string
+          updated_at?: string
+          video_duration?: string | null
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_course_modules_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "platform_courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      platform_courses: {
+        Row: {
+          category: string
+          cover_image_url: string | null
+          created_at: string
+          description: string | null
+          duration: string | null
+          id: string
+          is_coming_soon: boolean
+          is_published: boolean
+          level: string
+          order_index: number
+          skill_outcome: string | null
+          title: string
+          updated_at: string
+          video_duration: string | null
+          video_url: string | null
+        }
+        Insert: {
+          category?: string
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string | null
+          duration?: string | null
+          id?: string
+          is_coming_soon?: boolean
+          is_published?: boolean
+          level?: string
+          order_index?: number
+          skill_outcome?: string | null
+          title: string
+          updated_at?: string
+          video_duration?: string | null
+          video_url?: string | null
+        }
+        Update: {
+          category?: string
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string | null
+          duration?: string | null
+          id?: string
+          is_coming_soon?: boolean
+          is_published?: boolean
+          level?: string
+          order_index?: number
+          skill_outcome?: string | null
+          title?: string
+          updated_at?: string
+          video_duration?: string | null
+          video_url?: string | null
+        }
+        Relationships: []
+      }
       platform_settings: {
         Row: {
           key: string

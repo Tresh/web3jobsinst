@@ -64,39 +64,21 @@ const UserProfileModal = ({
     const fetchUserData = async () => {
       setLoading(true);
 
-      // Fetch all data in parallel
       const [profileRes, scholarRes, internRes, talentRes, xpRes, bootcampRes] =
         await Promise.all([
-          supabase
-            .from("profiles")
-            .select("full_name, avatar_url, headline")
-            .eq("user_id", userId)
-            .maybeSingle(),
-          supabase
-            .from("scholarship_applications")
-            .select("status")
-            .eq("user_id", userId)
-            .eq("status", "approved")
-            .maybeSingle(),
-          supabase
-            .from("internship_profiles")
+          supabase.from("profiles").select("full_name, avatar_url, headline")
+            .eq("user_id", userId).maybeSingle(),
+          supabase.from("scholarship_applications").select("status")
+            .eq("user_id", userId).eq("status", "approved").maybeSingle(),
+          supabase.from("internship_profiles")
             .select("primary_skill_category, skill_level, internship_status, portfolio_link")
-            .eq("user_id", userId)
-            .eq("is_public", true)
-            .maybeSingle(),
-          supabase
-            .from("talent_profiles")
+            .eq("user_id", userId).eq("is_public", true).maybeSingle(),
+          supabase.from("talent_profiles")
             .select("category, hourly_rate, availability, portfolio_links")
-            .eq("user_id", userId)
-            .eq("is_approved", true)
-            .maybeSingle(),
-          supabase
-            .from("scholarship_applications")
-            .select("total_xp")
-            .eq("user_id", userId)
-            .maybeSingle(),
-          supabase
-            .from("bootcamp_participants")
+            .eq("user_id", userId).eq("is_approved", true).maybeSingle(),
+          supabase.from("scholarship_applications").select("total_xp")
+            .eq("user_id", userId).maybeSingle(),
+          supabase.from("bootcamp_participants")
             .select("id", { count: "exact", head: true })
             .eq("user_id", userId),
         ]);
@@ -116,12 +98,7 @@ const UserProfileModal = ({
   }, [userId, open]);
 
   const name = userData?.profile?.full_name || "Unknown";
-  const initials = name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
+  const initials = name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
 
   const handleBackToChat = () => {
     onOpenChange(false);
@@ -144,42 +121,32 @@ const UserProfileModal = ({
 
         {loading || visibilityLoading ? (
           <div className="space-y-4">
-            <div className="flex items-center gap-4">
-              <Skeleton className="w-16 h-16 rounded-full" />
-              <div className="space-y-2">
-                <Skeleton className="h-5 w-32" />
-                <Skeleton className="h-4 w-24" />
-              </div>
+            <div className="flex flex-col items-center gap-3">
+              <Skeleton className="w-20 h-20 rounded-full" />
+              <Skeleton className="h-5 w-32" />
             </div>
             <Skeleton className="h-20 w-full" />
             <Skeleton className="h-20 w-full" />
           </div>
         ) : userData ? (
           <div className="space-y-6">
-            {/* Profile Header */}
-            <div className="flex items-center gap-4">
-              <Avatar className="w-16 h-16">
+            {/* Profile Header - Centered */}
+            <div className="flex flex-col items-center text-center">
+              <Avatar className="w-20 h-20 mb-3">
                 <AvatarImage src={userData.profile?.avatar_url || undefined} />
-                <AvatarFallback className="bg-primary/10 text-primary text-xl">
+                <AvatarFallback className="bg-primary/10 text-primary text-2xl">
                   {initials}
                 </AvatarFallback>
               </Avatar>
-              <div>
-                <h3 className="font-semibold text-lg">{name}</h3>
-                {userData.profile?.headline && (
-                  <p className="text-sm text-muted-foreground">
-                    {userData.profile.headline}
-                  </p>
-                )}
-                <div className="flex gap-2 mt-1">
-                  {userData.scholarshipStatus === "approved" &&
-                    visibility?.show_scholarship_status !== false && (
-                      <Badge variant="secondary" className="text-xs">
-                        <GraduationCap className="w-3 h-3 mr-1" />
-                        Scholar
-                      </Badge>
-                    )}
-                </div>
+              <h3 className="font-semibold text-lg">{name}</h3>
+              <div className="flex gap-2 mt-2">
+                {userData.scholarshipStatus === "approved" &&
+                  visibility?.show_scholarship_status !== false && (
+                    <Badge variant="secondary" className="text-xs">
+                      <GraduationCap className="w-3 h-3 mr-1" />
+                      Scholar
+                    </Badge>
+                  )}
               </div>
             </div>
 
@@ -218,43 +185,26 @@ const UserProfileModal = ({
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Skill</span>
                         <span className="capitalize">
-                          {userData.internshipProfile.primary_skill_category.replace(
-                            "_",
-                            " "
-                          )}
+                          {userData.internshipProfile.primary_skill_category.replace("_", " ")}
                         </span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Level</span>
-                        <span className="capitalize">
-                          {userData.internshipProfile.skill_level}
-                        </span>
+                        <span className="capitalize">{userData.internshipProfile.skill_level}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Status</span>
-                        <Badge
-                          variant={
-                            userData.internshipProfile.internship_status ===
-                            "open_to_internship"
-                              ? "default"
-                              : "secondary"
-                          }
-                          className="text-xs"
-                        >
-                          {userData.internshipProfile.internship_status
-                            .replace(/_/g, " ")
-                            .replace(/\b\w/g, (c) => c.toUpperCase())}
+                        <Badge variant={
+                          userData.internshipProfile.internship_status === "open_to_internship" ? "default" : "secondary"
+                        } className="text-xs">
+                          {userData.internshipProfile.internship_status.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}
                         </Badge>
                       </div>
                       {userData.internshipProfile.portfolio_link && (
-                        <a
-                          href={userData.internshipProfile.portfolio_link}
-                          target="_blank"
+                        <a href={userData.internshipProfile.portfolio_link} target="_blank"
                           rel="noopener noreferrer"
-                          className="text-primary hover:underline flex items-center gap-1 text-xs mt-2"
-                        >
-                          <ExternalLink className="w-3 h-3" />
-                          View Portfolio
+                          className="text-primary hover:underline flex items-center gap-1 text-xs mt-2">
+                          <ExternalLink className="w-3 h-3" /> View Portfolio
                         </a>
                       )}
                     </div>
@@ -263,56 +213,43 @@ const UserProfileModal = ({
               )}
 
             {/* Talent Profile */}
-            {userData.talentProfile &&
-              visibility?.show_talent_profile !== false && (
-                <>
-                  <Separator />
-                  <div>
-                    <h4 className="font-medium flex items-center gap-2 mb-3">
-                      <Shield className="w-4 h-4" />
-                      Talent Profile
-                    </h4>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Category</span>
-                        <span className="capitalize">
-                          {userData.talentProfile.category.replace("_", " ")}
-                        </span>
-                      </div>
-                      {userData.talentProfile.hourly_rate && (
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Rate</span>
-                          <span>${userData.talentProfile.hourly_rate}/hr</span>
-                        </div>
-                      )}
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Availability</span>
-                        <Badge
-                          variant={
-                            userData.talentProfile.availability === "available"
-                              ? "default"
-                              : "secondary"
-                          }
-                          className="text-xs capitalize"
-                        >
-                          {userData.talentProfile.availability}
-                        </Badge>
-                      </div>
-                      {userData.talentProfile.portfolio_links?.[0] && (
-                        <a
-                          href={userData.talentProfile.portfolio_links[0]}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-primary hover:underline flex items-center gap-1 text-xs mt-2"
-                        >
-                          <ExternalLink className="w-3 h-3" />
-                          View Portfolio
-                        </a>
-                      )}
+            {userData.talentProfile && visibility?.show_talent_profile !== false && (
+              <>
+                <Separator />
+                <div>
+                  <h4 className="font-medium flex items-center gap-2 mb-3">
+                    <Shield className="w-4 h-4" />
+                    Talent Profile
+                  </h4>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Category</span>
+                      <span className="capitalize">{userData.talentProfile.category.replace("_", " ")}</span>
                     </div>
+                    {userData.talentProfile.hourly_rate && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Rate</span>
+                        <span>${userData.talentProfile.hourly_rate}/hr</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Availability</span>
+                      <Badge variant={userData.talentProfile.availability === "available" ? "default" : "secondary"}
+                        className="text-xs capitalize">
+                        {userData.talentProfile.availability}
+                      </Badge>
+                    </div>
+                    {userData.talentProfile.portfolio_links?.[0] && (
+                      <a href={userData.talentProfile.portfolio_links[0]} target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline flex items-center gap-1 text-xs mt-2">
+                        <ExternalLink className="w-3 h-3" /> View Portfolio
+                      </a>
+                    )}
                   </div>
-                </>
-              )}
+                </div>
+              </>
+            )}
 
             {/* Back to Chat Button */}
             {onBackToChat && (
@@ -323,9 +260,7 @@ const UserProfileModal = ({
             )}
           </div>
         ) : (
-          <p className="text-center text-muted-foreground py-8">
-            Profile not found
-          </p>
+          <p className="text-center text-muted-foreground py-8">Profile not found</p>
         )}
       </DialogContent>
     </Dialog>
