@@ -35,7 +35,12 @@ const ProductGrid = ({ products, onProductClick, purchasedProductIds }: ProductG
     <div className="space-y-8">
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
         {paginatedProducts.map((product) => (
-          <ProductCard key={product.id} product={product} onClick={() => onProductClick(product)} />
+          <ProductCard
+            key={product.id}
+            product={product}
+            isPurchased={purchasedProductIds?.has(product.id) ?? false}
+            onClick={() => onProductClick(product)}
+          />
         ))}
       </div>
 
