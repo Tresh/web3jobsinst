@@ -1818,15 +1818,6 @@ const AdminScholarships = () => {
           <AdminPOWTab />
         </TabsContent>
 
-        {/* Internships Tab */}
-        <TabsContent value="internships">
-          <AdminInternshipsTab />
-        </TabsContent>
-
-        {/* Internship Waitlist Tab */}
-        <TabsContent value="waitlist">
-          <AdminInternshipWaitlistTab />
-        </TabsContent>
       </Tabs>
     </div>
   );
