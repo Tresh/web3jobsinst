@@ -209,7 +209,7 @@ export const useCourseEnrollment = (courseId: string | undefined) => {
   const fetchEnrollment = useCallback(async () => {
     if (!user || !courseId) return;
     setLoading(true);
-    const { data } = await supabase
+    const { data } = await (supabase as any)
       .from("course_enrollments")
       .select("*")
       .eq("course_id", courseId)
@@ -223,7 +223,7 @@ export const useCourseEnrollment = (courseId: string | undefined) => {
 
   const enroll = async () => {
     if (!user || !courseId) return false;
-    const { error } = await supabase.from("course_enrollments").insert({
+    const { error } = await (supabase as any).from("course_enrollments").insert({
       user_id: user.id,
       course_id: courseId,
     });
