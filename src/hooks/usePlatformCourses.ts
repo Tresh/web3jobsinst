@@ -284,13 +284,13 @@ export const useLessonProgress = (lessonId: string | undefined, courseId: string
 
   useEffect(() => {
     if (!user || !lessonId) return;
-    supabase
+    (supabase as any)
       .from("course_lesson_progress")
       .select("*")
       .eq("user_id", user.id)
       .eq("lesson_id", lessonId)
       .maybeSingle()
-      .then(({ data }) => setProgress(data as LessonProgress | null));
+      .then(({ data }: any) => setProgress(data as LessonProgress | null));
   }, [user, lessonId]);
 
   const updateProgress = async (watchedSeconds: number, totalSeconds: number) => {
@@ -307,7 +307,7 @@ export const useLessonProgress = (lessonId: string | undefined, courseId: string
       last_watched_at: new Date().toISOString(),
     };
 
-    const { data } = await supabase
+    const { data } = await (supabase as any)
       .from("course_lesson_progress")
       .upsert(payload, { onConflict: "user_id,lesson_id" })
       .select()
@@ -317,7 +317,7 @@ export const useLessonProgress = (lessonId: string | undefined, courseId: string
 
   const markComplete = async () => {
     if (!user || !lessonId || !courseId) return;
-    const { data } = await supabase
+    const { data } = await (supabase as any)
       .from("course_lesson_progress")
       .upsert({
         user_id: user.id,
