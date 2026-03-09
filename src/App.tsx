@@ -78,6 +78,7 @@ import AdminChangelog from "./pages/admin/AdminChangelog";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminInstitutions from "./pages/admin/AdminInstitutions";
 import AdminXpAudit from "./pages/admin/AdminXpAudit";
+import AdminInternships from "./pages/admin/AdminInternships";
 import CookieConsent from "@/components/CookieConsent";
 import { usePageAnalytics } from "@/hooks/usePageAnalytics";
 
