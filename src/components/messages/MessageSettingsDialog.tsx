@@ -260,12 +260,12 @@ const MessageSettingsDialog = ({ open, onOpenChange }: MessageSettingsDialogProp
             <Separator />
 
             {/* Important Notice */}
-            <div className="rounded-lg bg-yellow-500/10 border border-yellow-500/20 p-3">
+            <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-3">
               <div className="flex items-start gap-2">
-                <ShieldCheck className="w-4 h-4 text-yellow-600 mt-0.5" />
-                <div className="text-xs text-yellow-700 dark:text-yellow-400">
+                <ShieldCheck className="w-4 h-4 text-destructive mt-0.5" />
+                <div className="text-xs text-destructive">
                   <p className="font-medium">Important:</p>
-                  <p>
+                  <p className="opacity-80">
                     All transactions are final. No refunds for completed services.
                     Always verify before making payments.
                   </p>
