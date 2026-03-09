@@ -133,7 +133,7 @@ export const useChat = (conversationId: string | null) => {
   const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
-  const hasMarkedRead = useRef(false);
+  
 
   const fetchMessages = useCallback(async () => {
     if (!conversationId) return;
