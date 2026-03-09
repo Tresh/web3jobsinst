@@ -2623,6 +2623,48 @@ export type Database = {
         }
         Relationships: []
       }
+      xp_audit_log: {
+        Row: {
+          adjustment: number
+          audit_source: string
+          checkin_xp: number | null
+          correct_xp: number
+          created_at: string
+          full_name: string | null
+          id: string
+          module_xp: number | null
+          old_xp: number
+          task_xp: number | null
+          user_id: string
+        }
+        Insert: {
+          adjustment: number
+          audit_source?: string
+          checkin_xp?: number | null
+          correct_xp: number
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          module_xp?: number | null
+          old_xp: number
+          task_xp?: number | null
+          user_id: string
+        }
+        Update: {
+          adjustment?: number
+          audit_source?: string
+          checkin_xp?: number | null
+          correct_xp?: number
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          module_xp?: number | null
+          old_xp?: number
+          task_xp?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -2701,6 +2743,16 @@ export type Database = {
       is_bootcamp_participant: {
         Args: { p_bootcamp_id: string; p_user_id: string }
         Returns: boolean
+      }
+      reconcile_scholarship_xp: {
+        Args: { dry_run?: boolean }
+        Returns: {
+          adjustment: number
+          expected_xp: number
+          full_name: string
+          old_xp: number
+          user_id: string
+        }[]
       }
     }
     Enums: {
