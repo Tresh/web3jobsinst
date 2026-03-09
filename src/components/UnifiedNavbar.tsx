@@ -46,7 +46,7 @@ const opportunityLinks: NavLink[] = [
   { label: "LearnFi", href: "/learnfi" },
   { label: "Become a Tutor", href: "/tutors" },
   { label: "Verified Institutions", href: "/institutions" },
-  { label: "Affiliates", comingSoon: "Affiliates Coming Soon" },
+  { label: "Affiliates", href: "/affiliates" },
   { label: "Jobs", comingSoon: "Jobs Board Coming Soon" },
 ];
 
