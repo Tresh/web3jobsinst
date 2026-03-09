@@ -982,14 +982,6 @@ const AdminScholarships = () => {
             <FolderCheck className="w-4 h-4" />
             Proof of Work
           </TabsTrigger>
-          <TabsTrigger value="internships" className="gap-2">
-            <Briefcase className="w-4 h-4" />
-            Internships
-          </TabsTrigger>
-          <TabsTrigger value="waitlist" className="gap-2">
-            <ClipboardList className="w-4 h-4" />
-            Waitlist
-          </TabsTrigger>
         </TabsList>
 
         {/* Overview Tab */}
