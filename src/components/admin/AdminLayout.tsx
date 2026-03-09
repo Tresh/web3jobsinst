@@ -83,6 +83,11 @@ const adminNavItems = [
     href: "/admin/bootcamps",
   },
   {
+    title: "Internships",
+    icon: Briefcase,
+    href: "/admin/internships",
+  },
+  {
     title: "Tutors",
     icon: BookOpen,
     href: "/admin/tutors",
