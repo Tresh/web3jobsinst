@@ -39,10 +39,10 @@ interface UserData {
     portfolio_link: string | null;
   } | null;
   talentProfile: {
-    skill_category: string;
+    category: string;
     hourly_rate: number | null;
-    availability_status: string;
-    portfolio_url: string | null;
+    availability: string;
+    portfolio_links: string[] | null;
   } | null;
   totalXp: number;
   bootcampCount: number;
