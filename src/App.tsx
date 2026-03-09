@@ -216,6 +216,7 @@ const App = () => (
               />
               <Route path="bug-reports" element={<AdminBugReports />} />
               <Route path="bootcamps" element={<AdminBootcamps />} />
+              <Route path="internships" element={<AdminInternships />} />
               <Route path="bootcamps/:id" element={<AdminBootcampManage />} />
               <Route path="tutors" element={<AdminTutors />} />
               <Route path="institutions" element={<AdminInstitutions />} />
