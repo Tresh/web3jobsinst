@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
@@ -57,14 +58,34 @@ const STATUS_COLORS: Record<string, string> = {
   not_available: "bg-muted text-muted-foreground border-border",
 };
 
+const SKILL_CATEGORIES = [
+  { value: "all", label: "All Categories" },
+  { value: "web_development", label: "Web Development" },
+  { value: "mobile_development", label: "Mobile Development" },
+  { value: "design", label: "UI/UX Design" },
+  { value: "marketing", label: "Digital Marketing" },
+  { value: "content_creation", label: "Content Creation" },
+  { value: "data_science", label: "Data Science" },
+  { value: "blockchain", label: "Blockchain / Web3" },
+  { value: "video_editing", label: "Video Editing" },
+  { value: "community_management", label: "Community Management" },
+  { value: "project_management", label: "Project Management" },
+  { value: "general", label: "General" },
+];
+
 export function AdminInternshipsTab() {
   const { toast } = useToast();
   const [profiles, setProfiles] = useState<InternProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [approvalFilter, setApprovalFilter] = useState("all");
   const [selected, setSelected] = useState<InternProfile | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [isBatchApproving, setIsBatchApproving] = useState(false);
 
   // Edit form
   const [editStatus, setEditStatus] = useState("open_to_internship");
@@ -127,15 +148,51 @@ export function AdminInternshipsTab() {
     fetchProfiles();
   };
 
+  const handleBatchApprove = async () => {
+    if (selectedIds.size === 0) return;
+    setIsBatchApproving(true);
+    const ids = Array.from(selectedIds);
+    await supabase.from("internship_profiles").update({ is_approved: true, is_public: true }).in("id", ids);
+    toast({ title: `${ids.length} profiles approved and published` });
+    setSelectedIds(new Set());
+    fetchProfiles();
+    setIsBatchApproving(false);
+  };
+
+  const toggleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedIds(new Set(filtered.map((p) => p.id)));
+    } else {
+      setSelectedIds(new Set());
+    }
+  };
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
   const filtered = profiles.filter((p) => {
-    if (!search) return true;
-    const q = search.toLowerCase();
-    return (
-      p.full_name.toLowerCase().includes(q) ||
-      p.email.toLowerCase().includes(q) ||
-      p.primary_skill_category.toLowerCase().includes(q)
-    );
+    if (search) {
+      const q = search.toLowerCase();
+      const matchesSearch =
+        p.full_name.toLowerCase().includes(q) ||
+        p.email.toLowerCase().includes(q) ||
+        p.primary_skill_category.toLowerCase().includes(q);
+      if (!matchesSearch) return false;
+    }
+    if (statusFilter !== "all" && p.internship_status !== statusFilter) return false;
+    if (categoryFilter !== "all" && !p.primary_skill_category.toLowerCase().includes(categoryFilter)) return false;
+    if (approvalFilter === "approved" && !p.is_approved) return false;
+    if (approvalFilter === "pending" && p.is_approved) return false;
+    return true;
   });
+
+  const allSelected = filtered.length > 0 && filtered.every((p) => selectedIds.has(p.id));
 
   return (
     <Card>
@@ -144,15 +201,64 @@ export function AdminInternshipsTab() {
           <div>
             <CardTitle className="flex items-center gap-2">
               <Briefcase className="w-5 h-5" />
-              Internship Management
+              Internship Profiles
             </CardTitle>
             <CardDescription>Manage intern profiles, approve and update statuses</CardDescription>
           </div>
+        </div>
+
+        {/* Filters */}
+        <div className="flex flex-wrap gap-3 mt-4">
           <div className="relative w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input placeholder="Search interns..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10" />
           </div>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-44">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Statuses</SelectItem>
+              {STATUS_OPTIONS.map((s) => (
+                <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+            <SelectTrigger className="w-44">
+              <SelectValue placeholder="Category" />
+            </SelectTrigger>
+            <SelectContent>
+              {SKILL_CATEGORIES.map((c) => (
+                <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={approvalFilter} onValueChange={setApprovalFilter}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Approval" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="approved">Approved</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
+
+        {/* Bulk actions */}
+        {selectedIds.size > 0 && (
+          <div className="flex items-center gap-3 mt-3 p-3 rounded-lg bg-primary/5 border border-primary/20">
+            <span className="text-sm font-medium text-foreground">{selectedIds.size} selected</span>
+            <Button size="sm" onClick={handleBatchApprove} disabled={isBatchApproving}>
+              {isBatchApproving ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <CheckCircle className="w-3 h-3 mr-1" />}
+              Approve & Publish Selected
+            </Button>
+            <Button size="sm" variant="ghost" onClick={() => setSelectedIds(new Set())}>
+              Clear Selection
+            </Button>
+          </div>
+        )}
       </CardHeader>
       <CardContent>
         {isLoading ? (
@@ -163,6 +269,9 @@ export function AdminInternshipsTab() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-10">
+                  <Checkbox checked={allSelected} onCheckedChange={toggleSelectAll} />
+                </TableHead>
                 <TableHead>Intern</TableHead>
                 <TableHead>Skill</TableHead>
                 <TableHead>Status</TableHead>
@@ -175,6 +284,9 @@ export function AdminInternshipsTab() {
             <TableBody>
               {filtered.map((p) => (
                 <TableRow key={p.id}>
+                  <TableCell>
+                    <Checkbox checked={selectedIds.has(p.id)} onCheckedChange={() => toggleSelect(p.id)} />
+                  </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <Avatar className="w-8 h-8">
@@ -189,7 +301,7 @@ export function AdminInternshipsTab() {
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell className="text-sm capitalize">{p.primary_skill_category.replace("_", " ")}</TableCell>
+                  <TableCell className="text-sm capitalize">{p.primary_skill_category.replace(/_/g, " ")}</TableCell>
                   <TableCell>
                     <Badge className={`text-xs ${STATUS_COLORS[p.internship_status] || ""}`}>
                       {STATUS_OPTIONS.find((s) => s.value === p.internship_status)?.label || p.internship_status}
@@ -229,8 +341,8 @@ export function AdminInternshipsTab() {
               ))}
               {filtered.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                    No internship profiles yet.
+                  <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                    No internship profiles match your filters.
                   </TableCell>
                 </TableRow>
               )}
