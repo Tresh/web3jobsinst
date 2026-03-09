@@ -21,6 +21,7 @@ import {
   Camera,
   Loader2,
   CreditCard,
+  Megaphone,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
