@@ -44,12 +44,17 @@ const opportunities = [
 ];
 
 const OpportunitiesStrip = () => {
+  const navigate = useNavigate();
   const [comingSoonOpen, setComingSoonOpen] = useState(false);
   const [selectedTitle, setSelectedTitle] = useState("");
 
-  const handleCardClick = (title: string) => {
-    setSelectedTitle(title);
-    setComingSoonOpen(true);
+  const handleCardClick = (opp: typeof opportunities[0]) => {
+    if (opp.href) {
+      navigate(opp.href);
+    } else {
+      setSelectedTitle(opp.title);
+      setComingSoonOpen(true);
+    }
   };
 
   return (
