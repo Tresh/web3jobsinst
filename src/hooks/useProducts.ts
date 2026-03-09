@@ -80,13 +80,19 @@ export const useAdminOrders = () => {
 };
 
 export const useMyOrders = () => {
+  const { user } = useAuth();
+
   return useQuery({
-    queryKey: ["product-orders", "my"],
+    queryKey: ["product-orders", "my", user?.id ?? null],
+    enabled: !!user,
     queryFn: async () => {
+      if (!user) return [] as DBProductOrder[];
+
       const { data, error } = await supabase
         .from("product_orders")
         .select("*, products(*)")
         .eq("status", "success")
+        .eq("user_id", user.id)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data as DBProductOrder[];

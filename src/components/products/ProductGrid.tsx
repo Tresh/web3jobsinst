@@ -65,7 +65,15 @@ const ProductGrid = ({ products, onProductClick, purchasedProductIds }: ProductG
   );
 };
 
-const ProductCard = ({ product, onClick }: { product: DBProduct; onClick: () => void }) => {
+const ProductCard = ({
+  product,
+  isPurchased,
+  onClick,
+}: {
+  product: DBProduct;
+  isPurchased: boolean;
+  onClick: () => void;
+}) => {
   const categoryLabel = productCategoryLabels[product.category as ProductCategory] || product.category;
 
   return (
@@ -88,11 +96,19 @@ const ProductCard = ({ product, onClick }: { product: DBProduct; onClick: () => 
         )}
 
         <div className="absolute top-3 right-3">
-          <span className={`px-2.5 py-1 text-xs font-bold rounded-full shadow-sm ${
-            product.price === 0 ? "bg-green-500 text-white" : "bg-foreground text-background"
-          }`}>
-            {formatPrice(product.price, product.currency)}
-          </span>
+          {isPurchased ? (
+            <span className="px-2.5 py-1 text-xs font-bold rounded-full shadow-sm bg-primary text-primary-foreground">
+              Owned
+            </span>
+          ) : (
+            <span
+              className={`px-2.5 py-1 text-xs font-bold rounded-full shadow-sm ${
+                product.price === 0 ? "bg-green-500 text-white" : "bg-foreground text-background"
+              }`}
+            >
+              {formatPrice(product.price, product.currency)}
+            </span>
+          )}
         </div>
 
         <div className="absolute top-3 left-3">

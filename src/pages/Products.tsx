@@ -229,15 +229,19 @@ const Products = () => {
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">by {selectedProduct.creator_name}</span>
                 <span className="text-lg font-bold text-foreground">
-                  {formatPrice(selectedProduct.price, selectedProduct.currency)}
+                  {ownedProductIds.has(selectedProduct.id)
+                    ? "Bought"
+                    : formatPrice(selectedProduct.price, selectedProduct.currency)}
                 </span>
               </div>
               <Button
                 className="w-full"
                 onClick={handleBuyNow}
-                disabled={initPayment.isPending}
+                disabled={!ownedProductIds.has(selectedProduct.id) && initPayment.isPending}
               >
-                {initPayment.isPending
+                {ownedProductIds.has(selectedProduct.id)
+                  ? "View in Dashboard"
+                  : initPayment.isPending
                   ? "Processing..."
                   : selectedProduct.price === 0
                   ? "Get Free"
