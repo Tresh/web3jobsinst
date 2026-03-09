@@ -244,7 +244,7 @@ export const useMyEnrolledCourses = () => {
     if (!user) { setLoading(false); return; }
     const fetch = async () => {
       setLoading(true);
-      const { data: enrollData } = await supabase
+      const { data: enrollData } = await (supabase as any)
         .from("course_enrollments")
         .select("*")
         .eq("user_id", user.id)
