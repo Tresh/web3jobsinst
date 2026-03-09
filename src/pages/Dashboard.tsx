@@ -33,6 +33,7 @@ const navItems = [
   { label: "Internship", href: "/dashboard/internship", icon: Briefcase },
   { label: "Messages", href: "/dashboard/messages", icon: MessageSquare },
   { label: "Bootcamps", href: "/dashboard/bootcamps", icon: Rocket },
+  { label: "Campaigns", href: "/dashboard/campaigns", icon: Megaphone },
   { label: "LearnFi", href: "/dashboard/learnfi", icon: Zap },
   { label: "My Courses", href: "/dashboard/courses", icon: BookOpen },
   { label: "My Products", href: "/dashboard/products", icon: Package },
