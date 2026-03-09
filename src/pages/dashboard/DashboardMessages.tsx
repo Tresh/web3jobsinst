@@ -1,15 +1,17 @@
 import { useState, useRef, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useConversations, useChat, type Conversation, type Message } from "@/hooks/useMessages";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { MessageSquare, Send, ArrowLeft, Loader2, CreditCard, Smile, X, CornerUpLeft } from "lucide-react";
+import { MessageSquare, Send, ArrowLeft, Loader2, CreditCard, Smile, X, CornerUpLeft, Settings } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import ComingSoonDialog from "@/components/ComingSoonDialog";
+import UserProfileModal from "@/components/messages/UserProfileModal";
+import MessageSettingsDialog from "@/components/messages/MessageSettingsDialog";
 
 const EMOJI_LIST = [
   "😀","😂","😍","🥰","😊","😎","🤔","😢","😡","🤩",
@@ -22,12 +24,13 @@ const EMOJI_LIST = [
 const DashboardMessages = () => {
   const { user } = useAuth();
   const location = useLocation();
-  const { conversations, loading, clearConversationUnread } = useConversations();
+  const { conversations, loading, clearConversationUnread, refetch } = useConversations();
   const [activeConvo, setActiveConvo] = useState<Conversation | null>(null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   // Auto-open conversation passed from talent contact button
   useEffect(() => {
-    const openId = (location.state as any)?.openConversationId;
+    const openId = (location.state as { openConversationId?: string })?.openConversationId;
     if (openId && conversations.length > 0 && !activeConvo) {
       const match = conversations.find((c) => c.id === openId);
       if (match) {
@@ -35,7 +38,7 @@ const DashboardMessages = () => {
         clearConversationUnread(match.id);
       }
     }
-  }, [conversations, location.state]);
+  }, [conversations, location.state, activeConvo, clearConversationUnread]);
 
   const handleSelectConvo = (convo: Conversation) => {
     setActiveConvo(convo);
@@ -44,11 +47,20 @@ const DashboardMessages = () => {
 
   return (
     <div className="h-[calc(100vh-64px)] lg:h-screen flex flex-col">
-      <div className="p-6 border-b border-border">
-        <h1 className="text-2xl font-bold">Messages</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Chat with talents and interns
-        </p>
+      {/* Only show header when no active conversation on mobile, always on desktop */}
+      <div className={cn(
+        "p-6 border-b border-border flex items-center justify-between",
+        activeConvo ? "hidden md:flex" : "flex"
+      )}>
+        <div>
+          <h1 className="text-2xl font-bold">Messages</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Chat with talents and interns
+          </p>
+        </div>
+        <Button variant="ghost" size="icon" onClick={() => setSettingsOpen(true)}>
+          <Settings className="w-5 h-5" />
+        </Button>
       </div>
 
       <div className="flex-1 flex overflow-hidden">
@@ -121,6 +133,7 @@ const DashboardMessages = () => {
               conversation={activeConvo}
               onBack={() => setActiveConvo(null)}
               currentUserId={user?.id || ""}
+              onConversationUpdated={refetch}
             />
           ) : (
             <div className="flex-1 flex items-center justify-center text-muted-foreground">
@@ -132,6 +145,8 @@ const DashboardMessages = () => {
           )}
         </div>
       </div>
+
+      <MessageSettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
     </div>
   );
 };
@@ -140,20 +155,27 @@ interface ChatPanelProps {
   conversation: Conversation;
   onBack: () => void;
   currentUserId: string;
+  onConversationUpdated?: () => void;
 }
 
-const ChatPanel = ({ conversation, onBack, currentUserId }: ChatPanelProps) => {
-  const { messages, loading, sendMessage } = useChat(conversation.id);
+const ChatPanel = ({ conversation, onBack, currentUserId, onConversationUpdated }: ChatPanelProps) => {
+  const { messages, loading, sendMessage, markAsRead } = useChat(conversation.id);
   const [input, setInput] = useState("");
   const [replyingTo, setReplyingTo] = useState<Message | null>(null);
   const [payComingSoon, setPayComingSoon] = useState(false);
   const [emojiOpen, setEmojiOpen] = useState(false);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // Mark messages as read when conversation is opened
+  useEffect(() => {
+    markAsRead();
+  }, [markAsRead]);
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -169,6 +191,7 @@ const ChatPanel = ({ conversation, onBack, currentUserId }: ChatPanelProps) => {
     setInput("");
     setReplyingTo(null);
     await sendMessage(text);
+    onConversationUpdated?.();
   };
 
   const handleEmojiSelect = (emoji: string) => {
@@ -188,7 +211,10 @@ const ChatPanel = ({ conversation, onBack, currentUserId }: ChatPanelProps) => {
         <Button variant="ghost" size="icon" className="md:hidden" onClick={onBack}>
           <ArrowLeft className="w-5 h-5" />
         </Button>
-        <Link to="/talents" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+        <button 
+          onClick={() => setProfileModalOpen(true)}
+          className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+        >
           <Avatar className="w-9 h-9">
             <AvatarImage src={otherUser?.avatar_url || undefined} />
             <AvatarFallback className="bg-primary/10 text-primary text-sm">
@@ -196,7 +222,7 @@ const ChatPanel = ({ conversation, onBack, currentUserId }: ChatPanelProps) => {
             </AvatarFallback>
           </Avatar>
           <p className="font-semibold hover:text-primary transition-colors">{name}</p>
-        </Link>
+        </button>
         <div className="flex-1" />
         <Button
           size="sm"
@@ -205,7 +231,7 @@ const ChatPanel = ({ conversation, onBack, currentUserId }: ChatPanelProps) => {
           className="gap-2"
         >
           <CreditCard className="w-4 h-4" />
-          Pay for Service
+          <span className="hidden sm:inline">Pay for Service</span>
         </Button>
       </div>
 
@@ -340,6 +366,13 @@ const ChatPanel = ({ conversation, onBack, currentUserId }: ChatPanelProps) => {
         open={payComingSoon}
         onOpenChange={setPayComingSoon}
         title="Pay for Service — Coming Soon"
+      />
+
+      <UserProfileModal
+        open={profileModalOpen}
+        onOpenChange={setProfileModalOpen}
+        userId={otherUser?.user_id || null}
+        onBackToChat={() => setProfileModalOpen(false)}
       />
     </>
   );
