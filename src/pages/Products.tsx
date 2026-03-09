@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import Footer from "@/components/Footer";
@@ -10,7 +10,7 @@ import ComingSoonDialog from "@/components/ComingSoonDialog";
 import ScholarshipFormDialog from "@/components/ScholarshipFormDialog";
 import G6LaunchSection from "@/components/products/G6LaunchSection";
 import { type ProductCategory, type ProductPriceType } from "@/data/productsData";
-import { usePublicProducts, useInitializePayment, useVerifyPayment, formatPrice, type DBProduct } from "@/hooks/useProducts";
+import { usePublicProducts, useMyOrders, useInitializePayment, useVerifyPayment, formatPrice, type DBProduct } from "@/hooks/useProducts";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -31,11 +31,13 @@ const Products = () => {
   const [detailOpen, setDetailOpen] = useState(false);
 
   const { data: products = [], isLoading } = usePublicProducts();
+  const { data: myOrders = [] } = useMyOrders();
   const initPayment = useInitializePayment();
   const verifyPayment = useVerifyPayment();
   const { user } = useAuth();
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   // Handle Paystack callback
   useEffect(() => {
@@ -65,6 +67,10 @@ const Products = () => {
     return count;
   }, [selectedCategory, selectedPriceType]);
 
+  const ownedProductIds = useMemo(() => {
+    return new Set(myOrders.map((o) => o.product_id));
+  }, [myOrders]);
+
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
       const matchesSearch =
@@ -93,6 +99,14 @@ const Products = () => {
 
   const handleBuyNow = async () => {
     if (!selectedProduct) return;
+
+    // If already purchased, send them to their dashboard downloads
+    if (ownedProductIds.has(selectedProduct.id)) {
+      setDetailOpen(false);
+      navigate("/dashboard/products");
+      return;
+    }
+
     if (!user) {
       toast({ title: "Please log in to purchase", variant: "destructive" });
       return;
@@ -165,7 +179,11 @@ const Products = () => {
           {isLoading ? (
             <div className="text-center py-16 text-muted-foreground">Loading products...</div>
           ) : (
-            <ProductGrid products={filteredProducts} onProductClick={handleProductClick} />
+            <ProductGrid
+              products={filteredProducts}
+              onProductClick={handleProductClick}
+              purchasedProductIds={ownedProductIds}
+            />
           )}
         </section>
 
@@ -211,15 +229,19 @@ const Products = () => {
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">by {selectedProduct.creator_name}</span>
                 <span className="text-lg font-bold text-foreground">
-                  {formatPrice(selectedProduct.price, selectedProduct.currency)}
+                  {ownedProductIds.has(selectedProduct.id)
+                    ? "Bought"
+                    : formatPrice(selectedProduct.price, selectedProduct.currency)}
                 </span>
               </div>
               <Button
                 className="w-full"
                 onClick={handleBuyNow}
-                disabled={initPayment.isPending}
+                disabled={!ownedProductIds.has(selectedProduct.id) && initPayment.isPending}
               >
-                {initPayment.isPending
+                {ownedProductIds.has(selectedProduct.id)
+                  ? "View in Dashboard"
+                  : initPayment.isPending
                   ? "Processing..."
                   : selectedProduct.price === 0
                   ? "Get Free"

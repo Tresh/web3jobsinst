@@ -9,9 +9,10 @@ const ITEMS_PER_PAGE = 8;
 interface ProductGridProps {
   products: DBProduct[];
   onProductClick: (product: DBProduct) => void;
+  purchasedProductIds?: Set<string>;
 }
 
-const ProductGrid = ({ products, onProductClick }: ProductGridProps) => {
+const ProductGrid = ({ products, onProductClick, purchasedProductIds }: ProductGridProps) => {
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = Math.ceil(products.length / ITEMS_PER_PAGE);
 
@@ -34,7 +35,12 @@ const ProductGrid = ({ products, onProductClick }: ProductGridProps) => {
     <div className="space-y-8">
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
         {paginatedProducts.map((product) => (
-          <ProductCard key={product.id} product={product} onClick={() => onProductClick(product)} />
+          <ProductCard
+            key={product.id}
+            product={product}
+            isPurchased={purchasedProductIds?.has(product.id) ?? false}
+            onClick={() => onProductClick(product)}
+          />
         ))}
       </div>
 
@@ -59,7 +65,15 @@ const ProductGrid = ({ products, onProductClick }: ProductGridProps) => {
   );
 };
 
-const ProductCard = ({ product, onClick }: { product: DBProduct; onClick: () => void }) => {
+const ProductCard = ({
+  product,
+  isPurchased,
+  onClick,
+}: {
+  product: DBProduct;
+  isPurchased: boolean;
+  onClick: () => void;
+}) => {
   const categoryLabel = productCategoryLabels[product.category as ProductCategory] || product.category;
 
   return (
@@ -82,11 +96,19 @@ const ProductCard = ({ product, onClick }: { product: DBProduct; onClick: () => 
         )}
 
         <div className="absolute top-3 right-3">
-          <span className={`px-2.5 py-1 text-xs font-bold rounded-full shadow-sm ${
-            product.price === 0 ? "bg-green-500 text-white" : "bg-foreground text-background"
-          }`}>
-            {formatPrice(product.price, product.currency)}
-          </span>
+          {isPurchased ? (
+            <span className="px-2.5 py-1 text-xs font-bold rounded-full shadow-sm bg-primary text-primary-foreground">
+              Owned
+            </span>
+          ) : (
+            <span
+              className={`px-2.5 py-1 text-xs font-bold rounded-full shadow-sm ${
+                product.price === 0 ? "bg-green-500 text-white" : "bg-foreground text-background"
+              }`}
+            >
+              {formatPrice(product.price, product.currency)}
+            </span>
+          )}
         </div>
 
         <div className="absolute top-3 left-3">

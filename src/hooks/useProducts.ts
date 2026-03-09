@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 export interface DBProduct {
   id: string;
@@ -79,16 +80,22 @@ export const useAdminOrders = () => {
 };
 
 export const useMyOrders = () => {
-  return useQuery({
-    queryKey: ["product-orders", "my"],
+  const { user } = useAuth();
+
+  return useQuery<DBProductOrder[]>({
+    queryKey: ["product-orders", "my", user?.id ?? null],
+    enabled: !!user,
     queryFn: async () => {
+      if (!user) return [];
+
       const { data, error } = await supabase
         .from("product_orders")
         .select("*, products(*)")
         .eq("status", "success")
+        .eq("user_id", user.id)
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return data as DBProductOrder[];
+      return (data ?? []) as DBProductOrder[];
     },
   });
 };

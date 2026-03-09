@@ -1,12 +1,34 @@
+import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/card";
-import { Package, Download, ExternalLink } from "lucide-react";
+import { Package, Download } from "lucide-react";
 import { useMyOrders, formatPrice } from "@/hooks/useProducts";
 import { useNavigate } from "react-router-dom";
 
 const DashboardProducts = () => {
   const { data: orders = [], isLoading } = useMyOrders();
   const navigate = useNavigate();
+
+  const uniqueOrders = useMemo(() => {
+    const map = new Map<string, (typeof orders)[number]>();
+
+    for (const order of orders) {
+      const key = order.product_id || order.products?.id || order.id;
+      const existing = map.get(key);
+
+      if (!existing) {
+        map.set(key, order);
+        continue;
+      }
+
+      // Keep the most recent purchase when duplicates exist
+      if (new Date(order.created_at).getTime() > new Date(existing.created_at).getTime()) {
+        map.set(key, order);
+      }
+    }
+
+    return Array.from(map.values());
+  }, [orders]);
 
   return (
     <div className="p-6 lg:p-8">
@@ -20,7 +42,7 @@ const DashboardProducts = () => {
 
       {isLoading ? (
         <div className="text-center py-16 text-muted-foreground">Loading...</div>
-      ) : orders.length === 0 ? (
+      ) : uniqueOrders.length === 0 ? (
         <Card className="border-dashed">
           <CardContent className="flex flex-col items-center justify-center py-16">
             <div className="w-16 h-16 bg-secondary rounded-full flex items-center justify-center mb-4">
@@ -35,7 +57,7 @@ const DashboardProducts = () => {
         </Card>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {orders.map((order) => (
+          {uniqueOrders.map((order) => (
             <Card key={order.id} className="overflow-hidden">
               <CardContent className="p-4 space-y-3">
                 <div className="flex items-start gap-3">
