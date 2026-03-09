@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { ChevronLeft, ChevronRight, Star, Briefcase, MessageSquare } from "lucide-react";
+import { ChevronLeft, ChevronRight, Star, Briefcase, MessageSquare, MapPin, CreditCard } from "lucide-react";
 import { type TalentProfileWithUser, TALENT_CATEGORIES } from "@/hooks/useTalentProfile";
 import { useAuth } from "@/contexts/AuthContext";
 import { useStartConversation } from "@/hooks/useMessages";
@@ -259,6 +259,37 @@ const TalentDetailModal = ({ talent, onClose }: TalentDetailModalProps) => {
                 </a>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* Payment info */}
+        {(talent.accepts_crypto || talent.accepts_paypal || talent.accepts_bank_transfer || talent.payment_region) && (
+          <div className="mb-6 space-y-2">
+            {(talent.accepts_crypto || talent.accepts_paypal || talent.accepts_bank_transfer) && (
+              <div>
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground mb-1.5">
+                  <CreditCard className="w-3.5 h-3.5" />
+                  Accepted Payments
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {talent.accepts_crypto && (
+                    <span className="px-2 py-0.5 rounded-full bg-secondary text-xs font-medium text-foreground">Crypto</span>
+                  )}
+                  {talent.accepts_paypal && (
+                    <span className="px-2 py-0.5 rounded-full bg-secondary text-xs font-medium text-foreground">PayPal</span>
+                  )}
+                  {talent.accepts_bank_transfer && (
+                    <span className="px-2 py-0.5 rounded-full bg-secondary text-xs font-medium text-foreground">Bank Transfer</span>
+                  )}
+                </div>
+              </div>
+            )}
+            {talent.payment_region && talent.payment_region !== "global" && (
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <MapPin className="w-3.5 h-3.5" />
+                <span className="capitalize">{talent.payment_region.replace("_", " ")}</span>
+              </div>
+            )}
           </div>
         )}
 

@@ -20,6 +20,7 @@ import {
   MessageSquare,
   Camera,
   Loader2,
+  CreditCard,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
@@ -35,6 +36,7 @@ const navItems = [
   { label: "LearnFi", href: "/dashboard/learnfi", icon: Zap },
   { label: "My Courses", href: "/dashboard/courses", icon: BookOpen },
   { label: "My Products", href: "/dashboard/products", icon: Package },
+  { label: "Payments", href: "/dashboard/payments", icon: CreditCard },
   { label: "Talent Profile", href: "/dashboard/talent", icon: Users },
   { label: "Settings", href: "/dashboard/settings", icon: Settings },
 ];

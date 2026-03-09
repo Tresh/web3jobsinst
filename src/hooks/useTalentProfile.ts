@@ -26,6 +26,11 @@ export interface TalentProfile {
 export interface TalentProfileWithUser extends TalentProfile {
   full_name: string;
   avatar_url: string | null;
+  // Payment preferences (optional — only present if user set them)
+  accepts_crypto?: boolean | null;
+  accepts_paypal?: boolean | null;
+  accepts_bank_transfer?: boolean | null;
+  payment_region?: string | null;
 }
 
 export const TALENT_CATEGORIES = [
@@ -194,20 +199,29 @@ export const useTalentMarketplace = () => {
       // Get user IDs to fetch profiles
       const userIds = talentData.map((t) => t.user_id);
 
-      const { data: profilesData, error: profilesError } = await supabase
-        .from("profiles")
-        .select("user_id, full_name, avatar_url")
-        .in("user_id", userIds);
+      const [{ data: profilesData }, { data: paymentPrefsData }] = await Promise.all([
+        supabase
+          .from("profiles")
+          .select("user_id, full_name, avatar_url")
+          .in("user_id", userIds),
+        (supabase as any)
+          .from("payment_preferences")
+          .select("user_id, accepts_crypto, accepts_paypal, accepts_bank_transfer, region")
+          .in("user_id", userIds),
+      ]);
 
-      if (profilesError) throw profilesError;
-
-      // Merge talent profiles with user data
+      // Merge talent profiles with user data + payment prefs
       const merged = talentData.map((talent) => {
-        const userProfile = profilesData?.find((p) => p.user_id === talent.user_id);
+        const userProfile = profilesData?.find((p: any) => p.user_id === talent.user_id);
+        const payPref = paymentPrefsData?.find((p: any) => p.user_id === talent.user_id);
         return {
           ...talent,
           full_name: userProfile?.full_name || "Anonymous",
           avatar_url: userProfile?.avatar_url || null,
+          accepts_crypto: payPref?.accepts_crypto ?? null,
+          accepts_paypal: payPref?.accepts_paypal ?? null,
+          accepts_bank_transfer: payPref?.accepts_bank_transfer ?? null,
+          payment_region: payPref?.region ?? null,
         } as TalentProfileWithUser;
       });
 
