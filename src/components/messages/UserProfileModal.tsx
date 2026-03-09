@@ -189,7 +189,7 @@ const UserProfileModal = ({
                 <Separator />
                 <div className="grid grid-cols-2 gap-4">
                   <div className="text-center p-3 rounded-lg bg-secondary/50">
-                    <Trophy className="w-5 h-5 mx-auto mb-1 text-yellow-500" />
+                    <Trophy className="w-5 h-5 mx-auto mb-1 text-primary" />
                     <p className="text-lg font-bold">{userData.totalXp}</p>
                     <p className="text-xs text-muted-foreground">Total XP</p>
                   </div>
