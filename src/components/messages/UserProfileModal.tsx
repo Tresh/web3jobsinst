@@ -86,9 +86,9 @@ const UserProfileModal = ({
             .maybeSingle(),
           supabase
             .from("talent_profiles")
-            .select("skill_category, hourly_rate, availability_status, portfolio_url")
+            .select("category, hourly_rate, availability, portfolio_links")
             .eq("user_id", userId)
-            .eq("is_public", true)
+            .eq("is_approved", true)
             .maybeSingle(),
           supabase
             .from("scholarship_applications")
