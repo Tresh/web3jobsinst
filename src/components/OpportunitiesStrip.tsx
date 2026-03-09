@@ -74,7 +74,7 @@ const OpportunitiesStrip = () => {
             <Card
               key={opportunity.title}
               className="cursor-pointer hover:shadow-md transition-shadow border-border bg-background"
-              onClick={() => handleCardClick(opportunity.title)}
+              onClick={() => handleCardClick(opportunity)}
             >
               <CardContent className="p-4 text-center">
                 <div className="w-10 h-10 mx-auto mb-3 rounded-full bg-primary/10 flex items-center justify-center">
