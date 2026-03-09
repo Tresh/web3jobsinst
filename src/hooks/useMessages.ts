@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -30,9 +30,11 @@ export const useConversations = () => {
   const { user } = useAuth();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
+  const clearedIds = useRef<Set<string>>(new Set());
+  const debounceTimer = useRef<NodeJS.Timeout | null>(null);
 
-  // Optimistic: immediately zero the unread badge when the user opens a conversation
   const clearConversationUnread = useCallback((conversationId: string) => {
+    clearedIds.current.add(conversationId);
     setConversations((prev) =>
       prev.map((c) => (c.id === conversationId ? { ...c, unread_count: 0 } : c))
     );
@@ -47,13 +49,11 @@ export const useConversations = () => {
       .or(`participant_one.eq.${user.id},participant_two.eq.${user.id}`)
       .order("last_message_at", { ascending: false });
 
-    if (error || !convos) {
-      setLoading(false);
-      return;
-    }
+    if (error || !convos) { setLoading(false); return; }
 
-    // Filter out empty conversations (no messages)
     const convoIds = convos.map(c => c.id);
+    if (convoIds.length === 0) { setConversations([]); setLoading(false); return; }
+
     const { data: messageCounts } = await supabase
       .from("messages")
       .select("conversation_id")
@@ -62,7 +62,6 @@ export const useConversations = () => {
     const convoIdsWithMessages = new Set((messageCounts || []).map(m => m.conversation_id));
     const nonEmptyConvos = convos.filter(c => convoIdsWithMessages.has(c.id));
 
-    // Get other user profiles
     const otherUserIds = nonEmptyConvos.map(c => 
       c.participant_one === user.id ? c.participant_two : c.participant_one
     );
@@ -72,7 +71,6 @@ export const useConversations = () => {
       .select("user_id, full_name, avatar_url")
       .in("user_id", otherUserIds);
 
-    // Get last message and unread count for each conversation
     const enriched = await Promise.all(nonEmptyConvos.map(async (c) => {
       const otherUserId = c.participant_one === user.id ? c.participant_two : c.participant_one;
       const otherProfile = profiles?.find(p => p.user_id === otherUserId);
@@ -84,6 +82,20 @@ export const useConversations = () => {
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle();
+
+      // If this conversation was recently cleared, keep unread at 0
+      if (clearedIds.current.has(c.id)) {
+        return {
+          ...c,
+          other_user: otherProfile ? {
+            user_id: otherProfile.user_id,
+            full_name: otherProfile.full_name,
+            avatar_url: otherProfile.avatar_url,
+          } : { user_id: otherUserId, full_name: null, avatar_url: null },
+          last_message: lastMsg?.content || "",
+          unread_count: 0,
+        };
+      }
 
       const { count } = await supabase
         .from("messages")
@@ -108,22 +120,26 @@ export const useConversations = () => {
     setLoading(false);
   }, [user]);
 
-  useEffect(() => {
-    fetchConversations();
-  }, [fetchConversations]);
+  useEffect(() => { fetchConversations(); }, [fetchConversations]);
 
-  // Real-time subscription for new messages
+  // Real-time with debounce to prevent race conditions with markAsRead
   useEffect(() => {
     if (!user) return;
 
     const channel = supabase
       .channel("conversations-updates")
       .on("postgres_changes", { event: "*", schema: "public", table: "messages" }, () => {
-        fetchConversations();
+        if (debounceTimer.current) clearTimeout(debounceTimer.current);
+        debounceTimer.current = setTimeout(() => {
+          fetchConversations();
+        }, 800);
       })
       .subscribe();
 
-    return () => { supabase.removeChannel(channel); };
+    return () => {
+      if (debounceTimer.current) clearTimeout(debounceTimer.current);
+      supabase.removeChannel(channel);
+    };
   }, [user, fetchConversations]);
 
   return { conversations, loading, refetch: fetchConversations, clearConversationUnread };
@@ -133,26 +149,21 @@ export const useChat = (conversationId: string | null) => {
   const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
-  
 
   const fetchMessages = useCallback(async () => {
     if (!conversationId) return;
     setLoading(true);
-
     const { data } = await supabase
       .from("messages")
       .select("*")
       .eq("conversation_id", conversationId)
       .order("created_at", { ascending: true });
-
     setMessages((data || []) as Message[]);
     setLoading(false);
   }, [conversationId]);
 
-  // Mark messages as read
   const markAsRead = useCallback(async () => {
     if (!user || !conversationId) return;
-
     await supabase
       .from("messages")
       .update({ is_read: true })
@@ -161,46 +172,42 @@ export const useChat = (conversationId: string | null) => {
       .eq("is_read", false);
   }, [conversationId, user]);
 
-  useEffect(() => {
-    fetchMessages();
-  }, [fetchMessages]);
+  useEffect(() => { fetchMessages(); }, [fetchMessages]);
 
-  // Real-time subscription with deduplication
+  // Mark as read on mount and when messages change
+  useEffect(() => {
+    if (conversationId && user) {
+      // Small delay to ensure DB is ready
+      const timer = setTimeout(() => markAsRead(), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [conversationId, user, messages.length, markAsRead]);
+
   useEffect(() => {
     if (!conversationId) return;
 
     const channel = supabase
       .channel(`chat-${conversationId}`)
       .on("postgres_changes", {
-        event: "INSERT",
-        schema: "public",
-        table: "messages",
+        event: "INSERT", schema: "public", table: "messages",
         filter: `conversation_id=eq.${conversationId}`,
       }, (payload) => {
         const newMsg = payload.new as Message;
         setMessages(prev => {
-          // Deduplicate by ID
           if (prev.some(m => m.id === newMsg.id)) return prev;
           return [...prev, newMsg];
         });
-        // Mark as read if not sender and conversation is open
+        // Mark incoming messages as read immediately
         if (user && newMsg.sender_id !== user.id) {
-          supabase
-            .from("messages")
-            .update({ is_read: true })
-            .eq("id", newMsg.id);
+          supabase.from("messages").update({ is_read: true }).eq("id", newMsg.id);
         }
       })
       .on("postgres_changes", {
-        event: "UPDATE",
-        schema: "public",
-        table: "messages",
+        event: "UPDATE", schema: "public", table: "messages",
         filter: `conversation_id=eq.${conversationId}`,
       }, (payload) => {
         const updatedMsg = payload.new as Message;
-        setMessages(prev =>
-          prev.map(m => (m.id === updatedMsg.id ? updatedMsg : m))
-        );
+        setMessages(prev => prev.map(m => (m.id === updatedMsg.id ? updatedMsg : m)));
       })
       .subscribe();
 
@@ -209,16 +216,10 @@ export const useChat = (conversationId: string | null) => {
 
   const sendMessage = async (content: string) => {
     if (!user || !conversationId || !content.trim()) return;
-
     await supabase.from("messages").insert({
-      conversation_id: conversationId,
-      sender_id: user.id,
-      content: content.trim(),
+      conversation_id: conversationId, sender_id: user.id, content: content.trim(),
     });
-
-    // Update conversation last_message_at
-    await supabase
-      .from("conversations")
+    await supabase.from("conversations")
       .update({ last_message_at: new Date().toISOString() })
       .eq("id", conversationId);
   };
@@ -231,61 +232,35 @@ export const useStartConversation = () => {
 
   const startConversation = async (otherUserId: string): Promise<string | null> => {
     if (!user) return null;
-
-    // Ensure consistent ordering
     const [p1, p2] = [user.id, otherUserId].sort();
-
-    // Check existing
     const { data: existing } = await supabase
-      .from("conversations")
-      .select("id")
-      .eq("participant_one", p1)
-      .eq("participant_two", p2)
-      .maybeSingle();
-
+      .from("conversations").select("id")
+      .eq("participant_one", p1).eq("participant_two", p2).maybeSingle();
     if (existing) return existing.id;
-
-    // Create new
     const { data: newConvo, error } = await supabase
-      .from("conversations")
-      .insert({ participant_one: p1, participant_two: p2 })
-      .select("id")
-      .single();
-
-    if (error) {
-      console.error("Error creating conversation:", error);
-      return null;
-    }
-
+      .from("conversations").insert({ participant_one: p1, participant_two: p2 })
+      .select("id").single();
+    if (error) return null;
     return newConvo.id;
   };
 
   return { startConversation };
 };
 
-// Hook to get total unread message count for the current user
 export const useTotalUnreadCount = () => {
   const { user } = useAuth();
   const [unreadCount, setUnreadCount] = useState(0);
+  const debounceTimer = useRef<NodeJS.Timeout | null>(null);
 
   const fetchUnreadCount = useCallback(async () => {
-    if (!user) {
-      setUnreadCount(0);
-      return;
-    }
+    if (!user) { setUnreadCount(0); return; }
 
-    // Get all conversations for this user
     const { data: convos } = await supabase
-      .from("conversations")
-      .select("id")
+      .from("conversations").select("id")
       .or(`participant_one.eq.${user.id},participant_two.eq.${user.id}`);
 
-    if (!convos || convos.length === 0) {
-      setUnreadCount(0);
-      return;
-    }
+    if (!convos || convos.length === 0) { setUnreadCount(0); return; }
 
-    // Count unread messages
     const { count } = await supabase
       .from("messages")
       .select("*", { count: "exact", head: true })
@@ -296,22 +271,22 @@ export const useTotalUnreadCount = () => {
     setUnreadCount(count || 0);
   }, [user]);
 
-  useEffect(() => {
-    fetchUnreadCount();
-  }, [fetchUnreadCount]);
+  useEffect(() => { fetchUnreadCount(); }, [fetchUnreadCount]);
 
-  // Real-time updates
   useEffect(() => {
     if (!user) return;
-
     const channel = supabase
-      .channel("unread-count-updates")
+      .channel("unread-count-global")
       .on("postgres_changes", { event: "*", schema: "public", table: "messages" }, () => {
-        fetchUnreadCount();
+        if (debounceTimer.current) clearTimeout(debounceTimer.current);
+        debounceTimer.current = setTimeout(() => fetchUnreadCount(), 1000);
       })
       .subscribe();
 
-    return () => { supabase.removeChannel(channel); };
+    return () => {
+      if (debounceTimer.current) clearTimeout(debounceTimer.current);
+      supabase.removeChannel(channel);
+    };
   }, [user, fetchUnreadCount]);
 
   return { unreadCount, refetch: fetchUnreadCount };
