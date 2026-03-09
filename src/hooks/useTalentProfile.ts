@@ -26,6 +26,11 @@ export interface TalentProfile {
 export interface TalentProfileWithUser extends TalentProfile {
   full_name: string;
   avatar_url: string | null;
+  // Payment preferences (optional — only present if user set them)
+  accepts_crypto?: boolean | null;
+  accepts_paypal?: boolean | null;
+  accepts_bank_transfer?: boolean | null;
+  payment_region?: string | null;
 }
 
 export const TALENT_CATEGORIES = [

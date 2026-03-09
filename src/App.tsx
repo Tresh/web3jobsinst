@@ -49,6 +49,7 @@ import DashboardBootcamps from "./pages/dashboard/DashboardBootcamps";
 import DashboardLearnFi from "./pages/dashboard/DashboardLearnFi";
 import DashboardInternship from "./pages/dashboard/DashboardInternship";
 import DashboardMessages from "./pages/dashboard/DashboardMessages";
+import DashboardPayments from "./pages/dashboard/DashboardPayments";
 import ScholarshipModuleDetail from "./pages/dashboard/ScholarshipModuleDetail";
 import Scholarship from "./pages/Scholarship";
 // ScholarshipCelebration removed - no longer needed
