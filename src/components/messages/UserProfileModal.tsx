@@ -295,12 +295,12 @@ const UserProfileModal = ({
                           }
                           className="text-xs capitalize"
                         >
-                          {userData.talentProfile.availability_status}
+                          {userData.talentProfile.availability}
                         </Badge>
                       </div>
-                      {userData.talentProfile.portfolio_url && (
+                      {userData.talentProfile.portfolio_links?.[0] && (
                         <a
-                          href={userData.talentProfile.portfolio_url}
+                          href={userData.talentProfile.portfolio_links[0]}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-primary hover:underline flex items-center gap-1 text-xs mt-2"
