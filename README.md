@@ -1,73 +1,110 @@
-# Welcome to your Lovable project
+# Web3 Jobs Institute
 
-## Project info
+> **Learn. Build. Earn. In Public.**
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+A premium global education SaaS, learning marketplace, and talent hiring hub for the Web3 ecosystem. Built for those who want to prove their skills, land real opportunities, and grow in public.
 
-## How can I edit this code?
+---
 
-There are several ways of editing your application.
+## 🌐 Live Platform
 
-**Use Lovable**
+**[web3jobsinst.lovable.app](https://web3jobsinst.lovable.app)**
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+---
 
-Changes made via Lovable will be committed automatically to this repo.
+## 📖 About
 
-**Use your preferred IDE**
+Web3 Jobs Institute is a structured digital institute that connects learners, builders, and companies across the Web3 space. The platform operates on a **Proof-of-Work** model — users earn XP by completing real tasks and modules, building a verifiable track record that employers and partners can trust.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Core Pillars
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+| Pillar | Description |
+|---|---|
+| 🎓 **Learn** | Structured courses and learning paths across Web3 verticals |
+| 🔨 **Build** | Bootcamps, tasks, and proof-of-work submissions |
+| 💼 **Earn** | Internships, talent marketplace, and real job opportunities |
+| 📢 **In Public** | Leaderboards, e-cards, referrals, and social sharing |
 
-Follow these steps:
+---
+
+## ✨ Key Features
+
+- **Scholarship Program** — Structured cohort with modules, daily check-ins, XP tracking, and internship placement
+- **Bootcamps** — Community-run bootcamps with tasks, voice rooms, leaderboards, and AI coaching
+- **Talent Market** — Verified talent profiles showcasing Proof-of-Work history
+- **Internship Market** — Browse and connect with skilled interns from the scholarship program
+- **LearnFi Programs** — Web3-native learn-to-earn programs with on-chain reward distribution
+- **Digital Products** — Marketplace for ebooks, tools, bots, and templates
+- **Campaigns** — Promotional and partner campaign management
+- **Courses** — Video-based learning with Vimeo integration and progress tracking
+- **Notifications & Messaging** — In-platform DMs and real-time notification system
+- **Admin Dashboard** — Full platform management: scholarships, bootcamps, users, analytics, bug reports, and more
+
+---
+
+## 🛠 Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | React 18, TypeScript, Vite |
+| Styling | Tailwind CSS, shadcn/ui |
+| Backend | Supabase (Auth, Database, Edge Functions, Storage) |
+| Payments | Paystack (via Edge Functions) |
+| CMS | Strapi (courses content) |
+| PWA | vite-plugin-pwa |
+| Web3 | Wagmi, Viem, Solana Wallet Adapter |
+
+---
+
+## 🚀 Getting Started
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
+# Clone the repository
 git clone <YOUR_GIT_URL>
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# Navigate into the project
+cd web3-jobs-institute
 
-# Step 3: Install the necessary dependencies.
-npm i
+# Install dependencies
+npm install
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Start the development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+> Requires Node.js 18+. Use [nvm](https://github.com/nvm-sh/nvm) to manage versions.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+---
 
-**Use GitHub Codespaces**
+## 🗂 Project Structure
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```
+src/
+├── components/       # Reusable UI components
+│   ├── admin/        # Admin panel components
+│   ├── bootcamp/     # Bootcamp feature components
+│   ├── scholarship/  # Scholarship portal components
+│   └── ui/           # shadcn/ui base components
+├── pages/            # Route-level pages
+│   ├── admin/        # Admin pages
+│   └── dashboard/    # User dashboard pages
+├── hooks/            # Custom React hooks
+├── contexts/         # Auth and global state
+├── data/             # Static data and types
+├── lib/              # Utility functions
+└── integrations/     # Supabase client and types
+supabase/
+└── functions/        # Edge Functions (payments, emails, AI)
+```
 
-## What technologies are used for this project?
+---
 
-This project is built with:
+## 🔐 Environment Variables
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Secrets are managed via Supabase and the Lovable Cloud secrets manager. No private keys are stored in code.
 
-## How can I deploy this project?
+---
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+## 📄 License
 
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+All rights reserved. Web3 Jobs Institute © 2025.
