@@ -378,6 +378,4 @@ const useOtherUserMessageSettings = (userId: string | null) => {
   return { settings };
 };
 
-import { supabase } from "@/integrations/supabase/client";
-
 export default DashboardMessages;
