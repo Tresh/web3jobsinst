@@ -22,6 +22,7 @@ import {
   Loader2,
   CreditCard,
   Megaphone,
+  Share2,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
