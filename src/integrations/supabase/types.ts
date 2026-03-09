@@ -1531,6 +1531,75 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_methods: {
+        Row: {
+          created_at: string
+          id: string
+          is_primary: boolean
+          method_label: string
+          method_type: string
+          method_value: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_primary?: boolean
+          method_label: string
+          method_type: string
+          method_value: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_primary?: boolean
+          method_label?: string
+          method_type?: string
+          method_value?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      payment_preferences: {
+        Row: {
+          accepts_bank_transfer: boolean
+          accepts_crypto: boolean
+          accepts_paypal: boolean
+          created_at: string
+          id: string
+          preferred_method_id: string | null
+          region: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          accepts_bank_transfer?: boolean
+          accepts_crypto?: boolean
+          accepts_paypal?: boolean
+          created_at?: string
+          id?: string
+          preferred_method_id?: string | null
+          region?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          accepts_bank_transfer?: boolean
+          accepts_crypto?: boolean
+          accepts_paypal?: boolean
+          created_at?: string
+          id?: string
+          preferred_method_id?: string | null
+          region?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       platform_settings: {
         Row: {
           key: string
