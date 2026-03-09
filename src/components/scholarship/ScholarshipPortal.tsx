@@ -156,10 +156,6 @@ export function ScholarshipPortal() {
           <PortalProofOfWork />
         </TabsContent>
 
-        <TabsContent value="internship">
-          <PortalInternshipProfile application={application} />
-        </TabsContent>
-
         <TabsContent value="notifications">
           <PortalNotifications
             notifications={notifications}
