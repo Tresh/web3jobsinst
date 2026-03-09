@@ -276,7 +276,7 @@ const UserProfileModal = ({
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Category</span>
                         <span className="capitalize">
-                          {userData.talentProfile.skill_category.replace("_", " ")}
+                          {userData.talentProfile.category.replace("_", " ")}
                         </span>
                       </div>
                       {userData.talentProfile.hourly_rate && (
@@ -289,7 +289,7 @@ const UserProfileModal = ({
                         <span className="text-muted-foreground">Availability</span>
                         <Badge
                           variant={
-                            userData.talentProfile.availability_status === "available"
+                            userData.talentProfile.availability === "available"
                               ? "default"
                               : "secondary"
                           }
