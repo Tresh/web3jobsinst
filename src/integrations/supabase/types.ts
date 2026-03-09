@@ -711,6 +711,59 @@ export type Database = {
         }
         Relationships: []
       }
+      campaign_participants: {
+        Row: {
+          admin_notes: string | null
+          campaign_id: string
+          created_at: string
+          id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          submission_proof_url: string | null
+          submission_text: string | null
+          submission_url: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          campaign_id: string
+          created_at?: string
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submission_proof_url?: string | null
+          submission_text?: string | null
+          submission_url?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          campaign_id?: string
+          created_at?: string
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submission_proof_url?: string | null
+          submission_text?: string | null
+          submission_url?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_participants_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "platform_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       changelog_entries: {
         Row: {
           created_at: string
@@ -1633,6 +1686,116 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_campaigns: {
+        Row: {
+          cover_image_url: string | null
+          created_at: string
+          created_by: string | null
+          deadline: string | null
+          description: string | null
+          id: string
+          is_published: boolean
+          max_participants: number
+          project: string | null
+          requirements: Json | null
+          reward: string | null
+          status: string
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          cover_image_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          deadline?: string | null
+          description?: string | null
+          id?: string
+          is_published?: boolean
+          max_participants?: number
+          project?: string | null
+          requirements?: Json | null
+          reward?: string | null
+          status?: string
+          title: string
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          cover_image_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          deadline?: string | null
+          description?: string | null
+          id?: string
+          is_published?: boolean
+          max_participants?: number
+          project?: string | null
+          requirements?: Json | null
+          reward?: string | null
+          status?: string
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      platform_course_lessons: {
+        Row: {
+          cover_image_url: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_free_preview: boolean
+          is_published: boolean
+          module_id: string
+          order_index: number
+          resources: Json | null
+          title: string
+          updated_at: string
+          video_duration: string | null
+          video_url: string | null
+        }
+        Insert: {
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_free_preview?: boolean
+          is_published?: boolean
+          module_id: string
+          order_index?: number
+          resources?: Json | null
+          title: string
+          updated_at?: string
+          video_duration?: string | null
+          video_url?: string | null
+        }
+        Update: {
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_free_preview?: boolean
+          is_published?: boolean
+          module_id?: string
+          order_index?: number
+          resources?: Json | null
+          title?: string
+          updated_at?: string
+          video_duration?: string | null
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_course_lessons_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "platform_course_modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       platform_course_modules: {
         Row: {
           course_id: string
@@ -1694,12 +1857,15 @@ export type Database = {
           description: string | null
           duration: string | null
           id: string
+          instructor: string | null
           is_coming_soon: boolean
           is_published: boolean
           level: string
           order_index: number
+          resources: Json | null
           skill_outcome: string | null
           title: string
+          total_duration: string | null
           updated_at: string
           video_duration: string | null
           video_url: string | null
@@ -1711,12 +1877,15 @@ export type Database = {
           description?: string | null
           duration?: string | null
           id?: string
+          instructor?: string | null
           is_coming_soon?: boolean
           is_published?: boolean
           level?: string
           order_index?: number
+          resources?: Json | null
           skill_outcome?: string | null
           title: string
+          total_duration?: string | null
           updated_at?: string
           video_duration?: string | null
           video_url?: string | null
@@ -1728,12 +1897,15 @@ export type Database = {
           description?: string | null
           duration?: string | null
           id?: string
+          instructor?: string | null
           is_coming_soon?: boolean
           is_published?: boolean
           level?: string
           order_index?: number
+          resources?: Json | null
           skill_outcome?: string | null
           title?: string
+          total_duration?: string | null
           updated_at?: string
           video_duration?: string | null
           video_url?: string | null
