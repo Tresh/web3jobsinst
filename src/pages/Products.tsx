@@ -179,7 +179,11 @@ const Products = () => {
           {isLoading ? (
             <div className="text-center py-16 text-muted-foreground">Loading products...</div>
           ) : (
-            <ProductGrid products={filteredProducts} onProductClick={handleProductClick} />
+            <ProductGrid
+              products={filteredProducts}
+              onProductClick={handleProductClick}
+              purchasedProductIds={ownedProductIds}
+            />
           )}
         </section>
 
