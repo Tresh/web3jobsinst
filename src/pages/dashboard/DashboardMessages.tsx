@@ -180,10 +180,10 @@ const ChatPanel = ({ conversation, onBack, currentUserId, onConversationUpdated 
     if (!input.trim()) return;
     let text = input.trim();
     if (replyingTo) {
-      // Extract only the actual body text (skip any quoted parts) to avoid nesting
+      // Pick only the last non-quoted part of the message to avoid nesting
       const parts = replyingTo.content.split("\n\n");
-      const bodyOnly = parts.filter(p => !p.startsWith("> ")).join(" ").trim();
-      const preview = bodyOnly.length > 60 ? bodyOnly.slice(0, 60) + "…" : bodyOnly;
+      const lastBody = parts.filter(p => !p.startsWith("> ")).pop() || replyingTo.content;
+      const preview = lastBody.length > 60 ? lastBody.slice(0, 60) + "…" : lastBody;
       text = `> ${preview}\n\n${text}`;
     }
     setInput("");
