@@ -1436,6 +1436,39 @@ export type Database = {
         }
         Relationships: []
       }
+      message_settings: {
+        Row: {
+          allow_messages_from: string
+          auto_reply_message: string | null
+          created_at: string
+          disclaimer_text: string | null
+          id: string
+          show_read_receipts: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          allow_messages_from?: string
+          auto_reply_message?: string | null
+          created_at?: string
+          disclaimer_text?: string | null
+          id?: string
+          show_read_receipts?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          allow_messages_from?: string
+          auto_reply_message?: string | null
+          created_at?: string
+          disclaimer_text?: string | null
+          id?: string
+          show_read_receipts?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           content: string
@@ -1722,6 +1755,45 @@ export type Database = {
           price?: number
           title?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      profile_visibility: {
+        Row: {
+          created_at: string
+          id: string
+          show_bootcamp_activity: boolean
+          show_internship_info: boolean
+          show_learnfi_progress: boolean
+          show_scholarship_status: boolean
+          show_talent_profile: boolean
+          show_xp_stats: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          show_bootcamp_activity?: boolean
+          show_internship_info?: boolean
+          show_learnfi_progress?: boolean
+          show_scholarship_status?: boolean
+          show_talent_profile?: boolean
+          show_xp_stats?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          show_bootcamp_activity?: boolean
+          show_internship_info?: boolean
+          show_learnfi_progress?: boolean
+          show_scholarship_status?: boolean
+          show_talent_profile?: boolean
+          show_xp_stats?: boolean
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
