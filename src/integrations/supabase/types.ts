@@ -14,6 +14,143 @@ export type Database = {
   }
   public: {
     Tables: {
+      affiliate_links: {
+        Row: {
+          clicks: number
+          commission_rate: number
+          conversions: number
+          created_at: string
+          id: string
+          is_active: boolean
+          product_id: string
+          product_type: string
+          referral_code: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          clicks?: number
+          commission_rate?: number
+          conversions?: number
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          product_id: string
+          product_type: string
+          referral_code: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          clicks?: number
+          commission_rate?: number
+          conversions?: number
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          product_id?: string
+          product_type?: string
+          referral_code?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      affiliate_payouts: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          id: string
+          notes: string | null
+          payout_method: string
+          status: string
+          updated_at: string
+          user_id: string
+          wallet_address: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          id?: string
+          notes?: string | null
+          payout_method: string
+          status?: string
+          updated_at?: string
+          user_id: string
+          wallet_address?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          notes?: string | null
+          payout_method?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+          wallet_address?: string | null
+        }
+        Relationships: []
+      }
+      affiliate_sales: {
+        Row: {
+          affiliate_link_id: string
+          affiliate_user_id: string
+          buyer_email: string | null
+          buyer_name: string | null
+          commission_amount: number
+          created_at: string
+          currency: string
+          id: string
+          product_id: string
+          product_title: string
+          product_type: string
+          sale_amount: number
+          status: string
+        }
+        Insert: {
+          affiliate_link_id: string
+          affiliate_user_id: string
+          buyer_email?: string | null
+          buyer_name?: string | null
+          commission_amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          product_id: string
+          product_title: string
+          product_type: string
+          sale_amount?: number
+          status?: string
+        }
+        Update: {
+          affiliate_link_id?: string
+          affiliate_user_id?: string
+          buyer_email?: string | null
+          buyer_name?: string | null
+          commission_amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          product_id?: string
+          product_title?: string
+          product_type?: string
+          sale_amount?: number
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_sales_affiliate_link_id_fkey"
+            columns: ["affiliate_link_id"]
+            isOneToOne: false
+            referencedRelation: "affiliate_links"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       analytics_events: {
         Row: {
           created_at: string | null
@@ -3096,6 +3233,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_affiliate_code: { Args: never; Returns: string }
       generate_referral_code: { Args: never; Returns: string }
       get_bootcamp_leaderboard: {
         Args: { p_bootcamp_id: string }
