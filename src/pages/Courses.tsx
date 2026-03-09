@@ -1,7 +1,6 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
 import Footer from "@/components/Footer";
 import CoursesNavbar from "@/components/courses/CoursesNavbar";
 import FilterSheet from "@/components/courses/FilterSheet";
@@ -9,12 +8,8 @@ import LearningPathTabs from "@/components/courses/LearningPathTabs";
 import CourseGrid from "@/components/courses/CourseGrid";
 import ActiveFilters from "@/components/courses/ActiveFilters";
 import WhyDifferentSection from "@/components/courses/WhyDifferentSection";
-import ScholarshipFormDialog from "@/components/ScholarshipFormDialog";
-import ComingSoonDialog from "@/components/ComingSoonDialog";
-import { courses as hardcodedCourses, learningPaths, type Course } from "@/data/coursesData";
-import { useStrapiCourses } from "@/hooks/useStrapiCourses";
-import { isStrapiConfigured } from "@/lib/strapi";
-import { transformCourse } from "@/types/strapi";
+import { learningPaths, type Course } from "@/data/coursesData";
+import { usePlatformCourses, type PlatformCourse } from "@/hooks/usePlatformCourses";
 
 const Courses = () => {
   const navigate = useNavigate();
@@ -23,26 +18,13 @@ const Courses = () => {
   const [selectedLevel, setSelectedLevel] = useState("all");
   const [selectedPath, setSelectedPath] = useState("all");
   const [filterSheetOpen, setFilterSheetOpen] = useState(false);
-  const [scholarshipOpen, setScholarshipOpen] = useState(false);
-  const [comingSoonOpen, setComingSoonOpen] = useState(false);
-  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
 
-  // Strapi data fetching
-  const strapiConfigured = isStrapiConfigured();
-  const { data: strapiData } = useStrapiCourses({
-    search: searchQuery || undefined,
+  const { courses: dbCourses, loading } = usePlatformCourses({
     category: selectedCategory !== "all" ? selectedCategory : undefined,
-    level: selectedLevel !== "all" ? (selectedLevel as "Beginner" | "Intermediate" | "Advanced") : undefined,
+    level: selectedLevel !== "all" ? selectedLevel : undefined,
+    search: searchQuery || undefined,
   });
 
-  // Transform Strapi courses into a unified shape for the grid
-  const strapiUrl = import.meta.env.VITE_STRAPI_API_URL || '';
-  const strapiCourses = useMemo(() => {
-    if (!strapiConfigured || !strapiData?.courses) return [];
-    return strapiData.courses.map(c => transformCourse(c, strapiUrl));
-  }, [strapiConfigured, strapiData, strapiUrl]);
-
-  // Count active filters (excluding path since it's handled by tabs)
   const activeFiltersCount = useMemo(() => {
     let count = 0;
     if (selectedCategory !== "all") count++;
@@ -50,37 +32,9 @@ const Courses = () => {
     return count;
   }, [selectedCategory, selectedLevel]);
 
-  // Filter hardcoded courses (fallback)
-  const filteredHardcoded = useMemo(() => {
-    if (strapiConfigured && strapiCourses.length > 0) return []; // Don't use hardcoded when Strapi has data
-    return hardcodedCourses.filter((course) => {
-      const matchesSearch =
-        searchQuery === "" ||
-        course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        course.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        course.category.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesCategory =
-        selectedCategory === "all" || course.category === selectedCategory;
-      const matchesLevel =
-        selectedLevel === "all" || course.level === selectedLevel;
-      const matchesPath =
-        selectedPath === "all" ||
-        (course.learningPathIds && course.learningPathIds.includes(selectedPath));
-      return matchesSearch && matchesCategory && matchesLevel && matchesPath;
-    });
-  }, [searchQuery, selectedCategory, selectedLevel, selectedPath, strapiConfigured]);
-
-  // Determine which data source to use
-  const isUsingStrapi = strapiConfigured && strapiCourses.length > 0;
-  const displayCount = isUsingStrapi ? strapiCourses.length : filteredHardcoded.length;
-
-  const handleCourseClick = (course: Course) => {
-    setSelectedCourse(course);
-    setComingSoonOpen(true);
-  };
-
-  const handleStrapiCourseClick = (slug: string) => {
-    navigate(`/courses/${slug}`);
+  const handleCourseClick = (course: PlatformCourse) => {
+    if (course.is_coming_soon) return; // Don't navigate for coming soon
+    navigate(`/courses/${course.slug || course.id}`);
   };
 
   const clearAllFilters = () => {
@@ -102,44 +56,27 @@ const Courses = () => {
         activeFiltersCount={activeFiltersCount}
       />
 
-      {/* Header */}
       <section className="pt-[72px]">
         <div className="section-container py-6 md:py-10">
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-1 md:mb-2">
-            Courses
-          </h1>
-          <p className="text-sm md:text-base text-muted-foreground">
-            Explore Web3 skills that actually pay
-          </p>
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-1 md:mb-2">Courses</h1>
+          <p className="text-sm md:text-base text-muted-foreground">Explore Web3 skills that actually pay</p>
         </div>
       </section>
 
-      {/* Learning Path Tabs */}
       <section className="section-container pb-6">
-        <LearningPathTabs
-          paths={learningPaths}
-          selectedPath={selectedPath}
-          onPathSelect={setSelectedPath}
-        />
+        <LearningPathTabs paths={learningPaths} selectedPath={selectedPath} onPathSelect={setSelectedPath} />
       </section>
 
-      {/* Active Filters */}
       {(selectedCategory !== "all" || selectedLevel !== "all") && (
         <section className="section-container pb-4">
           <ActiveFilters
-            selectedCategory={selectedCategory}
-            selectedLevel={selectedLevel}
-            selectedPath="all"
-            onCategoryChange={setSelectedCategory}
-            onLevelChange={setSelectedLevel}
-            onPathChange={() => {}}
-            onClearAll={clearAllFilters}
-            totalResults={displayCount}
+            selectedCategory={selectedCategory} selectedLevel={selectedLevel} selectedPath="all"
+            onCategoryChange={setSelectedCategory} onLevelChange={setSelectedLevel}
+            onPathChange={() => {}} onClearAll={clearAllFilters} totalResults={dbCourses.length}
           />
         </section>
       )}
 
-      {/* Course Section Header */}
       <section className="section-container pb-4">
         <div className="flex items-center justify-between">
           <div>
@@ -147,75 +84,118 @@ const Courses = () => {
               {currentPathName ? `${currentPathName} Path` : "All Courses"}
             </h2>
             <p className="text-sm text-muted-foreground">
-              {displayCount} {displayCount === 1 ? "course" : "courses"} available
+              {loading ? "Loading..." : `${dbCourses.length} ${dbCourses.length === 1 ? "course" : "courses"} available`}
             </p>
           </div>
         </div>
       </section>
 
-      {/* Course Grid */}
       <section className="section-container pb-20">
-        {isUsingStrapi ? (
-          <CourseGrid
-            strapiCourses={strapiCourses}
-            onStrapiCourseClick={handleStrapiCourseClick}
-          />
-        ) : (
-          <CourseGrid
-            courses={filteredHardcoded}
-            onCourseClick={handleCourseClick}
-          />
-        )}
+        <PlatformCourseGrid courses={dbCourses} onCourseClick={handleCourseClick} loading={loading} />
       </section>
 
-
-      {/* Why Different */}
       <WhyDifferentSection />
 
-      {/* Final CTA */}
       <section className="section-container py-20">
         <div className="text-center">
-          <h2 className="text-xl md:text-2xl font-bold text-foreground mb-8">
-            Start Building Your Web3 Career
-          </h2>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            >
-              Explore Paths
-            </Button>
-          </div>
+          <h2 className="text-xl md:text-2xl font-bold text-foreground mb-8">Start Building Your Web3 Career</h2>
+          <Button variant="outline" size="lg" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
+            Explore Paths
+          </Button>
         </div>
       </section>
 
       <Footer />
 
       <FilterSheet
-        open={filterSheetOpen}
-        onOpenChange={setFilterSheetOpen}
-        selectedCategory={selectedCategory}
-        onCategoryChange={setSelectedCategory}
-        selectedLevel={selectedLevel}
-        onLevelChange={setSelectedLevel}
-        selectedPath={selectedPath}
-        onPathChange={setSelectedPath}
+        open={filterSheetOpen} onOpenChange={setFilterSheetOpen}
+        selectedCategory={selectedCategory} onCategoryChange={setSelectedCategory}
+        selectedLevel={selectedLevel} onLevelChange={setSelectedLevel}
+        selectedPath={selectedPath} onPathChange={setSelectedPath}
         onClearAll={clearAllFilters}
-      />
-
-      <ScholarshipFormDialog
-        open={scholarshipOpen}
-        onOpenChange={setScholarshipOpen}
-      />
-      <ComingSoonDialog
-        open={comingSoonOpen}
-        onOpenChange={setComingSoonOpen}
-        title={selectedCourse?.title || "Course Coming Soon"}
-        onScholarshipClick={() => setScholarshipOpen(true)}
       />
     </div>
   );
 };
+
+// Simple grid for platform courses from Supabase
+import { Badge } from "@/components/ui/badge";
+import { Clock, Award, Loader2 } from "lucide-react";
+import { categoryImages, type Category } from "@/data/coursesData";
+
+const PlatformCourseGrid = ({ courses, onCourseClick, loading }: {
+  courses: PlatformCourse[];
+  onCourseClick: (c: PlatformCourse) => void;
+  loading: boolean;
+}) => {
+  if (loading) {
+    return <div className="flex justify-center py-16"><Loader2 className="w-8 h-8 animate-spin text-muted-foreground" /></div>;
+  }
+  if (courses.length === 0) {
+    return (
+      <div className="text-center py-20">
+        <div className="w-16 h-16 bg-secondary rounded-full flex items-center justify-center mx-auto mb-4">
+          <span className="text-2xl">🔍</span>
+        </div>
+        <p className="text-muted-foreground">No courses match your search.</p>
+      </div>
+    );
+  }
+
+  const levelColors: Record<string, string> = {
+    Beginner: "bg-green-500/20 text-green-400",
+    Intermediate: "bg-amber-500/20 text-amber-400",
+    Advanced: "bg-rose-500/20 text-rose-400",
+  };
+
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 md:gap-4">
+      {courses.map(course => {
+        const fallbackImage = categoryImages[course.category as Category] || "";
+        return (
+          <button
+            key={course.id}
+            onClick={() => onCourseClick(course)}
+            className="group text-left bg-card border border-border rounded-lg overflow-hidden hover:border-primary/30 hover:shadow-md transition-all duration-200 flex flex-col h-full"
+          >
+            <div className="aspect-[4/3] overflow-hidden bg-muted relative">
+              <img
+                src={course.cover_image_url || fallbackImage}
+                alt={course.title}
+                className={cn(
+                  "w-full h-full object-cover",
+                  course.is_coming_soon ? "filter blur-[2px] scale-105" : "group-hover:scale-105 transition-transform duration-300"
+                )}
+                loading="lazy"
+              />
+              {course.is_coming_soon && (
+                <div className="absolute inset-0 bg-background/70 flex items-center justify-center">
+                  <span className="text-xs font-medium text-foreground bg-secondary px-2 py-1 rounded">Coming Soon</span>
+                </div>
+              )}
+            </div>
+            <div className="p-3 flex flex-col flex-1">
+              <Badge variant="secondary" className={`${levelColors[course.level] || ""} border-0 text-[9px] font-medium px-1.5 py-0 w-fit mb-2`}>
+                {course.level}
+              </Badge>
+              <h3 className="font-medium text-xs text-foreground mb-1 group-hover:text-primary transition-colors line-clamp-2 flex-1">
+                {course.title}
+              </h3>
+              <div className="flex items-center gap-2 mt-auto pt-2">
+                {course.total_duration && (
+                  <div className="flex items-center gap-0.5 text-[10px] text-muted-foreground">
+                    <Clock className="w-2.5 h-2.5" /> {course.total_duration}
+                  </div>
+                )}
+              </div>
+            </div>
+          </button>
+        );
+      })}
+    </div>
+  );
+};
+
+import { cn } from "@/lib/utils";
 
 export default Courses;
