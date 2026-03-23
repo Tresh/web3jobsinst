@@ -24,6 +24,7 @@ interface NavLink {
   label: string;
   href?: string;
   comingSoon?: string;
+  badge?: string;
 }
 
 const mainLinks: NavLink[] = [
@@ -33,14 +34,14 @@ const mainLinks: NavLink[] = [
 ];
 
 const marketLinks: NavLink[] = [
-  { label: "Talent Market", href: "/talent" },
-  { label: "Internships", href: "/internships" },
+  { label: "Talent Market", href: "/talent", badge: "Beta" },
+  { label: "Internships", href: "/internships", badge: "Beta" },
 ];
 
 const opportunityLinks: NavLink[] = [
-  { label: "LearnFi", href: "/learnfi" },
+  { label: "LearnFi", href: "/learnfi", badge: "Beta" },
   { label: "Become a Tutor", href: "/tutors" },
-  { label: "Verified Institutions", href: "/institutions" },
+  { label: "Verified Institutions", href: "/institutions", badge: "Beta" },
   { label: "Affiliates", comingSoon: "Affiliates Coming Soon" },
   { label: "Jobs", comingSoon: "Jobs Board Coming Soon" },
 ];
