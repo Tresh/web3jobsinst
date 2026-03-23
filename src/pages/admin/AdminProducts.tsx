@@ -47,7 +47,31 @@ const AdminProducts = () => {
 
   const { data: products = [], isLoading } = useAdminProducts();
   const { data: orders = [] } = useAdminOrders();
-  const createProduct = useCreateProduct();
+  const { data: buyersData = [] } = useQuery({
+    queryKey: ["product-buyers", "admin"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("product_orders")
+        .select("id, user_id, product_id, email, amount, currency, status, created_at, products(id, title)")
+        .eq("status", "success")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data || [];
+    },
+  });
+  const { data: accessLogs = [] } = useQuery({
+    queryKey: ["product-access-logs", "admin"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("product_access_logs")
+        .select("*")
+        .eq("action", "download")
+        .order("created_at", { ascending: false })
+        .limit(500);
+      if (error) throw error;
+      return data || [];
+    },
+  });
   const updateProduct = useUpdateProduct();
   const deleteProduct = useDeleteProduct();
 
