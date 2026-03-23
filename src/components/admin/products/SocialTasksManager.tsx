@@ -17,7 +17,7 @@ import {
 import { toast } from "sonner";
 
 const platforms = ["x", "youtube", "tiktok", "instagram", "telegram"];
-const taskTypes = ["follow", "retweet", "like", "subscribe", "join"];
+const taskTypes = ["follow", "retweet", "like", "subscribe", "join", "comment"];
 
 const SocialTasksManager = ({ productId }: { productId: string }) => {
   const { data: tasks = [], isLoading } = useProductSocialTasks(productId);
