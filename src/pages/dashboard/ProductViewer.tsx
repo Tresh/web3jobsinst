@@ -1,11 +1,17 @@
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Download, Share2, Briefcase, GraduationCap, Gift, FileText, Maximize2, Minimize2, ChevronLeft, BookOpen } from "lucide-react";
+import { ArrowLeft, Download, Share2, Briefcase, GraduationCap, Gift, FileText, Maximize2, Minimize2, ChevronLeft, BookOpen, Rocket, X } from "lucide-react";
 import { useMyOrders } from "@/hooks/useProducts";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import SocialTasksGate from "@/components/products/SocialTasksGate";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const ProductViewer = () => {
   const { productId } = useParams<{ productId: string }>();
