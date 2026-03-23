@@ -15,7 +15,7 @@ import {
   ChevronRight,
   BookOpen,
   GraduationCap,
-  Rocket,
+  Flame,
   Zap,
   Briefcase,
   MessageSquare,
