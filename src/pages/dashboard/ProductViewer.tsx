@@ -73,6 +73,7 @@ const ProductViewer = () => {
   };
 
   return (
+    <SocialTasksGate productId={productId!}>
     <div className="p-4 lg:p-8 max-w-7xl mx-auto">
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
