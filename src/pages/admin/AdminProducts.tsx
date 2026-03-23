@@ -166,6 +166,7 @@ const AdminProducts = () => {
         <TabsList>
           <TabsTrigger value="products">Products ({products.length})</TabsTrigger>
           <TabsTrigger value="orders">Orders ({orders.length})</TabsTrigger>
+          <TabsTrigger value="buyers">Buyers ({buyersData.length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="products" className="space-y-4 mt-4">
