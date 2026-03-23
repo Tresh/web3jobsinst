@@ -254,10 +254,15 @@ const UnifiedNavbar = ({
                         <Link
                           key={link.label}
                           to={link.href!}
-                          className="py-3 px-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-lg transition-colors duration-150"
+                          className="py-3 px-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-lg transition-colors duration-150 flex items-center justify-between"
                           onClick={() => setIsMobileMenuOpen(false)}
                         >
                           {link.label}
+                          {link.badge && (
+                            <span className="text-[10px] px-1.5 py-0.5 bg-primary/10 text-primary rounded font-semibold">
+                              {link.badge}
+                            </span>
+                          )}
                         </Link>
                       ))}
 
