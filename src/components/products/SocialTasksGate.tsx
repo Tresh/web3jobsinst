@@ -19,6 +19,7 @@ const platformIcons: Record<string, string> = {
   tiktok: "♪",
   instagram: "📷",
   telegram: "✈",
+  comment: "💬",
 };
 
 interface SocialTasksGateProps {
@@ -49,14 +50,17 @@ const SocialTasksGate = ({ productId, children }: SocialTasksGateProps) => {
   }
 
   const isFollowTask = (task: { task_type: string }) => task.task_type === "follow";
+  const isCommentTask = (task: { task_type: string }) => task.task_type === "comment";
 
   const getProofPlaceholder = (task: { task_type: string }) => {
     if (isFollowTask(task)) return "Enter your X username (e.g. @username)";
+    if (isCommentTask(task)) return "Paste the link to your comment...";
     return "Paste your proof link here...";
   };
 
   const getProofLabel = (task: { task_type: string }) => {
     if (isFollowTask(task)) return "Your X Username";
+    if (isCommentTask(task)) return "Comment Link";
     return "Proof Link";
   };
 

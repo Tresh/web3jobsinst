@@ -33,6 +33,7 @@ const taskTypeLabels: Record<string, string> = {
   follow: "Follow",
   retweet: "Retweet",
   like: "Like",
+  comment: "Comment",
   subscribe: "Subscribe",
   join: "Join",
 };
