@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 
+const AUTH_REDIRECT_KEY = "auth_redirect_path";
+
 const Signup = () => {
   const [searchParams] = useSearchParams();
   const [fullName, setFullName] = useState("");
@@ -29,22 +31,36 @@ const Signup = () => {
   const [emailError, setEmailError] = useState("");
   const [isResending, setIsResending] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
-  
+
   const { signUpWithEmail, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
 
-  // Capture referral code from URL and prefill input
+  const redirectPath = useMemo(() => {
+    const statePath = (location.state as { from?: { pathname?: string; search?: string; hash?: string } } | null)?.from;
+    const queryPath = searchParams.get("redirect");
+    const storedPath = sessionStorage.getItem(AUTH_REDIRECT_KEY);
+    const combinedStatePath = statePath?.pathname
+      ? `${statePath.pathname}${statePath.search || ""}${statePath.hash || ""}`
+      : null;
+
+    const candidate = combinedStatePath || queryPath || storedPath || "/dashboard";
+    return candidate.startsWith("/") ? candidate : "/dashboard";
+  }, [location.state, searchParams]);
+
+  useEffect(() => {
+    sessionStorage.setItem(AUTH_REDIRECT_KEY, redirectPath);
+  }, [redirectPath]);
+
   useEffect(() => {
     const ref = searchParams.get("ref");
     if (ref) {
       setReferralCode(ref);
-      // Store in sessionStorage for later use after signup
       sessionStorage.setItem("referral_code", ref);
     }
   }, [searchParams]);
 
-  // Update sessionStorage when user edits referral code
   useEffect(() => {
     if (referralCode.trim()) {
       sessionStorage.setItem("referral_code", referralCode.trim());
@@ -53,7 +69,6 @@ const Signup = () => {
     }
   }, [referralCode]);
 
-  // Clear errors when user types
   useEffect(() => {
     if (passwordError && password === confirmPassword) {
       setPasswordError("");
@@ -66,7 +81,6 @@ const Signup = () => {
     }
   }, [email, emailError]);
 
-  // Resend cooldown timer
   useEffect(() => {
     if (resendCooldown > 0) {
       const timer = setTimeout(() => setResendCooldown(resendCooldown - 1), 1000);
@@ -74,25 +88,22 @@ const Signup = () => {
     }
   }, [resendCooldown]);
 
-  const location = useLocation();
-  const redirectTo = (location.state as { from?: { pathname: string } })?.from?.pathname || "/dashboard";
-
-  // Redirect if already logged in
   if (user) {
-    navigate(redirectTo, { replace: true });
+    sessionStorage.removeItem(AUTH_REDIRECT_KEY);
+    navigate(redirectPath, { replace: true });
     return null;
   }
 
   const handleResendConfirmation = async () => {
     if (resendCooldown > 0 || isResending) return;
-    
+
     setIsResending(true);
     try {
       const { error } = await supabase.auth.resend({
         type: "signup",
         email: submittedEmail,
       });
-      
+
       if (error) {
         toast({
           title: "Failed to resend",
@@ -104,7 +115,7 @@ const Signup = () => {
           title: "Email sent!",
           description: "A new confirmation email has been sent.",
         });
-        setResendCooldown(60); // 60 second cooldown
+        setResendCooldown(60);
       }
     } catch {
       toast({
@@ -120,8 +131,7 @@ const Signup = () => {
     e.preventDefault();
     setPasswordError("");
     setEmailError("");
-    
-    // Validate password match
+
     if (password !== confirmPassword) {
       setPasswordError("Passwords do not match.");
       return;
@@ -138,13 +148,20 @@ const Signup = () => {
 
     setIsLoading(true);
 
-    const { error } = await signUpWithEmail(email, password, fullName, referralCode.trim() || undefined);
-    
+    const { error } = await signUpWithEmail(
+      email,
+      password,
+      fullName,
+      referralCode.trim() || undefined,
+      redirectPath,
+    );
+
     if (error) {
-      // Check for existing user error
-      if (error.message.includes("already registered") || 
-          error.message.includes("already exists") ||
-          error.message.includes("User already registered")) {
+      if (
+        error.message.includes("already registered") ||
+        error.message.includes("already exists") ||
+        error.message.includes("User already registered")
+      ) {
         setEmailError("An account with this email already exists. Please sign in instead.");
       } else {
         toast({
@@ -154,18 +171,15 @@ const Signup = () => {
         });
       }
     } else {
-      // If there's a referral code, we'll track it after the user confirms their email
-      // The referral tracking happens when they first log in (handled in AuthContext)
       setSubmittedEmail(email);
       setShowEmailSentDialog(true);
     }
-    
+
     setIsLoading(false);
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-12 relative">
-      {/* Close Button */}
       <button
         onClick={() => navigate("/")}
         className="absolute top-6 right-6 p-2 rounded-full hover:bg-secondary transition-colors text-muted-foreground hover:text-foreground"
@@ -175,7 +189,6 @@ const Signup = () => {
       </button>
 
       <div className="w-full max-w-md">
-        {/* Logo */}
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-2">
             <img src="/favicon.png" alt="Web3 Jobs Institute" className="w-10 h-10 object-contain" />
@@ -183,14 +196,12 @@ const Signup = () => {
           </Link>
         </div>
 
-        {/* Signup Card */}
         <div className="bg-card border border-border rounded-xl p-8">
           <h1 className="text-2xl font-bold text-center mb-2">Create your account</h1>
           <p className="text-muted-foreground text-center mb-8">
             Join the Web3 Jobs Institute community
           </p>
 
-          {/* Email Form */}
           <form onSubmit={handleEmailSignup} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="fullName">Full Name</Label>
@@ -214,9 +225,7 @@ const Signup = () => {
                 required
                 className={`h-12 ${emailError ? "border-destructive" : ""}`}
               />
-              {emailError && (
-                <p className="text-sm text-destructive">{emailError}</p>
-              )}
+              {emailError && <p className="text-sm text-destructive">{emailError}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="referralCode">Referral Code (Optional)</Label>
@@ -252,9 +261,7 @@ const Signup = () => {
                 required
                 className={`h-12 ${passwordError ? "border-destructive" : ""}`}
               />
-              {passwordError && (
-                <p className="text-sm text-destructive">{passwordError}</p>
-              )}
+              {passwordError && <p className="text-sm text-destructive">{passwordError}</p>}
             </div>
             <Button
               type="submit"
@@ -270,17 +277,19 @@ const Signup = () => {
             </Button>
           </form>
 
-          {/* Login link */}
           <p className="text-center text-sm text-muted-foreground mt-6">
             Already have an account?{" "}
-            <Link to="/login" state={location.state} className="text-primary hover:underline font-medium">
+            <Link
+              to={`/login${redirectPath !== "/dashboard" ? `?redirect=${encodeURIComponent(redirectPath)}` : ""}`}
+              state={{ from: { pathname: redirectPath } }}
+              className="text-primary hover:underline font-medium"
+            >
               Sign in
             </Link>
           </p>
         </div>
       </div>
 
-      {/* Email Confirmation Dialog */}
       <Dialog open={showEmailSentDialog} onOpenChange={setShowEmailSentDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -300,7 +309,9 @@ const Signup = () => {
               className="w-full"
               onClick={() => {
                 setShowEmailSentDialog(false);
-                navigate("/login");
+                navigate(`/login${redirectPath !== "/dashboard" ? `?redirect=${encodeURIComponent(redirectPath)}` : ""}`, {
+                  state: { from: { pathname: redirectPath } },
+                });
               }}
             >
               Go to Login
@@ -321,9 +332,7 @@ const Signup = () => {
                 ) : (
                   <RefreshCw className="h-4 w-4 mr-2" />
                 )}
-                {resendCooldown > 0 
-                  ? `Resend in ${resendCooldown}s` 
-                  : "Resend confirmation email"}
+                {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : "Resend confirmation email"}
               </Button>
             </div>
           </div>
