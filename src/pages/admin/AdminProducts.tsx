@@ -39,8 +39,10 @@ const AdminProducts = () => {
   const [form, setForm] = useState(emptyProduct);
   const [uploadingFile, setUploadingFile] = useState(false);
   const [uploadingViewer, setUploadingViewer] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const viewerInputRef = useRef<HTMLInputElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
   const { data: products = [], isLoading } = useAdminProducts();
   const { data: orders = [] } = useAdminOrders();
@@ -85,13 +87,16 @@ const AdminProducts = () => {
     return data.publicUrl;
   };
 
-  const handleFileUpload = async (file: File, type: "download" | "viewer") => {
-    const setter = type === "download" ? setUploadingFile : setUploadingViewer;
+  const handleFileUpload = async (file: File, type: "download" | "viewer" | "image") => {
+    const setter = type === "download" ? setUploadingFile : type === "viewer" ? setUploadingViewer : setUploadingImage;
     setter(true);
-    const url = await uploadFile(file, type === "download" ? "downloads" : "viewers");
+    const folder = type === "download" ? "downloads" : type === "viewer" ? "viewers" : "images";
+    const url = await uploadFile(file, folder);
     if (url) {
-      setForm((prev) => ({ ...prev, [type === "download" ? "download_url" : "viewer_url"]: url }));
-      toast.success(`${type === "download" ? "Product file" : "Viewer file"} uploaded`);
+      const key = type === "download" ? "download_url" : type === "viewer" ? "viewer_url" : "image_url";
+      setForm((prev) => ({ ...prev, [key]: url }));
+      const label = type === "download" ? "Product file" : type === "viewer" ? "Viewer file" : "Product image";
+      toast.success(`${label} uploaded`);
     }
     setter(false);
   };
@@ -104,7 +109,12 @@ const AdminProducts = () => {
       });
     } else {
       createProduct.mutate(payload as any, {
-        onSuccess: () => setDialogOpen(false),
+        onSuccess: (data: any) => {
+          // Auto-open edit dialog so user can add social tasks
+          setEditingProduct(data);
+          setForm({ ...form, ...payload });
+          toast.success("Product created! You can now add social tasks.");
+        },
       });
     }
   };
@@ -279,7 +289,20 @@ const AdminProducts = () => {
               <div><Label>Price (kobo)</Label><Input type="number" value={form.price} onChange={(e) => setForm({ ...form, price: Number(e.target.value) })} /></div>
             </div>
             <div><Label>Creator Name</Label><Input value={form.creator_name} onChange={(e) => setForm({ ...form, creator_name: e.target.value })} /></div>
-            <div><Label>Image URL</Label><Input value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })} /></div>
+            <div>
+              <Label>Product Image</Label>
+              <input type="file" ref={imageInputRef} className="hidden" accept="image/*" onChange={(e) => { if (e.target.files?.[0]) handleFileUpload(e.target.files[0], "image"); }} />
+              <div className="flex items-center gap-2 mt-1">
+                <Button type="button" variant="outline" size="sm" onClick={() => imageInputRef.current?.click()} disabled={uploadingImage}>
+                  {uploadingImage ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Upload className="h-4 w-4 mr-2" />}
+                  {uploadingImage ? "Uploading..." : "Upload Image"}
+                </Button>
+                {form.image_url && <span className="text-xs text-muted-foreground truncate max-w-[200px]">✓ Image uploaded</span>}
+              </div>
+              {form.image_url && (
+                <img src={form.image_url} alt="Preview" className="mt-2 h-20 w-20 rounded-lg object-cover border border-border" />
+              )}
+            </div>
             <div>
               <Label>Product File (for download)</Label>
               <input type="file" ref={fileInputRef} className="hidden" accept=".pdf,.zip,.epub,.doc,.docx" onChange={(e) => { if (e.target.files?.[0]) handleFileUpload(e.target.files[0], "download"); }} />
