@@ -209,40 +209,44 @@ const Products = () => {
 
       {/* Product Detail Dialog */}
       <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
-        <DialogContent className="sm:max-w-md max-h-[85vh] overflow-y-auto">
-          <DialogHeader>
+        <DialogContent className="sm:max-w-md max-h-[85vh] flex flex-col p-0 gap-0">
+          <DialogHeader className="p-6 pb-0">
             <DialogTitle>{selectedProduct?.title}</DialogTitle>
           </DialogHeader>
           {selectedProduct && (
-            <div className="space-y-4 pb-2">
-              <img
-                src={selectedProduct.image_url || "/placeholder.svg"}
-                alt={selectedProduct.title}
-                className="w-full h-48 object-cover rounded-lg"
-              />
-              <p className="text-sm text-muted-foreground">{selectedProduct.description}</p>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">by {selectedProduct.creator_name}</span>
-                <span className="text-lg font-bold text-foreground">
-                  {ownedProductIds.has(selectedProduct.id)
-                    ? "Bought"
-                    : formatPrice(selectedProduct.price, selectedProduct.currency)}
-                </span>
+            <>
+              <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+                <img
+                  src={selectedProduct.image_url || "/placeholder.svg"}
+                  alt={selectedProduct.title}
+                  className="w-full h-48 object-cover rounded-lg"
+                />
+                <p className="text-sm text-muted-foreground whitespace-pre-line">{selectedProduct.description}</p>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">by {selectedProduct.creator_name}</span>
+                  <span className="text-lg font-bold text-foreground">
+                    {ownedProductIds.has(selectedProduct.id)
+                      ? "Bought"
+                      : formatPrice(selectedProduct.price, selectedProduct.currency)}
+                  </span>
+                </div>
               </div>
-              <Button
-                className="w-full"
-                onClick={handleBuyNow}
-                disabled={!ownedProductIds.has(selectedProduct.id) && initPayment.isPending}
-              >
-                {ownedProductIds.has(selectedProduct.id)
-                  ? "View in Dashboard"
-                  : initPayment.isPending
-                  ? "Processing..."
-                  : selectedProduct.price === 0
-                  ? "Get Free"
-                  : `Buy Now — ${formatPrice(selectedProduct.price, selectedProduct.currency)}`}
-              </Button>
-            </div>
+              <div className="p-6 pt-2 border-t border-border">
+                <Button
+                  className="w-full"
+                  onClick={handleBuyNow}
+                  disabled={!ownedProductIds.has(selectedProduct.id) && initPayment.isPending}
+                >
+                  {ownedProductIds.has(selectedProduct.id)
+                    ? "View in Dashboard"
+                    : initPayment.isPending
+                    ? "Processing..."
+                    : selectedProduct.price === 0
+                    ? "Get Free"
+                    : `Buy Now — ${formatPrice(selectedProduct.price, selectedProduct.currency)}`}
+                </Button>
+              </div>
+            </>
           )}
         </DialogContent>
       </Dialog>
