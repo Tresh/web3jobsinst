@@ -106,7 +106,7 @@ const Products = () => {
     }
 
     if (!user) {
-      navigate("/signup", { state: { from: { pathname: "/products" } } });
+      navigate("/login", { state: { from: { pathname: "/products" } } });
       return;
     }
 
