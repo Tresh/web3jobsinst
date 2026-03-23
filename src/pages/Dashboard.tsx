@@ -31,7 +31,9 @@ import OnboardingFlow from "@/components/onboarding/OnboardingFlow";
 import ProfilePhotoReminder from "@/components/ProfilePhotoReminder";
 
 const navItems = [
+  { label: "Home", href: "/", icon: Home, external: true },
   { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
+  { label: "My Library", href: "/dashboard/library", icon: Library },
   { label: "Scholarship", href: "/dashboard/scholarship", icon: GraduationCap },
   { label: "Internship", href: "/dashboard/internship", icon: Briefcase },
   { label: "Messages", href: "/dashboard/messages", icon: MessageSquare },
@@ -40,7 +42,6 @@ const navItems = [
   { label: "LearnFi", href: "/dashboard/learnfi", icon: Zap },
   { label: "My Courses", href: "/dashboard/courses", icon: BookOpen },
   { label: "My Products", href: "/dashboard/products", icon: Package },
-  { label: "My Library", href: "/dashboard/library", icon: Library },
   { label: "Payments", href: "/dashboard/payments", icon: CreditCard },
   { label: "Affiliate Program", href: "/dashboard/affiliate", icon: Share2 },
   { label: "Talent Profile", href: "/dashboard/talent", icon: Users },
