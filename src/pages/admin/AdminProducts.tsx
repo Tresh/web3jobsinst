@@ -72,6 +72,7 @@ const AdminProducts = () => {
       return data || [];
     },
   });
+  const createProduct = useCreateProduct();
   const updateProduct = useUpdateProduct();
   const deleteProduct = useDeleteProduct();
 
