@@ -6,6 +6,7 @@ import { ArrowLeft, Download, Share2, Briefcase, BookOpen, GraduationCap, Gift }
 import { useMyOrders, formatPrice } from "@/hooks/useProducts";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import SocialTasksGate from "@/components/products/SocialTasksGate";
 
 const ProductViewer = () => {
   const { productId } = useParams<{ productId: string }>();
