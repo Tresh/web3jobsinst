@@ -2158,6 +2158,79 @@ export type Database = {
           },
         ]
       }
+      product_social_completions: {
+        Row: {
+          completed_at: string
+          id: string
+          proof_url: string | null
+          task_id: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          id?: string
+          proof_url?: string | null
+          task_id: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          id?: string
+          proof_url?: string | null
+          task_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_social_completions_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "product_social_tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_social_tasks: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          order_index: number
+          platform: string
+          product_id: string
+          target_url: string
+          task_type: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          order_index?: number
+          platform: string
+          product_id: string
+          target_url: string
+          task_type: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          order_index?: number
+          platform?: string
+          product_id?: string
+          target_url?: string
+          task_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_social_tasks_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           allow_download: boolean
