@@ -48,12 +48,25 @@ const SocialTasksGate = ({ productId, children }: SocialTasksGateProps) => {
     return <>{children}</>;
   }
 
-  const handleSubmit = (taskId: string) => {
-    const proofUrl = proofUrls[taskId]?.trim();
-    if (!proofUrl) {
-      toast.error("Please paste your proof link");
+  const isFollowTask = (task: { task_type: string }) => task.task_type === "follow";
+
+  const getProofPlaceholder = (task: { task_type: string }) => {
+    if (isFollowTask(task)) return "Enter your X username (e.g. @username)";
+    return "Paste your proof link here...";
+  };
+
+  const getProofLabel = (task: { task_type: string }) => {
+    if (isFollowTask(task)) return "Your X Username";
+    return "Proof Link";
+  };
+
+  const handleSubmit = (taskId: string, task: { task_type: string }) => {
+    const proofValue = proofUrls[taskId]?.trim();
+    if (!proofValue) {
+      toast.error(isFollowTask(task) ? "Please enter your X username" : "Please paste your proof link");
       return;
     }
+    const proofUrl = isFollowTask(task) ? `x-username:${proofValue.replace(/^@/, "")}` : proofValue;
     completeTask.mutate(
       { taskId, proofUrl },
       {
