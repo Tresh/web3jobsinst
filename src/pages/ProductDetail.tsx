@@ -62,7 +62,7 @@ const ProductDetail = () => {
     if (!product) return;
 
     if (isOwned) {
-      navigate("/dashboard/products");
+      navigate(`/dashboard/library/${id}`);
       return;
     }
 

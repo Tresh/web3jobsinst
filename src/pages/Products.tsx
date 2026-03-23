@@ -101,7 +101,7 @@ const Products = () => {
     // If already purchased, send them to their dashboard downloads
     if (ownedProductIds.has(selectedProduct.id)) {
       setDetailOpen(false);
-      navigate("/dashboard/products");
+      navigate(`/dashboard/library/${selectedProduct.id}`);
       return;
     }
 
