@@ -12,6 +12,7 @@ import Courses from "./pages/Courses";
 import CourseDetailPage from "./pages/courses/CourseDetailPage";
 import LessonPlayerPage from "./pages/courses/LessonPlayerPage";
 import Products from "./pages/Products";
+import ProductDetail from "./pages/ProductDetail";
 import Affiliates from "./pages/Affiliates";
 import TalentMarket from "./pages/TalentMarket";
 import Campaigns from "./pages/Campaigns";
@@ -116,6 +117,7 @@ const App = () => (
             <Route path="/courses/:slug" element={<CourseDetailPage />} />
             <Route path="/learn/:slug/:lessonId" element={<LessonPlayerPage />} />
             <Route path="/products" element={<Products />} />
+            <Route path="/products/:id" element={<ProductDetail />} />
             <Route path="/affiliates" element={<Affiliates />} />
             <Route path="/talent" element={<TalentMarket />} />
             <Route path="/campaigns" element={<Campaigns />} />

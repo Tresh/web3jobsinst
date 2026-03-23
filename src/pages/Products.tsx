@@ -88,13 +88,11 @@ const Products = () => {
   }, [searchQuery, selectedCategory, selectedPriceType, products]);
 
   const handleProductClick = (product: DBProduct) => {
-    setSelectedProduct(product);
     if (product.coming_soon) {
-      // show coming soon
-      setDetailOpen(false);
-    } else {
-      setDetailOpen(true);
+      setSelectedProduct(product);
+      return;
     }
+    navigate(`/products/${product.id}`);
   };
 
   const handleBuyNow = async () => {
