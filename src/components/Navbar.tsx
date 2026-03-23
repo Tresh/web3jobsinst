@@ -126,8 +126,13 @@ const Navbar = () => {
                   {opportunityLinks.map((link) => (
                     link.href ? (
                       <DropdownMenuItem key={link.label} asChild>
-                        <Link to={link.href} className="cursor-pointer">
+                        <Link to={link.href} className="cursor-pointer flex items-center justify-between">
                           {link.label}
+                          {link.badge && (
+                            <span className="text-[10px] px-1.5 py-0.5 bg-primary/10 text-primary rounded ml-2 font-semibold">
+                              {link.badge}
+                            </span>
+                          )}
                         </Link>
                       </DropdownMenuItem>
                     ) : (
