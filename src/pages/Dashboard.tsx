@@ -37,7 +37,7 @@ const navItems = [
   { label: "Scholarship", href: "/dashboard/scholarship", icon: GraduationCap },
   { label: "Internship", href: "/dashboard/internship", icon: Briefcase },
   { label: "Messages", href: "/dashboard/messages", icon: MessageSquare },
-  { label: "Bootcamps", href: "/dashboard/bootcamps", icon: Flame },
+  { label: "Bootcamps", href: "/dashboard/bootcamps", icon: Flame, badge: "Beta" },
   { label: "Campaigns", href: "/dashboard/campaigns", icon: Megaphone },
   { label: "LearnFi", href: "/dashboard/learnfi", icon: Zap },
   { label: "My Courses", href: "/dashboard/courses", icon: BookOpen },
@@ -204,6 +204,11 @@ const Dashboard = () => {
             >
               <item.icon className="w-5 h-5" />
               {item.label}
+              {"badge" in item && item.badge && (
+                <span className="ml-1 px-1.5 py-0.5 text-[10px] font-semibold uppercase rounded bg-primary/10 text-primary">
+                  {item.badge}
+                </span>
+              )}
               {isActive(item.href) && <ChevronRight className="w-4 h-4 ml-auto" />}
             </Link>
           ))}
