@@ -36,6 +36,10 @@ const AdminProducts = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Partial<DBProduct> | null>(null);
   const [form, setForm] = useState(emptyProduct);
+  const [uploadingFile, setUploadingFile] = useState(false);
+  const [uploadingViewer, setUploadingViewer] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const viewerInputRef = useRef<HTMLInputElement>(null);
 
   const { data: products = [], isLoading } = useAdminProducts();
   const { data: orders = [] } = useAdminOrders();
