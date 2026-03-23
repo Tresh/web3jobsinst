@@ -290,6 +290,66 @@ const AdminProducts = () => {
             </Table>
           </div>
         </TabsContent>
+
+        <TabsContent value="buyers" className="space-y-4 mt-4">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <p className="text-sm text-muted-foreground">
+              All users who purchased products. Use this data for product launch announcements.
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const emails = [...new Set(buyersData.map((b: any) => b.email))].join(", ");
+                navigator.clipboard.writeText(emails);
+                toast.success(`${[...new Set(buyersData.map((b: any) => b.email))].length} unique emails copied!`);
+              }}
+            >
+              <Copy className="h-4 w-4 mr-2" />Copy All Emails
+            </Button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="bg-card border border-border rounded-xl p-4">
+              <p className="text-sm text-muted-foreground">Total Buyers</p>
+              <p className="text-2xl font-bold">{[...new Set(buyersData.map((b: any) => b.email))].length}</p>
+            </div>
+            <div className="bg-card border border-border rounded-xl p-4">
+              <p className="text-sm text-muted-foreground">Total Purchases</p>
+              <p className="text-2xl font-bold">{buyersData.length}</p>
+            </div>
+            <div className="bg-card border border-border rounded-xl p-4">
+              <p className="text-sm text-muted-foreground">Downloads Tracked</p>
+              <p className="text-2xl font-bold">{accessLogs.length}</p>
+            </div>
+          </div>
+
+          <div className="bg-card border border-border rounded-xl overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Product</TableHead>
+                  <TableHead>Amount</TableHead>
+                  <TableHead>Date</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {buyersData.map((buyer: any) => (
+                  <TableRow key={buyer.id}>
+                    <TableCell className="font-medium">{buyer.email}</TableCell>
+                    <TableCell className="text-muted-foreground">{buyer.products?.title || "—"}</TableCell>
+                    <TableCell>{formatPrice(buyer.amount, buyer.currency)}</TableCell>
+                    <TableCell className="text-muted-foreground">{new Date(buyer.created_at).toLocaleDateString()}</TableCell>
+                  </TableRow>
+                ))}
+                {buyersData.length === 0 && (
+                  <TableRow><TableCell colSpan={4} className="text-center py-12 text-muted-foreground">No buyers yet</TableCell></TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </TabsContent>
       </Tabs>
 
       {/* Create/Edit Dialog */}
