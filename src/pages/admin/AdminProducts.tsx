@@ -39,8 +39,10 @@ const AdminProducts = () => {
   const [form, setForm] = useState(emptyProduct);
   const [uploadingFile, setUploadingFile] = useState(false);
   const [uploadingViewer, setUploadingViewer] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const viewerInputRef = useRef<HTMLInputElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
   const { data: products = [], isLoading } = useAdminProducts();
   const { data: orders = [] } = useAdminOrders();
