@@ -315,6 +315,9 @@ const AdminProducts = () => {
                 <Label>Allow Download</Label>
               </div>
             </div>
+            {editingProduct?.id && (
+              <SocialTasksManager productId={editingProduct.id} />
+            )}
             <Button className="w-full" onClick={handleSave} disabled={!form.title || createProduct.isPending || updateProduct.isPending}>
               {editingProduct ? "Update" : "Create"} Product
             </Button>
