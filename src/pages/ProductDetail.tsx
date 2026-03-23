@@ -67,7 +67,7 @@ const ProductDetail = () => {
     }
 
     if (!user) {
-      navigate("/signup", { state: { from: { pathname: `/products/${id}` } } });
+      navigate("/login", { state: { from: { pathname: `/products/${id}` } } });
       return;
     }
 

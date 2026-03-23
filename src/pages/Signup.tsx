@@ -74,9 +74,12 @@ const Signup = () => {
     }
   }, [resendCooldown]);
 
+  const location = useLocation();
+  const redirectTo = (location.state as { from?: { pathname: string } })?.from?.pathname || "/dashboard";
+
   // Redirect if already logged in
   if (user) {
-    navigate("/dashboard", { replace: true });
+    navigate(redirectTo, { replace: true });
     return null;
   }
 
