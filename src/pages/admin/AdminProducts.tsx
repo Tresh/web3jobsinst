@@ -24,7 +24,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const emptyProduct = {
   title: "", description: "", category: "tools", price: 0, currency: "NGN",
-  image_url: "", creator_name: "", download_url: "", is_published: false, coming_soon: false,
+  image_url: "", creator_name: "", download_url: "", viewer_url: "",
+  is_published: false, coming_soon: false, allow_download: true,
 };
 
 const AdminProducts = () => {
