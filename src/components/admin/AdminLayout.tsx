@@ -253,9 +253,7 @@ const AdminLayout = () => {
         <SidebarInset className="flex-1 min-w-0">
           {/* Top Header */}
           <header className="sticky top-0 z-10 flex h-14 sm:h-16 items-center justify-between border-b border-border/50 bg-background/80 backdrop-blur-md px-3 sm:px-6">
-            <SidebarTrigger className="mr-2 sm:mr-4">
-              <Menu className="h-5 w-5" />
-            </SidebarTrigger>
+            <SidebarTrigger className="mr-2 sm:mr-4" />
             <div className="flex items-center gap-2 sm:gap-4">
               <NotificationBell />
               <div className="text-right hidden sm:block">
