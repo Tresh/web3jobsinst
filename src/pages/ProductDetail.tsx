@@ -101,7 +101,7 @@ const ProductDetail = () => {
     }
 
     if (!user) {
-      navigate("/login", { state: { from: { pathname: `/products/${id}` } } });
+      navigate("/login", { state: { from: { pathname: `/products/${id}`, search: window.location.search, hash: window.location.hash } } });
       return;
     }
 

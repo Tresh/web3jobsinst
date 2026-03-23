@@ -27,7 +27,7 @@ interface AuthContextType {
   signInWithGoogle: () => Promise<void>;
   signInWithTwitter: () => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<{ error: Error | null }>;
-  signUpWithEmail: (email: string, password: string, fullName?: string, referralCode?: string) => Promise<{ error: Error | null }>;
+  signUpWithEmail: (email: string, password: string, fullName?: string, referralCode?: string, redirectPath?: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   refreshRole: () => Promise<void>;
   refetchProfile: () => Promise<void>;
@@ -214,12 +214,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return { error: error as Error | null };
   };
 
-  const signUpWithEmail = async (email: string, password: string, fullName?: string, referralCode?: string) => {
+  const signUpWithEmail = async (email: string, password: string, fullName?: string, referralCode?: string, redirectPath?: string) => {
+    const safeRedirectPath = redirectPath?.startsWith("/") ? redirectPath : "/dashboard";
+    const emailRedirectTo = `${window.location.origin}/login?redirect=${encodeURIComponent(safeRedirectPath)}`;
+
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: window.location.origin,
+        emailRedirectTo,
         data: {
           full_name: fullName,
           referral_code: referralCode || undefined,
