@@ -24,7 +24,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const emptyProduct = {
   title: "", description: "", category: "tools", price: 0, currency: "NGN",
-  image_url: "", creator_name: "", download_url: "", is_published: false, coming_soon: false,
+  image_url: "", creator_name: "", download_url: "", viewer_url: "",
+  is_published: false, coming_soon: false, allow_download: true,
 };
 
 const AdminProducts = () => {
@@ -58,7 +59,9 @@ const AdminProducts = () => {
       title: p.title, description: p.description || "", category: p.category,
       price: p.price, currency: p.currency, image_url: p.image_url || "",
       creator_name: p.creator_name, download_url: p.download_url || "",
+      viewer_url: (p as any).viewer_url || "",
       is_published: p.is_published, coming_soon: p.coming_soon,
+      allow_download: (p as any).allow_download !== false,
     });
     setDialogOpen(true);
   };
@@ -247,8 +250,9 @@ const AdminProducts = () => {
             </div>
             <div><Label>Creator Name</Label><Input value={form.creator_name} onChange={(e) => setForm({ ...form, creator_name: e.target.value })} /></div>
             <div><Label>Image URL</Label><Input value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })} /></div>
-            <div><Label>Download URL</Label><Input value={form.download_url} onChange={(e) => setForm({ ...form, download_url: e.target.value })} /></div>
-            <div className="flex items-center gap-6">
+            <div><Label>Download URL</Label><Input value={form.download_url} onChange={(e) => setForm({ ...form, download_url: e.target.value })} placeholder="File URL for download" /></div>
+            <div><Label>Viewer URL (for in-platform reading)</Label><Input value={form.viewer_url} onChange={(e) => setForm({ ...form, viewer_url: e.target.value })} placeholder="PDF or content URL for viewer" /></div>
+            <div className="flex items-center gap-6 flex-wrap">
               <div className="flex items-center gap-2">
                 <Switch checked={form.is_published} onCheckedChange={(v) => setForm({ ...form, is_published: v })} />
                 <Label>Published</Label>
@@ -256,6 +260,10 @@ const AdminProducts = () => {
               <div className="flex items-center gap-2">
                 <Switch checked={form.coming_soon} onCheckedChange={(v) => setForm({ ...form, coming_soon: v })} />
                 <Label>Coming Soon</Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <Switch checked={form.allow_download} onCheckedChange={(v) => setForm({ ...form, allow_download: v })} />
+                <Label>Allow Download</Label>
               </div>
             </div>
             <Button className="w-full" onClick={handleSave} disabled={!form.title || createProduct.isPending || updateProduct.isPending}>

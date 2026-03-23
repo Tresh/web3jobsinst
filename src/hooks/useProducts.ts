@@ -14,6 +14,8 @@ export interface DBProduct {
   creator_name: string;
   creator_user_id: string | null;
   download_url: string | null;
+  viewer_url: string | null;
+  allow_download: boolean;
   downloads_count: number;
   is_published: boolean;
   coming_soon: boolean;

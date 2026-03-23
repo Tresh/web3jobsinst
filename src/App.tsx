@@ -52,6 +52,8 @@ import DashboardMessages from "./pages/dashboard/DashboardMessages";
 import DashboardPayments from "./pages/dashboard/DashboardPayments";
 import DashboardCampaigns from "./pages/dashboard/DashboardCampaigns";
 import DashboardAffiliate from "./pages/dashboard/DashboardAffiliate";
+import DashboardLibrary from "./pages/dashboard/DashboardLibrary";
+import ProductViewer from "./pages/dashboard/ProductViewer";
 import ScholarshipModuleDetail from "./pages/dashboard/ScholarshipModuleDetail";
 import Scholarship from "./pages/Scholarship";
 // ScholarshipCelebration removed - no longer needed
@@ -172,6 +174,8 @@ const App = () => (
               <Route path="learnfi" element={<DashboardLearnFi />} />
               <Route path="courses" element={<DashboardCourses />} />
               <Route path="products" element={<DashboardProducts />} />
+              <Route path="library" element={<DashboardLibrary />} />
+              <Route path="library/:productId" element={<ProductViewer />} />
               <Route path="payments" element={<DashboardPayments />} />
               <Route path="affiliate" element={<DashboardAffiliate />} />
               <Route path="campaigns" element={<DashboardCampaigns />} />
