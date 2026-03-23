@@ -279,8 +279,28 @@ const AdminProducts = () => {
             </div>
             <div><Label>Creator Name</Label><Input value={form.creator_name} onChange={(e) => setForm({ ...form, creator_name: e.target.value })} /></div>
             <div><Label>Image URL</Label><Input value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })} /></div>
-            <div><Label>Download URL</Label><Input value={form.download_url} onChange={(e) => setForm({ ...form, download_url: e.target.value })} placeholder="File URL for download" /></div>
-            <div><Label>Viewer URL (for in-platform reading)</Label><Input value={form.viewer_url} onChange={(e) => setForm({ ...form, viewer_url: e.target.value })} placeholder="PDF or content URL for viewer" /></div>
+            <div>
+              <Label>Product File (for download)</Label>
+              <input type="file" ref={fileInputRef} className="hidden" accept=".pdf,.zip,.epub,.doc,.docx" onChange={(e) => { if (e.target.files?.[0]) handleFileUpload(e.target.files[0], "download"); }} />
+              <div className="flex items-center gap-2 mt-1">
+                <Button type="button" variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} disabled={uploadingFile}>
+                  {uploadingFile ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Upload className="h-4 w-4 mr-2" />}
+                  {uploadingFile ? "Uploading..." : "Upload File"}
+                </Button>
+                {form.download_url && <span className="text-xs text-muted-foreground truncate max-w-[200px]">✓ File uploaded</span>}
+              </div>
+            </div>
+            <div>
+              <Label>Viewer File (for in-platform reading)</Label>
+              <input type="file" ref={viewerInputRef} className="hidden" accept=".pdf" onChange={(e) => { if (e.target.files?.[0]) handleFileUpload(e.target.files[0], "viewer"); }} />
+              <div className="flex items-center gap-2 mt-1">
+                <Button type="button" variant="outline" size="sm" onClick={() => viewerInputRef.current?.click()} disabled={uploadingViewer}>
+                  {uploadingViewer ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Upload className="h-4 w-4 mr-2" />}
+                  {uploadingViewer ? "Uploading..." : "Upload Viewer PDF"}
+                </Button>
+                {form.viewer_url && <span className="text-xs text-muted-foreground truncate max-w-[200px]">✓ Viewer uploaded</span>}
+              </div>
+            </div>
             <div className="flex items-center gap-6 flex-wrap">
               <div className="flex items-center gap-2">
                 <Switch checked={form.is_published} onCheckedChange={(v) => setForm({ ...form, is_published: v })} />
