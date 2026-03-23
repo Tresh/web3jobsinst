@@ -67,7 +67,7 @@ const ProductDetail = () => {
     }
 
     if (!user) {
-      toast({ title: "Please log in to purchase", variant: "destructive" });
+      navigate("/signup", { state: { from: { pathname: `/products/${id}` } } });
       return;
     }
 
