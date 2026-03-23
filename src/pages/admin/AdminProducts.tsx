@@ -72,6 +72,29 @@ const AdminProducts = () => {
     setDialogOpen(true);
   };
 
+  const uploadFile = async (file: File, folder: string): Promise<string | null> => {
+    const ext = file.name.split(".").pop();
+    const filePath = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const { error } = await supabase.storage.from("product-files").upload(filePath, file);
+    if (error) {
+      toast.error("Upload failed: " + error.message);
+      return null;
+    }
+    const { data } = supabase.storage.from("product-files").getPublicUrl(filePath);
+    return data.publicUrl;
+  };
+
+  const handleFileUpload = async (file: File, type: "download" | "viewer") => {
+    const setter = type === "download" ? setUploadingFile : setUploadingViewer;
+    setter(true);
+    const url = await uploadFile(file, type === "download" ? "downloads" : "viewers");
+    if (url) {
+      setForm((prev) => ({ ...prev, [type === "download" ? "download_url" : "viewer_url"]: url }));
+      toast.success(`${type === "download" ? "Product file" : "Viewer file"} uploaded`);
+    }
+    setter(false);
+  };
+
   const handleSave = () => {
     const payload = { ...form, price: Number(form.price) };
     if (editingProduct?.id) {
