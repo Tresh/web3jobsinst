@@ -109,7 +109,12 @@ const AdminProducts = () => {
       });
     } else {
       createProduct.mutate(payload as any, {
-        onSuccess: () => setDialogOpen(false),
+        onSuccess: (data: any) => {
+          // Auto-open edit dialog so user can add social tasks
+          setEditingProduct(data);
+          setForm({ ...form, ...payload });
+          toast.success("Product created! You can now add social tasks.");
+        },
       });
     }
   };
