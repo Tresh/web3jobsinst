@@ -147,16 +147,6 @@ const Products = () => {
       />
 
       <main className="pt-[72px]">
-        {/* G6 Launch Announcement */}
-        <section className="section-container py-8 md:py-12">
-          <G6LaunchSection />
-        </section>
-
-        {/* Divider */}
-        <div className="section-container pb-4">
-          <div className="border-t border-border" />
-        </div>
-
         <section className="section-container py-6 md:py-10">
           <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-1 md:mb-2">Digital Products</h1>
           <p className="text-sm md:text-base text-muted-foreground">
@@ -175,7 +165,7 @@ const Products = () => {
           </div>
         </section>
 
-        <section className="section-container pb-20">
+        <section className="section-container pb-12">
           {isLoading ? (
             <div className="text-center py-16 text-muted-foreground">Loading products...</div>
           ) : (
@@ -185,6 +175,11 @@ const Products = () => {
               purchasedProductIds={ownedProductIds}
             />
           )}
+        </section>
+
+        {/* G6 Launch Announcement */}
+        <section className="section-container py-8 md:py-12">
+          <G6LaunchSection />
         </section>
 
         <section className="section-container pb-20">
@@ -214,12 +209,12 @@ const Products = () => {
 
       {/* Product Detail Dialog */}
       <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{selectedProduct?.title}</DialogTitle>
           </DialogHeader>
           {selectedProduct && (
-            <div className="space-y-4">
+            <div className="space-y-4 pb-2">
               <img
                 src={selectedProduct.image_url || "/placeholder.svg"}
                 alt={selectedProduct.title}
