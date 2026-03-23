@@ -1,15 +1,17 @@
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMyOrders, useInitializePayment, useVerifyPayment, formatPrice, type DBProduct } from "@/hooks/useProducts";
+import { useProductSocialTasks, useMyTaskCompletions } from "@/hooks/useProductSocialTasks";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Download, Share2, ShoppingCart } from "lucide-react";
 import PageNavbar from "@/components/PageNavbar";
 import Footer from "@/components/Footer";
+import SocialTasksGate from "@/components/products/SocialTasksGate";
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -20,6 +22,7 @@ const ProductDetail = () => {
   const initPayment = useInitializePayment();
   const verifyPayment = useVerifyPayment();
   const { data: myOrders = [] } = useMyOrders();
+  const [showTasksGate, setShowTasksGate] = useState(false);
 
   const { data: product, isLoading } = useQuery({
     queryKey: ["products", "detail", id],
@@ -37,6 +40,12 @@ const ProductDetail = () => {
   });
 
   const isOwned = myOrders.some((o) => o.product_id === id);
+
+  // Check social tasks for this product
+  const { data: socialTasks = [] } = useProductSocialTasks(id || "");
+  const { data: completions = [] } = useMyTaskCompletions(id || "");
+  const completedTaskIds = new Set(completions.map((c) => c.task_id));
+  const allTasksCompleted = socialTasks.length === 0 || socialTasks.every((t) => completedTaskIds.has(t.id));
 
   // Handle Paystack callback
   useEffect(() => {
@@ -58,6 +67,31 @@ const ProductDetail = () => {
     }
   }, [searchParams]);
 
+  // When tasks are all completed and gate is showing, proceed with acquisition
+  useEffect(() => {
+    if (showTasksGate && allTasksCompleted && user && product && !isOwned) {
+      setShowTasksGate(false);
+      proceedWithAcquisition();
+    }
+  }, [allTasksCompleted, showTasksGate]);
+
+  const proceedWithAcquisition = () => {
+    if (!product) return;
+    const callbackUrl = `${window.location.origin}/products/${id}?reference=`;
+    initPayment.mutate(
+      { productId: product.id, callbackUrl },
+      {
+        onSuccess: (data) => {
+          if (data.free) {
+            toast({ title: "Product acquired!", description: "Check your dashboard for the download." });
+          } else if (data.authorization_url) {
+            window.location.href = data.authorization_url;
+          }
+        },
+      }
+    );
+  };
+
   const handleBuyNow = async () => {
     if (!product) return;
 
@@ -71,20 +105,13 @@ const ProductDetail = () => {
       return;
     }
 
-    const callbackUrl = `${window.location.origin}/products/${id}?reference=`;
+    // If there are incomplete social tasks, show the gate first
+    if (!allTasksCompleted) {
+      setShowTasksGate(true);
+      return;
+    }
 
-    initPayment.mutate(
-      { productId: product.id, callbackUrl },
-      {
-        onSuccess: (data) => {
-          if (data.free) {
-            toast({ title: "Product acquired!", description: "Check your dashboard for the download." });
-          } else if (data.authorization_url) {
-            window.location.href = data.authorization_url;
-          }
-        },
-      }
-    );
+    proceedWithAcquisition();
   };
 
   const handleShare = async () => {
@@ -120,6 +147,29 @@ const ProductDetail = () => {
             <ArrowLeft className="w-4 h-4 mr-2" /> Back to Products
           </Button>
         </div>
+      </div>
+    );
+  }
+
+  // Show social tasks gate fullscreen-style
+  if (showTasksGate && !allTasksCompleted) {
+    return (
+      <div className="min-h-screen">
+        <PageNavbar />
+        <main className="pt-[72px]">
+          <section className="section-container py-6">
+            <Button variant="ghost" size="sm" onClick={() => setShowTasksGate(false)} className="mb-4">
+              <ArrowLeft className="w-4 h-4 mr-2" /> Back to Product
+            </Button>
+            <SocialTasksGate productId={id!}>
+              {/* This renders once all tasks are complete — the useEffect above handles acquisition */}
+              <div className="text-center py-8">
+                <p className="text-muted-foreground">All tasks completed! Processing your product...</p>
+              </div>
+            </SocialTasksGate>
+          </section>
+        </main>
+        <Footer />
       </div>
     );
   }
