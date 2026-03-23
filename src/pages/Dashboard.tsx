@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfilePhotoUpload } from "@/hooks/useProfilePhotoUpload";
+import { Library } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard,
