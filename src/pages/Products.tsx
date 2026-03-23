@@ -209,12 +209,12 @@ const Products = () => {
 
       {/* Product Detail Dialog */}
       <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{selectedProduct?.title}</DialogTitle>
           </DialogHeader>
           {selectedProduct && (
-            <div className="space-y-4">
+            <div className="space-y-4 pb-2">
               <img
                 src={selectedProduct.image_url || "/placeholder.svg"}
                 alt={selectedProduct.title}
