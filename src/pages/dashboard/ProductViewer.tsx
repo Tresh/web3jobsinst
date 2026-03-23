@@ -93,6 +93,7 @@ const ProductViewer = () => {
       });
     }
     window.open(product.download_url, "_blank");
+    setShowThankYou(true);
   };
 
   // Fullscreen reader mode (Wattpad-like)
