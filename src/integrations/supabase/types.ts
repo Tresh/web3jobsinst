@@ -2076,6 +2076,38 @@ export type Database = {
         }
         Relationships: []
       }
+      product_access_logs: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          product_id: string
+          user_id: string
+        }
+        Insert: {
+          action?: string
+          created_at?: string
+          id?: string
+          product_id: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          product_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_access_logs_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_orders: {
         Row: {
           amount: number
@@ -2128,6 +2160,7 @@ export type Database = {
       }
       products: {
         Row: {
+          allow_download: boolean
           category: string
           coming_soon: boolean
           created_at: string
@@ -2143,8 +2176,10 @@ export type Database = {
           price: number
           title: string
           updated_at: string
+          viewer_url: string | null
         }
         Insert: {
+          allow_download?: boolean
           category?: string
           coming_soon?: boolean
           created_at?: string
@@ -2160,8 +2195,10 @@ export type Database = {
           price?: number
           title: string
           updated_at?: string
+          viewer_url?: string | null
         }
         Update: {
+          allow_download?: boolean
           category?: string
           coming_soon?: boolean
           created_at?: string
@@ -2177,6 +2214,7 @@ export type Database = {
           price?: number
           title?: string
           updated_at?: string
+          viewer_url?: string | null
         }
         Relationships: []
       }
