@@ -153,8 +153,13 @@ const UnifiedNavbar = ({
                 <DropdownMenuContent align="center" className="bg-background border border-border">
                   {marketLinks.map((link) => (
                     <DropdownMenuItem key={link.label} asChild>
-                      <Link to={link.href!} className="cursor-pointer">
+                      <Link to={link.href!} className="cursor-pointer flex items-center justify-between">
                         {link.label}
+                        {link.badge && (
+                          <span className="text-[10px] px-1.5 py-0.5 bg-primary/10 text-primary rounded ml-2 font-semibold">
+                            {link.badge}
+                          </span>
+                        )}
                       </Link>
                     </DropdownMenuItem>
                   ))}
