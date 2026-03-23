@@ -19,6 +19,7 @@ const platformIcons: Record<string, string> = {
   tiktok: "♪",
   instagram: "📷",
   telegram: "✈",
+  comment: "💬",
 };
 
 interface SocialTasksGateProps {
