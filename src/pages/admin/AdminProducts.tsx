@@ -23,6 +23,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import SocialTasksManager from "@/components/admin/products/SocialTasksManager";
 
 const emptyProduct = {
   title: "", description: "", category: "tools", price: 0, currency: "NGN",
@@ -315,6 +316,9 @@ const AdminProducts = () => {
                 <Label>Allow Download</Label>
               </div>
             </div>
+            {editingProduct?.id && (
+              <SocialTasksManager productId={editingProduct.id} />
+            )}
             <Button className="w-full" onClick={handleSave} disabled={!form.title || createProduct.isPending || updateProduct.isPending}>
               {editingProduct ? "Update" : "Create"} Product
             </Button>

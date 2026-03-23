@@ -6,6 +6,7 @@ import { ArrowLeft, Download, Share2, Briefcase, BookOpen, GraduationCap, Gift }
 import { useMyOrders, formatPrice } from "@/hooks/useProducts";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import SocialTasksGate from "@/components/products/SocialTasksGate";
 
 const ProductViewer = () => {
   const { productId } = useParams<{ productId: string }>();
@@ -72,6 +73,7 @@ const ProductViewer = () => {
   };
 
   return (
+    <SocialTasksGate productId={productId!}>
     <div className="p-4 lg:p-8 max-w-7xl mx-auto">
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
@@ -183,6 +185,7 @@ const ProductViewer = () => {
         </div>
       </div>
     </div>
+    </SocialTasksGate>
   );
 };
 
