@@ -12,6 +12,7 @@ import Courses from "./pages/Courses";
 import CourseDetailPage from "./pages/courses/CourseDetailPage";
 import LessonPlayerPage from "./pages/courses/LessonPlayerPage";
 import Products from "./pages/Products";
+import ProductDetail from "./pages/ProductDetail";
 import Affiliates from "./pages/Affiliates";
 import TalentMarket from "./pages/TalentMarket";
 import Campaigns from "./pages/Campaigns";
