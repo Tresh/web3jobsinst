@@ -282,6 +282,51 @@ const ProductViewer = () => {
             </div>
           </div>
         </div>
+
+        {/* Thank You Dialog */}
+        <Dialog open={showThankYou} onOpenChange={setShowThankYou}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-xl">
+                <Rocket className="w-5 h-5 text-primary" />
+                Thanks for downloading!
+              </DialogTitle>
+            </DialogHeader>
+            <p className="text-sm text-muted-foreground">
+              Your download of <span className="font-medium text-foreground">{product.title}</span> has started. While you're here, check out more of what we offer:
+            </p>
+            <div className="grid gap-2 mt-2">
+              <Button variant="outline" className="justify-start h-auto py-3" onClick={() => { setShowThankYou(false); navigate("/courses"); }}>
+                <GraduationCap className="w-4 h-4 mr-3 text-primary" />
+                <div className="text-left">
+                  <p className="text-sm font-medium">Explore Courses</p>
+                  <p className="text-xs text-muted-foreground">Learn new skills for free</p>
+                </div>
+              </Button>
+              <Button variant="outline" className="justify-start h-auto py-3" onClick={() => { setShowThankYou(false); navigate("/dashboard/internship"); }}>
+                <Briefcase className="w-4 h-4 mr-3 text-primary" />
+                <div className="text-left">
+                  <p className="text-sm font-medium">Apply for Internship</p>
+                  <p className="text-xs text-muted-foreground">Gain real-world experience</p>
+                </div>
+              </Button>
+              <Button variant="outline" className="justify-start h-auto py-3" onClick={() => { setShowThankYou(false); navigate("/dashboard/affiliate"); }}>
+                <Share2 className="w-4 h-4 mr-3 text-primary" />
+                <div className="text-left">
+                  <p className="text-sm font-medium">Become an Affiliate</p>
+                  <p className="text-xs text-muted-foreground">Earn commissions by sharing</p>
+                </div>
+              </Button>
+              <Button variant="outline" className="justify-start h-auto py-3" onClick={() => { setShowThankYou(false); navigate("/products"); }}>
+                <Gift className="w-4 h-4 mr-3 text-primary" />
+                <div className="text-left">
+                  <p className="text-sm font-medium">Browse More Products</p>
+                  <p className="text-xs text-muted-foreground">Discover more digital resources</p>
+                </div>
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </SocialTasksGate>
   );
