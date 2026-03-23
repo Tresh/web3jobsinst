@@ -24,6 +24,7 @@ interface NavLink {
   label: string;
   href?: string;
   comingSoon?: string;
+  badge?: string;
 }
 
 const mainLinks: NavLink[] = [
@@ -33,14 +34,14 @@ const mainLinks: NavLink[] = [
 ];
 
 const marketLinks: NavLink[] = [
-  { label: "Talent Market", href: "/talent" },
-  { label: "Internships", href: "/internships" },
+  { label: "Talent Market", href: "/talent", badge: "Beta" },
+  { label: "Internships", href: "/internships", badge: "Beta" },
 ];
 
 const opportunityLinks: NavLink[] = [
-  { label: "LearnFi", href: "/learnfi" },
+  { label: "LearnFi", href: "/learnfi", badge: "Beta" },
   { label: "Become a Tutor", href: "/tutors" },
-  { label: "Verified Institutions", href: "/institutions" },
+  { label: "Verified Institutions", href: "/institutions", badge: "Beta" },
   { label: "Affiliates", comingSoon: "Affiliates Coming Soon" },
   { label: "Jobs", comingSoon: "Jobs Board Coming Soon" },
 ];
@@ -102,8 +103,13 @@ const Navbar = () => {
                 <DropdownMenuContent align="center" className="bg-background border border-border">
                   {marketLinks.map((link) => (
                     <DropdownMenuItem key={link.label} asChild>
-                      <Link to={link.href!} className="cursor-pointer">
+                      <Link to={link.href!} className="cursor-pointer flex items-center justify-between">
                         {link.label}
+                        {link.badge && (
+                          <span className="text-[10px] px-1.5 py-0.5 bg-primary/10 text-primary rounded ml-2 font-semibold">
+                            {link.badge}
+                          </span>
+                        )}
                       </Link>
                     </DropdownMenuItem>
                   ))}
@@ -120,8 +126,13 @@ const Navbar = () => {
                   {opportunityLinks.map((link) => (
                     link.href ? (
                       <DropdownMenuItem key={link.label} asChild>
-                        <Link to={link.href} className="cursor-pointer">
+                        <Link to={link.href} className="cursor-pointer flex items-center justify-between">
                           {link.label}
+                          {link.badge && (
+                            <span className="text-[10px] px-1.5 py-0.5 bg-primary/10 text-primary rounded ml-2 font-semibold">
+                              {link.badge}
+                            </span>
+                          )}
                         </Link>
                       </DropdownMenuItem>
                     ) : (
@@ -191,10 +202,15 @@ const Navbar = () => {
                         <Link
                           key={link.label}
                           to={link.href!}
-                          className="py-3 px-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-lg transition-colors duration-150"
+                          className="py-3 px-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-lg transition-colors duration-150 flex items-center justify-between"
                           onClick={() => setIsMobileMenuOpen(false)}
                         >
                           {link.label}
+                          {link.badge && (
+                            <span className="text-[10px] px-1.5 py-0.5 bg-primary/10 text-primary rounded font-semibold">
+                              {link.badge}
+                            </span>
+                          )}
                         </Link>
                       ))}
 
@@ -206,10 +222,15 @@ const Navbar = () => {
                           <Link
                             key={link.label}
                             to={link.href}
-                            className="py-3 px-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-lg transition-colors duration-150"
+                            className="py-3 px-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-lg transition-colors duration-150 flex items-center justify-between"
                             onClick={() => setIsMobileMenuOpen(false)}
                           >
                             {link.label}
+                            {link.badge && (
+                              <span className="text-[10px] px-1.5 py-0.5 bg-primary/10 text-primary rounded font-semibold">
+                                {link.badge}
+                              </span>
+                            )}
                           </Link>
                         ) : (
                           <button
