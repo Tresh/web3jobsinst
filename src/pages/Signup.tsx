@@ -41,13 +41,16 @@ const Signup = () => {
     const statePath = (location.state as { from?: { pathname?: string; search?: string; hash?: string } } | null)?.from;
     const queryPath = searchParams.get("redirect");
     const storedPath = sessionStorage.getItem(AUTH_REDIRECT_KEY);
+    const metadataPath = typeof user?.user_metadata?.redirect_path === "string"
+      ? user.user_metadata.redirect_path
+      : null;
     const combinedStatePath = statePath?.pathname
       ? `${statePath.pathname}${statePath.search || ""}${statePath.hash || ""}`
       : null;
 
-    const candidate = combinedStatePath || queryPath || storedPath || "/dashboard";
+    const candidate = combinedStatePath || queryPath || storedPath || metadataPath || "/dashboard";
     return candidate.startsWith("/") ? candidate : "/dashboard";
-  }, [location.state, searchParams]);
+  }, [location.state, searchParams, user?.user_metadata?.redirect_path]);
 
   useEffect(() => {
     sessionStorage.setItem(AUTH_REDIRECT_KEY, redirectPath);
@@ -88,9 +91,26 @@ const Signup = () => {
     }
   }, [resendCooldown]);
 
-  if (user) {
+  useEffect(() => {
+    if (!user) return;
+
+    const metadataPath = typeof user.user_metadata?.redirect_path === "string"
+      ? user.user_metadata.redirect_path
+      : null;
+
     sessionStorage.removeItem(AUTH_REDIRECT_KEY);
+    if (metadataPath) {
+      void supabase.auth.updateUser({
+        data: {
+          ...user.user_metadata,
+          redirect_path: null,
+        },
+      });
+    }
     navigate(redirectPath, { replace: true });
+  }, [navigate, redirectPath, user]);
+
+  if (user) {
     return null;
   }
 
@@ -102,6 +122,9 @@ const Signup = () => {
       const { error } = await supabase.auth.resend({
         type: "signup",
         email: submittedEmail,
+        options: {
+          emailRedirectTo: `${window.location.origin}/login?redirect=${encodeURIComponent(redirectPath)}`,
+        },
       });
 
       if (error) {
