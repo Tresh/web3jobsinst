@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -14,7 +14,7 @@ import { Switch } from "@/components/ui/switch";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Search, Plus, Edit, Trash2, Package, Filter, Eye, EyeOff, Upload, Loader2 } from "lucide-react";
+import { Search, Plus, Edit, Trash2, Package, Filter, Eye, EyeOff, Upload, Loader2, Users, Download, Copy } from "lucide-react";
 import { productCategories, productCategoryLabels } from "@/data/productsData";
 import {
   useAdminProducts, useCreateProduct, useUpdateProduct, useDeleteProduct, useAdminOrders,
@@ -24,6 +24,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import SocialTasksManager from "@/components/admin/products/SocialTasksManager";
+import { useQuery } from "@tanstack/react-query";
 
 const emptyProduct = {
   title: "", description: "", category: "tools", price: 0, currency: "NGN",
@@ -46,6 +47,31 @@ const AdminProducts = () => {
 
   const { data: products = [], isLoading } = useAdminProducts();
   const { data: orders = [] } = useAdminOrders();
+  const { data: buyersData = [] } = useQuery({
+    queryKey: ["product-buyers", "admin"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("product_orders")
+        .select("id, user_id, product_id, email, amount, currency, status, created_at, products(id, title)")
+        .eq("status", "success")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data || [];
+    },
+  });
+  const { data: accessLogs = [] } = useQuery({
+    queryKey: ["product-access-logs", "admin"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("product_access_logs")
+        .select("*")
+        .eq("action", "download")
+        .order("created_at", { ascending: false })
+        .limit(500);
+      if (error) throw error;
+      return data || [];
+    },
+  });
   const createProduct = useCreateProduct();
   const updateProduct = useUpdateProduct();
   const deleteProduct = useDeleteProduct();
@@ -140,6 +166,7 @@ const AdminProducts = () => {
         <TabsList>
           <TabsTrigger value="products">Products ({products.length})</TabsTrigger>
           <TabsTrigger value="orders">Orders ({orders.length})</TabsTrigger>
+          <TabsTrigger value="buyers">Buyers ({buyersData.length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="products" className="space-y-4 mt-4">
@@ -258,6 +285,66 @@ const AdminProducts = () => {
                 ))}
                 {orders.length === 0 && (
                   <TableRow><TableCell colSpan={5} className="text-center py-12 text-muted-foreground">No orders yet</TableCell></TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="buyers" className="space-y-4 mt-4">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <p className="text-sm text-muted-foreground">
+              All users who purchased products. Use this data for product launch announcements.
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const emails = [...new Set(buyersData.map((b: any) => b.email))].join(", ");
+                navigator.clipboard.writeText(emails);
+                toast.success(`${[...new Set(buyersData.map((b: any) => b.email))].length} unique emails copied!`);
+              }}
+            >
+              <Copy className="h-4 w-4 mr-2" />Copy All Emails
+            </Button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="bg-card border border-border rounded-xl p-4">
+              <p className="text-sm text-muted-foreground">Total Buyers</p>
+              <p className="text-2xl font-bold">{[...new Set(buyersData.map((b: any) => b.email))].length}</p>
+            </div>
+            <div className="bg-card border border-border rounded-xl p-4">
+              <p className="text-sm text-muted-foreground">Total Purchases</p>
+              <p className="text-2xl font-bold">{buyersData.length}</p>
+            </div>
+            <div className="bg-card border border-border rounded-xl p-4">
+              <p className="text-sm text-muted-foreground">Downloads Tracked</p>
+              <p className="text-2xl font-bold">{accessLogs.length}</p>
+            </div>
+          </div>
+
+          <div className="bg-card border border-border rounded-xl overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Product</TableHead>
+                  <TableHead>Amount</TableHead>
+                  <TableHead>Date</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {buyersData.map((buyer: any) => (
+                  <TableRow key={buyer.id}>
+                    <TableCell className="font-medium">{buyer.email}</TableCell>
+                    <TableCell className="text-muted-foreground">{buyer.products?.title || "—"}</TableCell>
+                    <TableCell>{formatPrice(buyer.amount, buyer.currency)}</TableCell>
+                    <TableCell className="text-muted-foreground">{new Date(buyer.created_at).toLocaleDateString()}</TableCell>
+                  </TableRow>
+                ))}
+                {buyersData.length === 0 && (
+                  <TableRow><TableCell colSpan={4} className="text-center py-12 text-muted-foreground">No buyers yet</TableCell></TableRow>
                 )}
               </TableBody>
             </Table>

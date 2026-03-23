@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfilePhotoUpload } from "@/hooks/useProfilePhotoUpload";
+import { Library } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard,
@@ -39,7 +40,7 @@ const navItems = [
   { label: "LearnFi", href: "/dashboard/learnfi", icon: Zap },
   { label: "My Courses", href: "/dashboard/courses", icon: BookOpen },
   { label: "My Products", href: "/dashboard/products", icon: Package },
-  { label: "My Library", href: "/dashboard/library", icon: BookOpen },
+  { label: "My Library", href: "/dashboard/library", icon: Library },
   { label: "Payments", href: "/dashboard/payments", icon: CreditCard },
   { label: "Affiliate Program", href: "/dashboard/affiliate", icon: Share2 },
   { label: "Talent Profile", href: "/dashboard/talent", icon: Users },
