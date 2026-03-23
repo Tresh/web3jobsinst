@@ -148,7 +148,7 @@ const ProductDetail = () => {
               <div className="flex flex-wrap items-center gap-2">
                 <Badge variant="secondary" className="uppercase text-xs">{product.category}</Badge>
                 {product.coming_soon && <Badge variant="outline">Coming Soon</Badge>}
-                {isOwned && <Badge className="bg-green-600 text-white">Purchased</Badge>}
+                {isOwned && <Badge className="bg-primary text-primary-foreground">Purchased</Badge>}
               </div>
 
               <h1 className="text-2xl md:text-3xl font-bold text-foreground">{product.title}</h1>
