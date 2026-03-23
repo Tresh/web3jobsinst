@@ -185,6 +185,7 @@ const ProductViewer = () => {
         </div>
       </div>
     </div>
+    </SocialTasksGate>
   );
 };
 
