@@ -226,6 +226,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         data: {
           full_name: fullName,
           referral_code: referralCode || undefined,
+          redirect_path: safeRedirectPath,
         },
       },
     });

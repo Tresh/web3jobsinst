@@ -312,7 +312,7 @@ const Signup = () => {
           </p>
         </div>
       </div>
-
+ 
       <Dialog open={showEmailSentDialog} onOpenChange={setShowEmailSentDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
