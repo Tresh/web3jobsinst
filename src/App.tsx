@@ -174,6 +174,8 @@ const App = () => (
               <Route path="learnfi" element={<DashboardLearnFi />} />
               <Route path="courses" element={<DashboardCourses />} />
               <Route path="products" element={<DashboardProducts />} />
+              <Route path="library" element={<DashboardLibrary />} />
+              <Route path="library/:productId" element={<ProductViewer />} />
               <Route path="payments" element={<DashboardPayments />} />
               <Route path="affiliate" element={<DashboardAffiliate />} />
               <Route path="campaigns" element={<DashboardCampaigns />} />
