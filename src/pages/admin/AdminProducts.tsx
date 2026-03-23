@@ -59,7 +59,9 @@ const AdminProducts = () => {
       title: p.title, description: p.description || "", category: p.category,
       price: p.price, currency: p.currency, image_url: p.image_url || "",
       creator_name: p.creator_name, download_url: p.download_url || "",
+      viewer_url: (p as any).viewer_url || "",
       is_published: p.is_published, coming_soon: p.coming_soon,
+      allow_download: (p as any).allow_download !== false,
     });
     setDialogOpen(true);
   };
