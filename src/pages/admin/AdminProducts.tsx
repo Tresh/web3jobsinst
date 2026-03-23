@@ -87,13 +87,16 @@ const AdminProducts = () => {
     return data.publicUrl;
   };
 
-  const handleFileUpload = async (file: File, type: "download" | "viewer") => {
-    const setter = type === "download" ? setUploadingFile : setUploadingViewer;
+  const handleFileUpload = async (file: File, type: "download" | "viewer" | "image") => {
+    const setter = type === "download" ? setUploadingFile : type === "viewer" ? setUploadingViewer : setUploadingImage;
     setter(true);
-    const url = await uploadFile(file, type === "download" ? "downloads" : "viewers");
+    const folder = type === "download" ? "downloads" : type === "viewer" ? "viewers" : "images";
+    const url = await uploadFile(file, folder);
     if (url) {
-      setForm((prev) => ({ ...prev, [type === "download" ? "download_url" : "viewer_url"]: url }));
-      toast.success(`${type === "download" ? "Product file" : "Viewer file"} uploaded`);
+      const key = type === "download" ? "download_url" : type === "viewer" ? "viewer_url" : "image_url";
+      setForm((prev) => ({ ...prev, [key]: url }));
+      const label = type === "download" ? "Product file" : type === "viewer" ? "Viewer file" : "Product image";
+      toast.success(`${label} uploaded`);
     }
     setter(false);
   };
