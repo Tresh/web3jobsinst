@@ -19,6 +19,7 @@ const ProductViewer = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showThankYou, setShowThankYou] = useState(false);
 
   const matchingOrder = useMemo(
     () => orders.find((o) => o.product_id === productId),
