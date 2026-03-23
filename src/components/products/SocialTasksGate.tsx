@@ -48,12 +48,25 @@ const SocialTasksGate = ({ productId, children }: SocialTasksGateProps) => {
     return <>{children}</>;
   }
 
-  const handleSubmit = (taskId: string) => {
-    const proofUrl = proofUrls[taskId]?.trim();
-    if (!proofUrl) {
-      toast.error("Please paste your proof link");
+  const isFollowTask = (task: { task_type: string }) => task.task_type === "follow";
+
+  const getProofPlaceholder = (task: { task_type: string }) => {
+    if (isFollowTask(task)) return "Enter your X username (e.g. @username)";
+    return "Paste your proof link here...";
+  };
+
+  const getProofLabel = (task: { task_type: string }) => {
+    if (isFollowTask(task)) return "Your X Username";
+    return "Proof Link";
+  };
+
+  const handleSubmit = (taskId: string, task: { task_type: string }) => {
+    const proofValue = proofUrls[taskId]?.trim();
+    if (!proofValue) {
+      toast.error(isFollowTask(task) ? "Please enter your X username" : "Please paste your proof link");
       return;
     }
+    const proofUrl = isFollowTask(task) ? `x-username:${proofValue.replace(/^@/, "")}` : proofValue;
     completeTask.mutate(
       { taskId, proofUrl },
       {
@@ -112,26 +125,29 @@ const SocialTasksGate = ({ productId, children }: SocialTasksGateProps) => {
                         >
                           Open task <ExternalLink className="w-3 h-3" />
                         </a>
-                        <div className="flex gap-2">
-                          <Input
-                            placeholder="Paste your proof link here..."
-                            value={proofUrls[task.id] || ""}
-                            onChange={(e) =>
-                              setProofUrls((prev) => ({ ...prev, [task.id]: e.target.value }))
-                            }
-                            className="flex-1"
-                          />
-                          <Button
-                            size="sm"
-                            onClick={() => handleSubmit(task.id)}
-                            disabled={completeTask.isPending}
-                          >
-                            {completeTask.isPending ? (
-                              <Loader2 className="w-4 h-4 animate-spin" />
-                            ) : (
-                              "Submit"
-                            )}
-                          </Button>
+                        <div className="space-y-1">
+                          <label className="text-xs font-medium text-muted-foreground">{getProofLabel(task)}</label>
+                          <div className="flex gap-2">
+                            <Input
+                              placeholder={getProofPlaceholder(task)}
+                              value={proofUrls[task.id] || ""}
+                              onChange={(e) =>
+                                setProofUrls((prev) => ({ ...prev, [task.id]: e.target.value }))
+                              }
+                              className="flex-1"
+                            />
+                            <Button
+                              size="sm"
+                              onClick={() => handleSubmit(task.id, task)}
+                              disabled={completeTask.isPending}
+                            >
+                              {completeTask.isPending ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                "Submit"
+                              )}
+                            </Button>
+                          </div>
                         </div>
                       </>
                     )}
