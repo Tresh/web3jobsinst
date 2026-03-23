@@ -1,11 +1,17 @@
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Download, Share2, Briefcase, GraduationCap, Gift, FileText, Maximize2, Minimize2, ChevronLeft, BookOpen } from "lucide-react";
+import { ArrowLeft, Download, Share2, Briefcase, GraduationCap, Gift, FileText, Maximize2, Minimize2, ChevronLeft, BookOpen, Rocket, X } from "lucide-react";
 import { useMyOrders } from "@/hooks/useProducts";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import SocialTasksGate from "@/components/products/SocialTasksGate";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const ProductViewer = () => {
   const { productId } = useParams<{ productId: string }>();
@@ -13,6 +19,7 @@ const ProductViewer = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showThankYou, setShowThankYou] = useState(false);
 
   const matchingOrder = useMemo(
     () => orders.find((o) => o.product_id === productId),
@@ -86,6 +93,7 @@ const ProductViewer = () => {
       });
     }
     window.open(product.download_url, "_blank");
+    setShowThankYou(true);
   };
 
   // Fullscreen reader mode (Wattpad-like)
@@ -274,6 +282,51 @@ const ProductViewer = () => {
             </div>
           </div>
         </div>
+
+        {/* Thank You Dialog */}
+        <Dialog open={showThankYou} onOpenChange={setShowThankYou}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-xl">
+                <Rocket className="w-5 h-5 text-primary" />
+                Thanks for downloading!
+              </DialogTitle>
+            </DialogHeader>
+            <p className="text-sm text-muted-foreground">
+              Your download of <span className="font-medium text-foreground">{product.title}</span> has started. While you're here, check out more of what we offer:
+            </p>
+            <div className="grid gap-2 mt-2">
+              <Button variant="outline" className="justify-start h-auto py-3" onClick={() => { setShowThankYou(false); navigate("/courses"); }}>
+                <GraduationCap className="w-4 h-4 mr-3 text-primary" />
+                <div className="text-left">
+                  <p className="text-sm font-medium">Explore Courses</p>
+                  <p className="text-xs text-muted-foreground">Learn new skills for free</p>
+                </div>
+              </Button>
+              <Button variant="outline" className="justify-start h-auto py-3" onClick={() => { setShowThankYou(false); navigate("/dashboard/internship"); }}>
+                <Briefcase className="w-4 h-4 mr-3 text-primary" />
+                <div className="text-left">
+                  <p className="text-sm font-medium">Apply for Internship</p>
+                  <p className="text-xs text-muted-foreground">Gain real-world experience</p>
+                </div>
+              </Button>
+              <Button variant="outline" className="justify-start h-auto py-3" onClick={() => { setShowThankYou(false); navigate("/dashboard/affiliate"); }}>
+                <Share2 className="w-4 h-4 mr-3 text-primary" />
+                <div className="text-left">
+                  <p className="text-sm font-medium">Become an Affiliate</p>
+                  <p className="text-xs text-muted-foreground">Earn commissions by sharing</p>
+                </div>
+              </Button>
+              <Button variant="outline" className="justify-start h-auto py-3" onClick={() => { setShowThankYou(false); navigate("/products"); }}>
+                <Gift className="w-4 h-4 mr-3 text-primary" />
+                <div className="text-left">
+                  <p className="text-sm font-medium">Browse More Products</p>
+                  <p className="text-xs text-muted-foreground">Discover more digital resources</p>
+                </div>
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </SocialTasksGate>
   );

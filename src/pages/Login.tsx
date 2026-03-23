@@ -199,7 +199,7 @@ const Login = () => {
             </Link>
             <p>
               Don't have an account?{" "}
-              <Link to="/signup" className="text-primary hover:underline font-medium">
+              <Link to="/signup" state={location.state} className="text-primary hover:underline font-medium">
                 Sign up
               </Link>
             </p>
